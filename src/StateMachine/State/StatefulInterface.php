@@ -1,9 +1,9 @@
 <?php
 
 
-namespace StateMachine\Lib\State;
+namespace StateMachine\State;
 
-use StateMachine\Lib\StateMachine\StateMachineInterface;
+use StateMachine\StateMachine\StateMachineInterface;
 
 interface StatefulInterface
 {

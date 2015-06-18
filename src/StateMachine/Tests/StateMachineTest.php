@@ -1,10 +1,10 @@
 <?php
-namespace StateMachine\Lib\Tests;
+namespace StateMachine\Tests;
 
-use StateMachine\Lib\Accessor\StateAccessor;
-use StateMachine\Lib\State\StateInterface;
-use StateMachine\Lib\StateMachine\StateMachine;
-use StateMachine\Lib\Tests\Entity\Order;
+use StateMachine\Accessor\StateAccessor;
+use StateMachine\State\StateInterface;
+use StateMachine\StateMachine\StateMachine;
+use StateMachine\Tests\Entity\Order;
 
 class StateMachineTest extends \PHPUnit_Framework_TestCase
 {
@@ -24,7 +24,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
     public function testNotAllowedTransition()
     {
         $this->setExpectedException(
-            'StateMachine\Lib\Exception\StateMachineException',
+            'StateMachine\Exception\StateMachineException',
             "There's no transition defined from (pending) to (shipped), allowed transitions to : [ checking_out,cancelled ]"
         );
 
@@ -34,7 +34,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
 
     private function getStateMachine()
     {
-        $class = "StateMachine\Lib\Tests\Entity\Order";
+        $class = "StateMachine\Tests\Entity\Order";
         $object = new Order();
 
         $accessor = new StateAccessor('state');

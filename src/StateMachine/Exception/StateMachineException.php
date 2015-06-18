@@ -1,5 +1,5 @@
 <?php
-namespace StateMachine\Lib\Exception;
+namespace StateMachine\Exception;
 
 class StateMachineException extends \Exception
 {

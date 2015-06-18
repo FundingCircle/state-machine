@@ -1,7 +1,7 @@
 <?php
-namespace StateMachine\Lib\Traits;
+namespace StateMachine\Traits;
 
-use StateMachine\Lib\StateMachine\StateMachineInterface;
+use StateMachine\StateMachine\StateMachineInterface;
 
 trait StatefulTrait
 {

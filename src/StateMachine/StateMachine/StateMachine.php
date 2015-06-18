@@ -1,14 +1,14 @@
 <?php
-namespace StateMachine\Lib\StateMachine;
+namespace StateMachine\StateMachine;
 
-use StateMachine\Lib\Accessor\StateAccessor;
-use StateMachine\Lib\Accessor\StateAccessorInterface;
-use StateMachine\Lib\Exception\StateMachineException;
-use StateMachine\Lib\State\State;
-use StateMachine\Lib\State\StatefulInterface;
-use StateMachine\Lib\State\StateInterface;
-use StateMachine\Lib\Transition\Transition;
-use StateMachine\Lib\Transition\TransitionInterface;
+use StateMachine\Accessor\StateAccessor;
+use StateMachine\Accessor\StateAccessorInterface;
+use StateMachine\Exception\StateMachineException;
+use StateMachine\State\State;
+use StateMachine\State\StatefulInterface;
+use StateMachine\State\StateInterface;
+use StateMachine\Transition\Transition;
+use StateMachine\Transition\TransitionInterface;
 
 class StateMachine implements StateMachineInterface
 {

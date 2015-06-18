@@ -1,9 +1,9 @@
 <?php
 
-namespace StateMachine\Lib\Transition;
+namespace StateMachine\Transition;
 
-use StateMachine\Lib\Exception\StateMachineException;
-use StateMachine\Lib\State\StateInterface;
+use StateMachine\Exception\StateMachineException;
+use StateMachine\State\StateInterface;
 
 class Transition implements TransitionInterface
 {

@@ -1,5 +1,5 @@
 <?php
-namespace StateMachine\Lib\Tests\Entity;
+namespace StateMachine\Tests\Entity;
 
 class Order
 {

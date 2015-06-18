@@ -1,8 +1,8 @@
 <?php
-namespace StateMachine\Lib\StateMachine;
+namespace StateMachine\StateMachine;
 
-use StateMachine\Lib\State\StatefulInterface;
-use StateMachine\Lib\Transition\TransitionInterface;
+use StateMachine\State\StatefulInterface;
+use StateMachine\Transition\TransitionInterface;
 
 interface StateMachineInterface
 {

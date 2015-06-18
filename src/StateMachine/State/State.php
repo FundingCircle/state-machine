@@ -1,5 +1,5 @@
 <?php
-namespace StateMachine\Lib\State;
+namespace StateMachine\State;
 
 class State implements StateInterface
 {
