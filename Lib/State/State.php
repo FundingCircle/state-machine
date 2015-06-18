@@ -1,5 +1,5 @@
 <?php
-namespace StateMachine\State;
+namespace StateMachine\Lib\State;
 
 class State implements StateInterface
 {
@@ -9,10 +9,11 @@ class State implements StateInterface
 
     private $transitions;
 
-    public function __construct($name, array $transitions, $type = StateInterface::TYPE_NORMAL)
+    private $transitionObjects;
+
+    public function __construct($name, $type = StateInterface::TYPE_NORMAL)
     {
         $this->name = $name;
-        $this->transitions = $transitions;
         $this->type = $type;
     }
 
@@ -45,4 +46,29 @@ class State implements StateInterface
     {
         return $this->transitions;
     }
+
+    public function setTransitions(array $transitions)
+    {
+        $this->transitions = $transitions;
+    }
+
+    public function getTransitionObjects()
+    {
+        return $this->transitionObjects;
+    }
+
+    public function setTransitionObjects(array $transitionObjects)
+    {
+        $this->transitionObjects = $transitionObjects;
+    }
+
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->name;
+    }
+
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace StateMachine\State;
+namespace StateMachine\Lib\State;
 
 interface StateInterface
 {
@@ -20,4 +20,10 @@ interface StateInterface
     public function getName();
 
     public function getTransitions();
+
+    public function setTransitions(array $transitions);
+
+    public function getTransitionObjects();
+
+    public function setTransitionObjects(array $transitionObjects);
 }

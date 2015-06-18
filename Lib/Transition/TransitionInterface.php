@@ -1,18 +1,20 @@
 <?php
 
-namespace StateMachine\Transition;
+namespace StateMachine\Lib\Transition;
+
+use StateMachine\Lib\State\StateInterface;
 
 interface TransitionInterface
 {
     /**
-     * @return string
+     * @return StateInterface
      **/
-    public function getFrom();
+    public function getFromState();
 
     /**
-     * @return string
+     * @return StateInterface
      **/
-    public function getTo();
+    public function getToState();
 
     /**
      * @return \Closure[]

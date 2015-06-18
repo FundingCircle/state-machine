@@ -1,5 +1,5 @@
 <?php
-namespace StateMachine\StateMachine;
+namespace StateMachine\Lib\StateMachine;
 
 interface StateMachineHistoryInterface
 {

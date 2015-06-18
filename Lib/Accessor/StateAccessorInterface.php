@@ -1,6 +1,6 @@
 <?php
 
-namespace StateMachine\Accessor;
+namespace StateMachine\Lib\Accessor;
 
 interface StateAccessorInterface
 {

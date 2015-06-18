@@ -1,8 +1,8 @@
 <?php
-namespace StateMachine\StateMachine;
+namespace StateMachine\Lib\StateMachine;
 
-use StateMachine\State\StatefulInterface;
-use StateMachine\Transition\TransitionInterface;
+use StateMachine\Lib\State\StatefulInterface;
+use StateMachine\Lib\Transition\TransitionInterface;
 
 interface StateMachineInterface
 {
@@ -23,12 +23,10 @@ interface StateMachineInterface
      */
     public function getCurrentState();
 
-    /**
-     * @param TransitionInterface $transition
-     *
-     * @return void
-     */
-    public function addTransition(TransitionInterface $transition);
+
+    public function addTransition($from, $to);
+
+    public function addState($name, $type);
 
     /**
      * @return TransitionInterface[]
@@ -37,6 +35,11 @@ interface StateMachineInterface
 
     public function canTransitionTo($state);
 
+    /**
+     * @param string $state
+     *
+     * @return bool
+     */
     public function transitionTo($state);
 
     public function trigger($transition);

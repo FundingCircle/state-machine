@@ -1,7 +1,7 @@
 <?php
-namespace StateMachine\Accessor;
+namespace StateMachine\Lib\Accessor;
 
-use StateMachine\Exception\StateMachineException;
+use StateMachine\Lib\Exception\StateMachineException;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
 
 class StateAccessor extends PropertyAccessor implements StateAccessorInterface
