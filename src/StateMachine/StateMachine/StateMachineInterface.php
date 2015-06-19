@@ -62,4 +62,26 @@ interface StateMachineInterface
      * @return bool
      */
     public function transitionTo($state);
+
+    /**
+     * @param string   $transition
+     * @param callable $callable
+     */
+    public function addGuard($transition, \Closure $callable);
+
+    /**
+     * @param string   $transition
+     * @param callable $callable
+     * @param string   $priority
+     *
+     */
+    public function addPreTransition($transition, \Closure $callable, $priority);
+
+    /**
+     * @param string   $transition
+     * @param callable $callable
+     * @param string   $priority
+     *
+     */
+    public function addPostTransition($transition, \Closure $callable, $priority);
 }

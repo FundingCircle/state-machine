@@ -3,12 +3,15 @@ namespace StateMachine\StateMachine;
 
 use StateMachine\Accessor\StateAccessor;
 use StateMachine\Accessor\StateAccessorInterface;
+use StateMachine\Event\Events;
+use StateMachine\Event\TransitionEvent;
 use StateMachine\Exception\StateMachineException;
 use StateMachine\State\State;
 use StateMachine\State\StatefulInterface;
 use StateMachine\State\StateInterface;
 use StateMachine\Transition\Transition;
 use StateMachine\Transition\TransitionInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Class StateMachine
@@ -23,39 +26,47 @@ class StateMachine implements StateMachineInterface
     /** @var StatefulInterface */
     private $object;
 
+    /** @var StateAccessorInterface */
     private $stateAccessor;
+
     /** @var  StateInterface */
     private $currentState;
 
-    /** @var  array */
+    /** @var  TransitionInterface[] */
     private $transitions;
 
     /** @var  array */
     private $states;
 
-    /** @var  array */
-    private $guards;
-
     /** @var bool */
     private $booted;
 
+    /** @var  EventDispatcherInterface */
+    private $eventDispatcher;
+
+    /** @var  array */
+    private $messages;
+
     /**
-     * @param string                 $class
-     * @param StateAccessorInterface $stateAccessor
-     * @param StatefulInterface      $object
-     * @param string                 $property
+     * @param string                   $class
+     * @param StateAccessorInterface   $stateAccessor
+     * @param EventDispatcherInterface $eventDispatcher
+     * @param StatefulInterface        $object
      */
     public function __construct(
         $class,
         StatefulInterface $object,
-        StateAccessorInterface $stateAccessor = null,
-        $property = 'state'
+        EventDispatcherInterface $eventDispatcher,
+        StateAccessorInterface $stateAccessor = null
     ) {
         $this->class = $class;
-        $this->stateAccessor = $stateAccessor ?: new StateAccessor($property);
+        $this->stateAccessor = $stateAccessor ?: new StateAccessor();
         $this->object = $object;
+        $this->eventDispatcher = $eventDispatcher;
         $this->booted = false;
         $this->object->setStateMachine($this);
+        $this->states = [];
+        $this->transitions = [];
     }
 
     /**
@@ -85,6 +96,9 @@ class StateMachine implements StateMachineInterface
         //no state found for the object it means it's new instance, set initial state
         if (null === $state || '' == $state) {
             $state = $this->getInitialState();
+            if (null == $state) {
+                throw new StateMachineException("No initial state is found");
+            }
             $this->stateAccessor->setState($this->object, $state->getName());
         }
 
@@ -147,12 +161,17 @@ class StateMachine implements StateMachineInterface
     /**
      * {@inheritdoc}
      */
-    public function addState(
-        $name,
-        $type = StateInterface::TYPE_NORMAL
-    ) {
-        //@TODO check if there's more than one initial state
-        //@TODO check for duplicate states
+    public function addState($name, $type = StateInterface::TYPE_NORMAL)
+    {
+        $initialState = $this->getInitialState();
+        if (StateInterface::TYPE_INITIAL == $type && $initialState instanceof StateInterface) {
+            throw new StateMachineException(
+                sprintf(
+                    "Statemachine cannot have more than one initial state, current initial state is (%s)",
+                    $initialState
+                )
+            );
+        }
         $state = new State($name, $type);
         $this->states[$name] = $state;
 
@@ -160,10 +179,7 @@ class StateMachine implements StateMachineInterface
     }
 
     /**
-     * @param string   $transition
-     * @param callable $callable
-     *
-     * @throws StateMachineException
+     * {@inheritdoc}
      */
     public function addGuard($transition, \Closure $callable)
     {
@@ -171,17 +187,37 @@ class StateMachine implements StateMachineInterface
             throw new StateMachineException("Cannot add more guards to booted StateMachine");
         }
 
-        if (!isset($this->transitions[$transition])) {
-            throw new StateMachineException(
-                sprintf(
-                    "Transition (%s) is not found, allowed transitions [%s]",
-                    $transition,
-                    implode(',', array_keys($this->transitions))
-                )
-            );
+        $this->validateTransition($transition);
+
+        $this->eventDispatcher->addListener(Events::EVENT_ON_GUARD, $callable);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function addPreTransition($transition, \Closure $callable, $priority = 0)
+    {
+        if ($this->booted) {
+            throw new StateMachineException("Cannot add pre-transition to booted StateMachine");
         }
 
-        $this->guards[$transition][] = $callable;
+        $this->validateTransition($transition);
+
+        $this->eventDispatcher->addListener(Events::EVENT_PRE_TRANSITION, $callable);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function addPostTransition($transition, \Closure $callable, $priority = 0)
+    {
+        if ($this->booted) {
+            throw new StateMachineException("Cannot add post-transition to booted StateMachine");
+        }
+
+        $this->validateTransition($transition);
+
+        $this->eventDispatcher->addListener(Events::EVENT_POST_TRANSITION, $callable, $priority);
     }
 
     /**
@@ -217,27 +253,6 @@ class StateMachine implements StateMachineInterface
             throw new StateMachineException("Statemachine is not booted");
         }
 
-        $transition = $this->currentState->getName().'_'.$state;
-        //check if there's guards and trigger
-        if (isset($this->guards[$transition])) {
-            /** @var \Closure $guard */
-            foreach ($this->guards as $transitionGuards) {
-                foreach ($transitionGuards as $transitionGuard) {
-                    $return = $transitionGuard($this->object, $this->transitions[$transition]);
-                    if (!is_bool($return)) {
-                        throw new StateMachineException(
-                            sprintf("Guard must return boolean value, (%s) returned instead", $return)
-                        );
-                    }
-                    //one guard failed
-                    if (!$return) {
-                        //@TODO add error message or throw an exception
-                        return false;
-                    }
-                }
-            }
-        }
-
         if (!$this->canTransitionTo($state)) {
             throw new StateMachineException(
                 sprintf(
@@ -248,20 +263,48 @@ class StateMachine implements StateMachineInterface
                 )
             );
         }
+        $transitionName = $this->currentState->getName().'_'.$state;
+        $transition = $this->transitions[$transitionName];
+        $transitionEvent = new TransitionEvent($this->object, $transition);
 
+        //Execute guards
+        /** @var TransitionEvent $transitionEvent */
+        $transitionEvent = $this->eventDispatcher->dispatch(Events::EVENT_ON_GUARD, $transitionEvent);
+        $this->messages = $transitionEvent->getMessages();
+
+        if ($transitionEvent->isPropagationStopped()) {
+            return false;
+        }
+        //Execute pre transitions
+        $transitionEvent = $this->eventDispatcher->dispatch(Events::EVENT_PRE_TRANSITION, $transitionEvent);
+        $this->messages = $transitionEvent->getMessages();
+
+        if ($transitionEvent->isPropagationStopped()) {
+            return false;
+        }
+
+        //change state
         $this->currentState = $this->states[$state];
         $this->stateAccessor->setState($this->object, $state);
-        //@TODO here we trigger guards
-        //@TODO we trigger before and after actions
-        //@TODO may be fire some events
+
+        //Execute post transitions
+        $this->eventDispatcher->dispatch(Events::EVENT_POST_TRANSITION, $transitionEvent);
+        $this->messages = $transitionEvent->getMessages();
 
         return true;
     }
 
     /**
+     * @return array
+     */
+    public function getMessages()
+    {
+        return $this->messages;
+    }
+
+    /**
      * Find the initial state in the state machine
      * @return StateInterface
-     * @throws StateMachineException
      */
     private function getInitialState()
     {
@@ -271,8 +314,6 @@ class StateMachine implements StateMachineInterface
                 return $state;
             }
         }
-
-        throw new StateMachineException("No initial state is found");
     }
 
     /**
@@ -294,6 +335,23 @@ class StateMachine implements StateMachineInterface
             $state->setTransitions($allowedTransitions);
             $state->setTransitionObjects($allowedTransitionsObjects);
         }
+    }
 
+    /**
+     * @param string $transitionName
+     *
+     * @throws StateMachineException
+     */
+    private function validateTransition($transitionName)
+    {
+        if (!isset($this->transitions[$transitionName])) {
+            throw new StateMachineException(
+                sprintf(
+                    "Transition (%s) is not found, allowed transitions [%s]",
+                    $transitionName,
+                    implode(',', array_keys($this->transitions))
+                )
+            );
+        }
     }
 }

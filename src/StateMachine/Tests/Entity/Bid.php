@@ -1,12 +1,13 @@
 <?php
+
 namespace StateMachine\Tests\Entity;
 
 use StateMachine\State\StatefulInterface;
 use StateMachine\Traits\StatefulTrait;
 
-class Order implements StatefulInterface
+class Bid implements StatefulInterface
 {
-    use StatefulTrait;
+    use StatefulTrait
     private $state;
 
     /**

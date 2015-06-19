@@ -6,18 +6,16 @@ namespace StateMachine\Tests\Fixtures;
 use StateMachine\Accessor\StateAccessor;
 use StateMachine\State\StateInterface;
 use StateMachine\StateMachine\StateMachine;
+use StateMachine\Tests\Entity\Bid;
 use StateMachine\Tests\Entity\Order;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class StateMachineFixtures
 {
     public static function getOrderStateMachine()
     {
         $class = "StateMachine\Tests\Entity\Order";
-        $object = new Order();
-
-        $accessor = new StateAccessor('state');
-
-        $stateMachine = new StateMachine($class, $object, $accessor);
+        $stateMachine = new StateMachine($class, new Order(), new EventDispatcher(), new StateAccessor());
 
         $stateMachine->addState('pending', StateInterface::TYPE_INITIAL);
         $stateMachine->addState('checking_out');
@@ -34,6 +32,29 @@ class StateMachineFixtures
         $stateMachine->addTransition('purchased', 'failed');
         $stateMachine->addTransition('purchased', 'shipped');
         $stateMachine->addTransition('shipped', 'refunded');
+
+        return $stateMachine;
+    }
+
+    public static function getBidStateMachine()
+    {
+        $class = "StateMachine\Tests\Entity\Bid";
+        $stateMachine = new StateMachine($class, new Bid(), new EventDispatcher(), new StateAccessor());
+
+        $stateMachine->addState('new', StateInterface::TYPE_INITIAL);
+        $stateMachine->addState('cancelled');
+        $stateMachine->addState('originating');
+        $stateMachine->addState('committed');
+        $stateMachine->addState('error');
+        $stateMachine->addState('paid');
+
+        $stateMachine->addTransition('new', 'cancelled');
+        $stateMachine->addTransition('new', 'committed');
+        $stateMachine->addTransition('cancelled', 'paid');
+        $stateMachine->addTransition('checking_out', 'purchased');
+        $stateMachine->addTransition('originating', 'error');
+        $stateMachine->addTransition('originating', 'paid');
+        $stateMachine->addTransition('error', 'committed');
 
         return $stateMachine;
     }

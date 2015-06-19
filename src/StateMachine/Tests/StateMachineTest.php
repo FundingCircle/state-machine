@@ -9,6 +9,17 @@ use StateMachine\Tests\Fixtures\StateMachineFixtures;
 
 class StateMachineTest extends \PHPUnit_Framework_TestCase
 {
+    public function testTwoInitialStates()
+    {
+        $this->setExpectedException(
+            'StateMachine\Exception\StateMachineException',
+            "Statemachine cannot have more than one initial state, current initial state is (pending)"
+        );
+
+        $stateMachine = StateMachineFixtures::getOrderStateMachine();
+        $stateMachine->addState('new_state', StateInterface::TYPE_INITIAL);
+    }
+
     public function testAllowedTransitions()
     {
         $stateMachine = StateMachineFixtures::getOrderStateMachine();
