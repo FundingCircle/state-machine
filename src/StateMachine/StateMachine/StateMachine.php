@@ -10,6 +10,11 @@ use StateMachine\State\StateInterface;
 use StateMachine\Transition\Transition;
 use StateMachine\Transition\TransitionInterface;
 
+/**
+ * Class StateMachine
+ * @package StateMachine\StateMachine
+ * Add logging support
+ */
 class StateMachine implements StateMachineInterface
 {
     /** @var  string */
@@ -27,6 +32,9 @@ class StateMachine implements StateMachineInterface
 
     /** @var  array */
     private $states;
+
+    /** @var  array */
+    private $guards;
 
     /** @var bool */
     private $booted;
@@ -152,28 +160,84 @@ class StateMachine implements StateMachineInterface
     }
 
     /**
+     * @param string   $transition
+     * @param callable $callable
+     *
+     * @throws StateMachineException
+     */
+    public function addGuard($transition, \Closure $callable)
+    {
+        if ($this->booted) {
+            throw new StateMachineException("Cannot add more guards to booted StateMachine");
+        }
+
+        if (!isset($this->transitions[$transition])) {
+            throw new StateMachineException(
+                sprintf(
+                    "Transition (%s) is not found, allowed transitions [%s]",
+                    $transition,
+                    implode(',', array_keys($this->transitions))
+                )
+            );
+        }
+
+        $this->guards[$transition][] = $callable;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getAllowedTransitions()
     {
+        if (!$this->booted) {
+            throw new StateMachineException("Statemachine is not booted");
+        }
+
         return $this->currentState->getTransitions();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function canTransitionTo(
-        $state
-    ) {
+    public function canTransitionTo($state)
+    {
+        if (!$this->booted) {
+            throw new StateMachineException("Statemachine is not booted");
+        }
+
         return in_array($state, $this->currentState->getTransitions());
     }
 
     /**
      * {@inheritdoc}
      */
-    public function transitionTo(
-        $state
-    ) {
+    public function transitionTo($state)
+    {
+        if (!$this->booted) {
+            throw new StateMachineException("Statemachine is not booted");
+        }
+
+        $transition = $this->currentState->getName().'_'.$state;
+        //check if there's guards and trigger
+        if (isset($this->guards[$transition])) {
+            /** @var \Closure $guard */
+            foreach ($this->guards as $transitionGuards) {
+                foreach ($transitionGuards as $transitionGuard) {
+                    $return = $transitionGuard($this->object, $this->transitions[$transition]);
+                    if (!is_bool($return)) {
+                        throw new StateMachineException(
+                            sprintf("Guard must return boolean value, (%s) returned instead", $return)
+                        );
+                    }
+                    //one guard failed
+                    if (!$return) {
+                        //@TODO add error message or throw an exception
+                        return false;
+                    }
+                }
+            }
+        }
+
         if (!$this->canTransitionTo($state)) {
             throw new StateMachineException(
                 sprintf(
@@ -184,6 +248,7 @@ class StateMachine implements StateMachineInterface
                 )
             );
         }
+
         $this->currentState = $this->states[$state];
         $this->stateAccessor->setState($this->object, $state);
         //@TODO here we trigger guards

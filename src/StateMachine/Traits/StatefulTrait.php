@@ -19,7 +19,7 @@ trait StatefulTrait
     /**
      * @param StateMachineInterface $stateMachine
      */
-    public function setStateMachine($stateMachine)
+    public function setStateMachine(StateMachineInterface $stateMachine)
     {
         $this->stateMachine = $stateMachine;
     }

@@ -1,8 +1,12 @@
 <?php
 namespace StateMachine\Tests\Entity;
 
-class Order
+use StateMachine\State\StatefulInterface;
+use StateMachine\Traits\StatefulTrait;
+
+class Order implements StatefulInterface
 {
+    use StatefulTrait;
     private $state;
 
     /**
@@ -20,5 +24,6 @@ class Order
     {
         $this->state = $state;
     }
+
 
 }
