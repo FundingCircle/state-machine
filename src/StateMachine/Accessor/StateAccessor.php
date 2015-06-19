@@ -1,19 +1,27 @@
 <?php
 namespace StateMachine\Accessor;
 
-use StateMachine\Exception\StateMachineException;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
+use StateMachine\Exception\StateMachineException;
+use StateMachine\State\StatefulInterface;
 
 class StateAccessor extends PropertyAccessor implements StateAccessorInterface
 {
+    /** @var string */
     private $property;
 
+    /**
+     * @param string $property
+     */
     public function __construct($property)
     {
         $this->property = $property;
     }
 
-    public function getState($object)
+    /**
+     * {@inheritdoc}
+     */
+    public function getState(StatefulInterface $object)
     {
         try {
             return $this->getValue($object, $this->property);
@@ -30,7 +38,10 @@ class StateAccessor extends PropertyAccessor implements StateAccessorInterface
         }
     }
 
-    public function setState(&$object, $value)
+    /**
+     * {@inheritdoc}
+     */
+    public function setState(StatefulInterface &$object, $value)
     {
         try {
             $this->setValue($object, $this->property, $value);

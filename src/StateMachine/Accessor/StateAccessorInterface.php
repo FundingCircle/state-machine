@@ -2,9 +2,20 @@
 
 namespace StateMachine\Accessor;
 
+use StateMachine\State\StatefulInterface;
+
 interface StateAccessorInterface
 {
-    public function setState(&$object, $value);
+    /**
+     * @param StatefulInterface $object
+     * @param string            $value
+     */
+    public function setState(StatefulInterface &$object, $value);
 
-    public function getState($object);
+    /**
+     * @param StatefulInterface $object
+     *
+     * @return string
+     */
+    public function getState(StatefulInterface $object);
 }

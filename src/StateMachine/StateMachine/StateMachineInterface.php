@@ -7,11 +7,10 @@ use StateMachine\Transition\TransitionInterface;
 interface StateMachineInterface
 {
     /**
-     * @param StatefulInterface $object
      *
      * @return void
      */
-    public function setObject(StatefulInterface $object);
+    public function boot();
 
     /**
      * @return StatefulInterface
@@ -23,9 +22,22 @@ interface StateMachineInterface
      */
     public function getCurrentState();
 
-
+    /**
+     * Define a new transition to the statemachine
+     *
+     * @param $from
+     * @param $to
+     *
+     * @return $this
+     */
     public function addTransition($from, $to);
 
+    /**
+     * @param string $name
+     * @param string $type
+     *
+     * @return $this
+     */
     public function addState($name, $type);
 
     /**
@@ -33,14 +45,21 @@ interface StateMachineInterface
      */
     public function getAllowedTransitions();
 
+    /**
+     * Check if it's possible to transit to given state
+     *
+     * @param string $state
+     *
+     * @return bool
+     */
     public function canTransitionTo($state);
 
     /**
+     * Transit the object to given state
+     *
      * @param string $state
      *
      * @return bool
      */
     public function transitionTo($state);
-
-    public function trigger($transition);
 }

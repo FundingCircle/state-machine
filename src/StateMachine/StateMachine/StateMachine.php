@@ -12,32 +12,47 @@ use StateMachine\Transition\TransitionInterface;
 
 class StateMachine implements StateMachineInterface
 {
+    /** @var  string */
     private $class;
 
+    /** @var StatefulInterface */
     private $object;
 
     private $stateAccessor;
     /** @var  StateInterface */
     private $currentState;
 
+    /** @var  array */
     private $transitions;
 
+    /** @var  array */
     private $states;
 
+    /** @var bool */
     private $booted;
 
+    /**
+     * @param string                 $class
+     * @param StateAccessorInterface $stateAccessor
+     * @param StatefulInterface      $object
+     * @param string                 $property
+     */
     public function __construct(
         $class,
+        StatefulInterface $object,
         StateAccessorInterface $stateAccessor = null,
-        $object = null,
         $property = 'state'
     ) {
         $this->class = $class;
         $this->stateAccessor = $stateAccessor ?: new StateAccessor($property);
         $this->object = $object;
         $this->booted = false;
+        $this->object->setStateMachine($this);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function boot()
     {
         if ($this->booted) {
@@ -71,17 +86,7 @@ class StateMachine implements StateMachineInterface
     }
 
     /**
-     * @param StatefulInterface $object
-     *
-     * @return void
-     */
-    public function setObject(StatefulInterface $object)
-    {
-        $this->object = $object;
-    }
-
-    /**
-     * @return StatefulInterface
+     * {@inheritdoc}
      */
     public function getObject()
     {
@@ -89,16 +94,21 @@ class StateMachine implements StateMachineInterface
     }
 
     /**
-     * @return StateInterface
+     * {@inheritdoc}
      */
     public function getCurrentState()
     {
         return $this->currentState;
     }
 
-
+    /**
+     * {@inheritdoc}
+     */
     public function addTransition($from = null, $to = null)
     {
+        if ($this->booted) {
+            throw new StateMachineException("Cannot add more transitions to booted StateMachine");
+        }
         if (!isset($this->states[$from])) {
             throw new StateMachineException(
                 sprintf(
@@ -122,32 +132,48 @@ class StateMachine implements StateMachineInterface
         $toState = $this->states[$to];
         $transition = new Transition($fromState, $toState);
         $this->transitions[$transition->getName()] = $transition;
+
+        return $this;
     }
 
-    public function addState($name, $type = StateInterface::TYPE_NORMAL)
-    {
+    /**
+     * {@inheritdoc}
+     */
+    public function addState(
+        $name,
+        $type = StateInterface::TYPE_NORMAL
+    ) {
         //@TODO check if there's more than one initial state
         //@TODO check for duplicate states
         $state = new State($name, $type);
         $this->states[$name] = $state;
+
+        return $this;
     }
 
-
     /**
-     * @return TransitionInterface[]
+     * {@inheritdoc}
      */
     public function getAllowedTransitions()
     {
         return $this->currentState->getTransitions();
     }
 
-    public function canTransitionTo($state)
-    {
+    /**
+     * {@inheritdoc}
+     */
+    public function canTransitionTo(
+        $state
+    ) {
         return in_array($state, $this->currentState->getTransitions());
     }
 
-    public function transitionTo($state)
-    {
+    /**
+     * {@inheritdoc}
+     */
+    public function transitionTo(
+        $state
+    ) {
         if (!$this->canTransitionTo($state)) {
             throw new StateMachineException(
                 sprintf(
@@ -167,11 +193,11 @@ class StateMachine implements StateMachineInterface
         return true;
     }
 
-    public function trigger($transition)
-    {
-        // TODO: Implement trigger() method.
-    }
-
+    /**
+     * Find the initial state in the state machine
+     * @return StateInterface
+     * @throws StateMachineException
+     */
     private function getInitialState()
     {
         /** @var StateInterface $state */
@@ -184,6 +210,9 @@ class StateMachine implements StateMachineInterface
         throw new StateMachineException("No initial state is found");
     }
 
+    /**
+     * Add transitions to states, triggered after booting
+     */
     private function boundTransitionsToStates()
     {
         /** @var StateInterface $state */
