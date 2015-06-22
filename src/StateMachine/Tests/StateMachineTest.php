@@ -6,9 +6,39 @@ use StateMachine\State\StateInterface;
 use StateMachine\StateMachine\StateMachine;
 use StateMachine\Tests\Entity\Order;
 use StateMachine\Tests\Fixtures\StateMachineFixtures;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class StateMachineTest extends \PHPUnit_Framework_TestCase
 {
+    public function testCorrectObject()
+    {
+        $class = "StateMachine\Tests\Entity\Order";
+        $stateMachine = new StateMachine($class, new Order(1), new EventDispatcher(), new StateAccessor());
+        $this->assertInstanceOf($class, $stateMachine->getObject());
+
+    }
+
+    public function testWithNoInitialState()
+    {
+        $this->setExpectedException(
+            'StateMachine\Exception\StateMachineException',
+            "No initial state is found"
+        );
+
+        $class = "StateMachine\Tests\Entity\Order";
+        $stateMachine = new StateMachine($class, new Order(1), new EventDispatcher(), new StateAccessor());
+        $stateMachine->addState('pending');
+        $stateMachine->addState('checking_out');
+        $stateMachine->boot();
+    }
+
+    public function testTransitionObject()
+    {
+        $stateMachine = StateMachineFixtures::getBidStateMachine();
+        $stateMachine->boot();
+        $this->assertEquals(1, count($stateMachine->getCurrentState()->getTransitionObjects()));
+    }
+
     public function testTwoInitialStates()
     {
         $this->setExpectedException(
@@ -31,7 +61,8 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('paid::cancelled', $transitions);
         //not to have transition to self
         $this->assertArrayNotHasKey('cancelled::cancelled', $transitions);
-
+        $stateMachine->boot();
+        $this->assertEquals(2, count($stateMachine->getCurrentState()->getTransitionObjects()));
     }
 
     public function testToAnyTransition()
@@ -152,5 +183,130 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
         $stateMachine->boot();
         $stateMachine->transitionTo('checking_out');
         $this->assertEquals($stateMachine->getCurrentState(), 'checking_out');
+    }
+
+    public function testWithWrongProperty()
+    {
+        $this->setExpectedException('StateMachine\Exception\StateMachineException');
+        $class = "StateMachine\Tests\Entity\Order";
+        $stateMachine = new StateMachine($class, new Order(1), new EventDispatcher(), new StateAccessor('wrong_state'));
+
+        $stateMachine->addState('pending', StateInterface::TYPE_INITIAL);
+        $stateMachine->addState('checking_out');
+
+        $stateMachine->addTransition('pending', 'checking_out');
+        $stateMachine->boot();
+        $stateMachine->transitionTo('checking_out');
+    }
+
+    public function testStateTypes()
+    {
+        $stateMachine = StateMachineFixtures::getOrderStateMachine();
+        $stateMachine->boot();
+        $this->assertEquals($stateMachine->getCurrentState()->getType(), StateInterface::TYPE_INITIAL);
+        $this->assertTrue($stateMachine->getCurrentState()->isInitial());
+
+        $stateMachine->transitionTo('checking_out');
+        $stateMachine->transitionTo('purchased');
+        $stateMachine->transitionTo('shipped');
+        $this->assertTrue($stateMachine->getCurrentState()->isNormal());
+        $stateMachine->transitionTo('refunded');
+        $this->assertEquals($stateMachine->getCurrentState()->getType(), StateInterface::TYPE_FINAL);
+        $this->assertTrue($stateMachine->getCurrentState()->isFinal());
+    }
+
+    public function testAddTransitionToBootedMachine()
+    {
+        $this->setExpectedException('StateMachine\Exception\StateMachineException');
+        $stateMachine = StateMachineFixtures::getOrderStateMachine();
+        $stateMachine->addTransition("new", 'cancelled');
+        $stateMachine->boot();
+    }
+
+    public function testPreTransitionToBootedMachine()
+    {
+        $this->setExpectedException('StateMachine\Exception\StateMachineException');
+        $stateMachine = StateMachineFixtures::getOrderStateMachine();
+        $stateMachine->boot();
+        $stateMachine->addPostTransition(
+            "new::committed",
+            function () {
+            }
+        );
+    }
+
+    public function testPostTransitionToBootedMachine()
+    {
+        $this->setExpectedException('StateMachine\Exception\StateMachineException');
+        $stateMachine = StateMachineFixtures::getOrderStateMachine();
+        $stateMachine->boot();
+        $stateMachine->addPreTransition(
+            "new::committed",
+            function () {
+            }
+        );
+    }
+
+    public function testGuardToBootedMachine()
+    {
+        $this->setExpectedException('StateMachine\Exception\StateMachineException');
+        $stateMachine = StateMachineFixtures::getOrderStateMachine();
+        $stateMachine->boot();
+        $stateMachine->addGuard(
+            "new::committed",
+            function () {
+            }
+        );
+    }
+
+    public function testAddTransitionWithBootedMachine()
+    {
+        $this->setExpectedException(
+            'StateMachine\Exception\StateMachineException',
+            'Cannot add more transitions to booted StateMachine'
+        );
+        $stateMachine = StateMachineFixtures::getOrderStateMachine();
+        $stateMachine->boot();
+        $stateMachine->addTransition("new::committed");
+    }
+
+
+    public function testGetAllowedTransitionsForNonBootedMachine()
+    {
+        $this->setExpectedException('StateMachine\Exception\StateMachineException');
+        $stateMachine = StateMachineFixtures::getOrderStateMachine();
+        $stateMachine->getAllowedTransitions();
+    }
+
+    public function testCanTransitToForNonBootedMachine()
+    {
+        $this->setExpectedException('StateMachine\Exception\StateMachineException');
+        $stateMachine = StateMachineFixtures::getOrderStateMachine();
+        $stateMachine->canTransitionTo('paid');
+    }
+
+
+    public function testTransitToForNonBootedMachine()
+    {
+        $this->setExpectedException('StateMachine\Exception\StateMachineException');
+        $stateMachine = StateMachineFixtures::getOrderStateMachine();
+        $stateMachine->transitionTo('paid');
+    }
+
+    public function testBootWithWrongClass()
+    {
+        $this->setExpectedException('StateMachine\Exception\StateMachineException');
+        $class = "StateMachine\Tests\Entity\Order2";
+        $stateMachine = new StateMachine($class, new Order(1), new EventDispatcher(), new StateAccessor());
+        $stateMachine->boot();
+    }
+
+    public function testBootTwice()
+    {
+        $this->setExpectedException('StateMachine\Exception\StateMachineException', 'Statemachine is already booted');
+        $stateMachine = StateMachineFixtures::getOrderStateMachine();
+        $stateMachine->boot();
+        $stateMachine->boot();
+
     }
 }

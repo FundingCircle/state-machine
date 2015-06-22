@@ -43,18 +43,6 @@ class StateAccessor extends PropertyAccessor implements StateAccessorInterface
      */
     public function setState(StatefulInterface &$object, $value)
     {
-        try {
-            $this->setValue($object, $this->property, $value);
-        } catch (\Exception $e) {
-            throw new StateMachineException(
-                sprintf(
-                    'Property path "%s" on object "%s" does not exist.',
-                    $this->property,
-                    get_class($object)
-                ),
-                $e->getCode(),
-                $e
-            );
-        }
+        $this->setValue($object, $this->property, $value);
     }
 }

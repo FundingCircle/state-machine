@@ -66,21 +66,4 @@ class HistoryCollection implements \Countable
     {
         $this->elements[] = $value;
     }
-
-    /**
-     * @param $key
-     *
-     * @return null
-     */
-    public function remove($key)
-    {
-        if (!isset($this->elements[$key]) && !array_key_exists($key, $this->elements)) {
-            return null;
-        }
-
-        $removed = $this->elements[$key];
-        unset($this->elements[$key]);
-
-        return $removed;
-    }
 }

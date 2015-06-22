@@ -17,7 +17,7 @@ class TransitionEvent extends Event
     /** @var  array */
     private $messages;
 
-    /** @var \Closure */
+    /** @var mixed */
     private $failedCallback;
 
     /** @var  bool */
@@ -76,14 +76,6 @@ class TransitionEvent extends Event
     }
 
     /**
-     * @param callable $failedCallback
-     */
-    public function setFailedCallback(\Closure $failedCallback)
-    {
-        $this->failedCallback = $failedCallback;
-    }
-
-    /**
      * @return boolean
      */
     public function isTransitionRejected()
@@ -96,7 +88,8 @@ class TransitionEvent extends Event
      */
     public function rejectTransition($callable)
     {
-        $this->failedCallback = $callable;
+        //@TODO may be add method too
+        $this->failedCallback = get_class($callable);
         $this->transitionRejected = true;
         $this->stopPropagation();
     }

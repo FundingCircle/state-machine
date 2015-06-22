@@ -16,6 +16,7 @@ class HistoryTest extends \PHPUnit_Framework_TestCase
         $stateMachine->transitionTo('shipped');
 
         $this->assertEquals(3, $stateMachine->getHistory()->count());
+        $this->assertNotEmpty($stateMachine->getHistory()->toArray());
         $this->assertEquals('purchased::shipped', $stateMachine->getLastTransition()->getName());
     }
 
@@ -46,6 +47,12 @@ class HistoryTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($statChange->isPassed());
         $this->assertEquals(1, $statChange->getIdentifier());
         $this->assertEquals(1, $stateMachine->getHistory()->count());
+        $this->assertEmpty($statChange->getPreTransitions());
+        $this->assertEmpty($statChange->getPostTransitions());
+        $this->assertEmpty($statChange->getMessages());
+        $this->assertEquals(1, count($statChange->getGuards()));
+        $this->assertNotNull($statChange->getFailedCallBack());
+        $this->assertEquals("StateMachine\Tests\Entity\Order", $stateMachine->getHistory()->first()->getStateMachine());
         $this->assertEquals('pending::checking_out', $lastTransition->getName());
     }
 

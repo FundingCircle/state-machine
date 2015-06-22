@@ -19,11 +19,6 @@ interface TransitionInterface
     public function getToState();
 
     /**
-     * @return \Closure[]
-     **/
-    public function getGuards();
-
-    /**
      * @return string
      */
     public function getName();

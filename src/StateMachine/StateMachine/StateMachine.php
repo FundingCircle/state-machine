@@ -20,7 +20,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * Class StateMachine
  * @package StateMachine\StateMachine
- * Add logging support
+ * @TODO Add logging support
  */
 class StateMachine implements StateMachineInterface, StateMachineHistoryInterface
 {
@@ -93,11 +93,6 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     {
         if ($this->booted) {
             throw new StateMachineException("Statemachine is already booted");
-        }
-        if (null === $this->object) {
-            throw new StateMachineException(
-                sprintf("Cannot boot StateMachine without object, have you forgot to setObject()? ")
-            );
         }
         if (get_class($this->object) !== $this->class) {
             throw new StateMachineException(
@@ -200,7 +195,6 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         }
 
         $this->validateTransition($transition);
-
         $this->eventDispatcher->addListener(Events::EVENT_ON_GUARD, $callable);
     }
 
@@ -227,6 +221,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
             throw new StateMachineException("Cannot add post-transition to booted StateMachine");
         }
 
+        $this->validateTransition($transition);
         $this->validateTransition($transition);
 
         $this->eventDispatcher->addListener(Events::EVENT_POST_TRANSITION, $callable, $priority);
@@ -363,14 +358,6 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     /**
      * {@inheritdoc}
      */
-    public function getEventDispatcher()
-    {
-        return $this->eventDispatcher;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getMessages()
     {
         return $this->messages;
@@ -436,9 +423,6 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
      */
     private function validateState($state)
     {
-        if ($state == null) {
-            return;
-        }
         if (isset($state) && !isset($this->states[$state])) {
             throw new StateMachineException(
                 sprintf(

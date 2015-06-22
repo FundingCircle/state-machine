@@ -46,7 +46,7 @@ class StateMachineFixtures
         $stateMachine->addState('originating');
         $stateMachine->addState('committed');
         $stateMachine->addState('error');
-        $stateMachine->addState('paid');
+        $stateMachine->addState('paid', StateInterface::TYPE_FINAL);
 
         $stateMachine->addTransition('new', 'committed');
         $stateMachine->addTransition('originating', 'error');

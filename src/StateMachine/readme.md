@@ -1,2 +1,4 @@
 ### purpose
-Have all statemachine logic and history support
+State machine core logic
+History
+Event dispatcher
