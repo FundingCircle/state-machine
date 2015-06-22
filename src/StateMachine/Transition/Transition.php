@@ -7,6 +7,7 @@ use StateMachine\State\StateInterface;
 
 class Transition implements TransitionInterface
 {
+
     private $fromState;
 
     private $toState;
@@ -22,7 +23,7 @@ class Transition implements TransitionInterface
         }
         $this->fromState = $fromState;
         $this->toState = $toState;
-        $this->name = $fromState->getName().'_'.$toState->getName();
+        $this->name = $fromState->getName().static::EDGE_SYMBOL.$toState->getName();
     }
 
     /**

@@ -6,6 +6,9 @@ use StateMachine\Accessor\StateAccessorInterface;
 use StateMachine\Event\Events;
 use StateMachine\Event\TransitionEvent;
 use StateMachine\Exception\StateMachineException;
+use StateMachine\History\StateChangeInterface;
+use StateMachine\Listener\HistoryListener;
+use StateMachine\Listener\HistoryListenerInterface;
 use StateMachine\State\State;
 use StateMachine\State\StatefulInterface;
 use StateMachine\State\StateInterface;
@@ -18,9 +21,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @package StateMachine\StateMachine
  * Add logging support
  */
-class StateMachine implements StateMachineInterface
+class StateMachine implements StateMachineInterface, StateMachineHistoryInterface
 {
-    /** @var  string */
+    /** @var string */
     private $class;
 
     /** @var StatefulInterface */
@@ -29,44 +32,56 @@ class StateMachine implements StateMachineInterface
     /** @var StateAccessorInterface */
     private $stateAccessor;
 
-    /** @var  StateInterface */
+    /** @var  HistoryListenerInterface */
+    private $historyListener;
+
+    /** @var StateInterface */
     private $currentState;
 
-    /** @var  TransitionInterface[] */
+    /** @var TransitionInterface[] */
     private $transitions;
 
-    /** @var  array */
+    /** @var array */
     private $states;
 
     /** @var bool */
     private $booted;
 
-    /** @var  EventDispatcherInterface */
+    /** @var EventDispatcherInterface */
     private $eventDispatcher;
 
-    /** @var  array */
+    /** @var array */
+    private $history;
+
+    /** @var array */
     private $messages;
 
     /**
      * @param string                   $class
-     * @param StateAccessorInterface   $stateAccessor
-     * @param EventDispatcherInterface $eventDispatcher
      * @param StatefulInterface        $object
+     * @param EventDispatcherInterface $eventDispatcher
+     * @param StateAccessorInterface   $stateAccessor
+     * @param HistoryListenerInterface $historyListener
      */
     public function __construct(
         $class,
         StatefulInterface $object,
         EventDispatcherInterface $eventDispatcher,
-        StateAccessorInterface $stateAccessor = null
+        StateAccessorInterface $stateAccessor = null,
+        HistoryListenerInterface $historyListener = null
     ) {
         $this->class = $class;
         $this->stateAccessor = $stateAccessor ?: new StateAccessor();
+        $this->historyListener = $historyListener ?: new HistoryListener();
         $this->object = $object;
         $this->eventDispatcher = $eventDispatcher;
         $this->booted = false;
         $this->object->setStateMachine($this);
         $this->states = [];
         $this->transitions = [];
+        $this->messages = [];
+        //register history listener
+        $this->eventDispatcher->addListener(Events::EVENT_HISTORY_CHANGE, [$this->historyListener, 'onHistoryChange']);
     }
 
     /**
@@ -131,29 +146,24 @@ class StateMachine implements StateMachineInterface
         if ($this->booted) {
             throw new StateMachineException("Cannot add more transitions to booted StateMachine");
         }
-        if (!isset($this->states[$from])) {
-            throw new StateMachineException(
-                sprintf(
-                    "State with name: %s is not found, states available are: %s",
-                    $from,
-                    implode(',', $this->states)
-                )
-            );
-        }
-        if (!isset($this->states[$to])) {
-            throw new StateMachineException(
-                sprintf(
-                    "State with name: %s is not found, states available are: %s",
-                    $to,
-                    implode(',', $this->states)
-                )
-            );
+
+        if (null == $from) {
+            $fromStates = array_keys($this->states);
+        } elseif (is_array($from)) {
+            $fromStates = $from;
+        } else {
+            $fromStates = [$from];
         }
 
-        $fromState = $this->states[$from];
-        $toState = $this->states[$to];
-        $transition = new Transition($fromState, $toState);
-        $this->transitions[$transition->getName()] = $transition;
+        if (null == $to) {
+            $toStates = array_keys($this->states);
+        } elseif (is_array($to)) {
+            $toStates = $to;
+        } else {
+            $toStates = [$to];
+        }
+
+        $this->createMultiTransition($fromStates, $toStates);
 
         return $this;
     }
@@ -235,6 +245,14 @@ class StateMachine implements StateMachineInterface
     /**
      * {@inheritdoc}
      */
+    public function getAllTransitions()
+    {
+        return $this->transitions;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function canTransitionTo($state)
     {
         if (!$this->booted) {
@@ -263,7 +281,7 @@ class StateMachine implements StateMachineInterface
                 )
             );
         }
-        $transitionName = $this->currentState->getName().'_'.$state;
+        $transitionName = $this->currentState->getName().TransitionInterface::EDGE_SYMBOL.$state;
         $transition = $this->transitions[$transitionName];
         $transitionEvent = new TransitionEvent($this->object, $transition);
 
@@ -272,14 +290,18 @@ class StateMachine implements StateMachineInterface
         $transitionEvent = $this->eventDispatcher->dispatch(Events::EVENT_ON_GUARD, $transitionEvent);
         $this->messages = $transitionEvent->getMessages();
 
-        if ($transitionEvent->isPropagationStopped()) {
+        if ($transitionEvent->isTransitionRejected()) {
+            $this->dispatchHistoryChange($transitionEvent);
+
             return false;
         }
         //Execute pre transitions
         $transitionEvent = $this->eventDispatcher->dispatch(Events::EVENT_PRE_TRANSITION, $transitionEvent);
         $this->messages = $transitionEvent->getMessages();
 
-        if ($transitionEvent->isPropagationStopped()) {
+        if ($transitionEvent->isTransitionRejected()) {
+            $this->dispatchHistoryChange($transitionEvent);
+
             return false;
         }
 
@@ -291,11 +313,54 @@ class StateMachine implements StateMachineInterface
         $this->eventDispatcher->dispatch(Events::EVENT_POST_TRANSITION, $transitionEvent);
         $this->messages = $transitionEvent->getMessages();
 
+        $this->dispatchHistoryChange($transitionEvent);
+
         return true;
     }
 
+    //History implementation
     /**
-     * @return array
+     * @param StateChangeInterface $stateChange
+     */
+    public function addStateChange(StateChangeInterface $stateChange)
+    {
+        $this->history[] = $stateChange;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getHistory()
+    {
+        return $this->history;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getLastTransition()
+    {
+        return array_pop($this->history);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getName()
+    {
+        return $this->class;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getEventDispatcher()
+    {
+        return $this->eventDispatcher;
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function getMessages()
     {
@@ -353,5 +418,63 @@ class StateMachine implements StateMachineInterface
                 )
             );
         }
+    }
+
+    /**
+     * @param string $state
+     *
+     * @throws StateMachineException
+     */
+    private function validateState($state)
+    {
+        if ($state == null) {
+            return;
+        }
+        if (isset($state) && !isset($this->states[$state])) {
+            throw new StateMachineException(
+                sprintf(
+                    "State with name: %s is not found, states available are: %s",
+                    $state,
+                    implode(',', $this->states)
+                )
+            );
+        }
+    }
+
+    /**
+     * @param string $from
+     * @param string $to
+     */
+    private function createTransition($from, $to)
+    {
+        $this->validateState($from);
+        $this->validateState($to);
+        $transition = new Transition($this->states[$from], $this->states[$to]);
+        $this->transitions[$transition->getName()] = $transition;
+    }
+
+    /**
+     * @param string[] $fromStates
+     * @param string[] $toStates
+     */
+    private function createMultiTransition(array $fromStates, array $toStates)
+    {
+        foreach ($fromStates as $fromState) {
+            foreach ($toStates as $toState) {
+                if ($fromState !== $toState) {
+                    $this->createTransition($fromState, $toState);
+                }
+            }
+        }
+    }
+
+    /**
+     * Triggers history change
+     *
+     * @param TransitionEvent $transitionEvent
+     */
+    private function dispatchHistoryChange(TransitionEvent $transitionEvent)
+    {
+        $this->eventDispatcher->dispatch(Events::EVENT_HISTORY_CHANGE, $transitionEvent);
     }
 }

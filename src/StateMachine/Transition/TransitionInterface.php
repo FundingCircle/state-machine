@@ -6,6 +6,8 @@ use StateMachine\State\StateInterface;
 
 interface TransitionInterface
 {
+    const EDGE_SYMBOL = '::';
+
     /**
      * @return StateInterface
      **/

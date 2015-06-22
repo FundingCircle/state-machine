@@ -17,6 +17,12 @@ class TransitionEvent extends Event
     /** @var  array */
     private $messages;
 
+    /** @var \Closure */
+    private $failedCallback;
+
+    /** @var  bool */
+    private $transitionRejected;
+
     /**
      * @param StatefulInterface   $object
      * @param TransitionInterface $transition
@@ -25,6 +31,8 @@ class TransitionEvent extends Event
     {
         $this->object = $object;
         $this->transition = $transition;
+        $this->transitionRejected = false;
+        $this->messages = [];
     }
 
     /**
@@ -57,5 +65,39 @@ class TransitionEvent extends Event
     public function getMessages()
     {
         return $this->messages;
+    }
+
+    /**
+     * @return callable
+     */
+    public function getFailedCallback()
+    {
+        return $this->failedCallback;
+    }
+
+    /**
+     * @param callable $failedCallback
+     */
+    public function setFailedCallback(\Closure $failedCallback)
+    {
+        $this->failedCallback = $failedCallback;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isTransitionRejected()
+    {
+        return $this->transitionRejected;
+    }
+
+    /**
+     * @param $callable
+     */
+    public function rejectTransition($callable)
+    {
+        $this->failedCallback = $callable;
+        $this->transitionRejected = true;
+        $this->stopPropagation();
     }
 }

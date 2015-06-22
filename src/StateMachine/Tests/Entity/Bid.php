@@ -7,7 +7,7 @@ use StateMachine\Traits\StatefulTrait;
 
 class Bid implements StatefulInterface
 {
-    use StatefulTrait
+    use StatefulTrait;
     private $state;
 
     /**

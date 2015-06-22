@@ -48,13 +48,11 @@ class StateMachineFixtures
         $stateMachine->addState('error');
         $stateMachine->addState('paid');
 
-        $stateMachine->addTransition('new', 'cancelled');
         $stateMachine->addTransition('new', 'committed');
-        $stateMachine->addTransition('cancelled', 'paid');
-        $stateMachine->addTransition('checking_out', 'purchased');
         $stateMachine->addTransition('originating', 'error');
         $stateMachine->addTransition('originating', 'paid');
         $stateMachine->addTransition('error', 'committed');
+        $stateMachine->addTransition('committed', 'originating');
 
         return $stateMachine;
     }

@@ -46,6 +46,11 @@ interface StateMachineInterface
     public function getAllowedTransitions();
 
     /**
+     * @return array
+     */
+    public function getAllTransitions();
+
+    /**
      * Check if it's possible to transit to given state
      *
      * @param string $state
