@@ -27,6 +27,7 @@ class HistoryListener implements HistoryListenerInterface
 
             $stateChange = new StateChange();
             $stateChange->setStateMachine($stateMachine->getName());
+            $stateChange->setIdentifier($transitionEvent->getObject()->getId());
             $stateChange->setMessages($stateMachine->getMessages());
             $stateChange->setPassed(!$transitionEvent->isTransitionRejected());
             $stateChange->setPostTransitions($postTransitions);

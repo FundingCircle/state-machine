@@ -9,6 +9,10 @@ interface StateChangeInterface
 
     public function getStateMachine();
 
+    public function setIdentifier($identifier);
+
+    public function getIdentifier();
+
     public function setTransition($transition);
 
     public function getTransition();

@@ -6,6 +6,7 @@ use StateMachine\Accessor\StateAccessorInterface;
 use StateMachine\Event\Events;
 use StateMachine\Event\TransitionEvent;
 use StateMachine\Exception\StateMachineException;
+use StateMachine\History\HistoryCollection;
 use StateMachine\History\StateChangeInterface;
 use StateMachine\Listener\HistoryListener;
 use StateMachine\Listener\HistoryListenerInterface;
@@ -50,8 +51,8 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     /** @var EventDispatcherInterface */
     private $eventDispatcher;
 
-    /** @var array */
-    private $history;
+    /** @var StateChangeInterface[] */
+    private $historyCollection;
 
     /** @var array */
     private $messages;
@@ -80,6 +81,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         $this->states = [];
         $this->transitions = [];
         $this->messages = [];
+        $this->historyCollection = new HistoryCollection();
         //register history listener
         $this->eventDispatcher->addListener(Events::EVENT_HISTORY_CHANGE, [$this->historyListener, 'onHistoryChange']);
     }
@@ -274,7 +276,8 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         if (!$this->canTransitionTo($state)) {
             throw new StateMachineException(
                 sprintf(
-                    "There's no transition defined from (%s) to (%s), allowed transitions to : [ %s ]",
+                    "There's no transition defined from (%s) to (%s), allowed transitions to : [ %s ]
+                     or previous transition failed check history for more info",
                     $this->currentState->getName(),
                     $state,
                     implode(',', $this->currentState->getTransitions())
@@ -324,7 +327,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
      */
     public function addStateChange(StateChangeInterface $stateChange)
     {
-        $this->history[] = $stateChange;
+        $this->historyCollection->add($stateChange);
     }
 
     /**
@@ -332,7 +335,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
      */
     public function getHistory()
     {
-        return $this->history;
+        return $this->historyCollection;
     }
 
     /**
@@ -340,7 +343,13 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
      */
     public function getLastTransition()
     {
-        return array_pop($this->history);
+        /** @var StateChangeInterface $lastChange */
+        $lastChange = $this->historyCollection->last();
+        if (null == $lastChange) {
+            return null;
+        }
+
+        return $this->transitions[$lastChange->getTransition()];
     }
 
     /**

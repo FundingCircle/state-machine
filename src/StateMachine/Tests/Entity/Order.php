@@ -8,6 +8,13 @@ class Order implements StatefulInterface
 {
     use StatefulTrait;
     private $state;
+    private $id;
+
+
+    public function __construct($id)
+    {
+        $this->id = $id;
+    }
 
     /**
      * @return mixed
@@ -23,5 +30,13 @@ class Order implements StatefulInterface
     public function setState($state)
     {
         $this->state = $state;
+    }
+
+    /**
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
     }
 }

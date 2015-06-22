@@ -6,6 +6,8 @@ class StateChange implements StateChangeInterface
 {
     /** @var string */
     private $transition;
+    /** @var  int */
+    private $identifier;
     /** @var array */
     private $preTransitions;
     /** @var array */
@@ -20,6 +22,22 @@ class StateChange implements StateChangeInterface
     private $stateMachine;
     /** @var string */
     private $failedCallBack;
+
+    /**
+     * @return int
+     */
+    public function getIdentifier()
+    {
+        return $this->identifier;
+    }
+
+    /**
+     * @param int $identifier
+     */
+    public function setIdentifier($identifier)
+    {
+        $this->identifier = $identifier;
+    }
 
     /**
      * @return string

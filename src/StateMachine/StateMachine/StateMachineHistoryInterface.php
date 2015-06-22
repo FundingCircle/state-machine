@@ -1,9 +1,9 @@
 <?php
 namespace StateMachine\StateMachine;
 
+use StateMachine\History\HistoryCollection;
 use StateMachine\History\StateChangeInterface;
 use StateMachine\Transition\TransitionInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 interface StateMachineHistoryInterface
 {
@@ -13,7 +13,7 @@ interface StateMachineHistoryInterface
     public function addStateChange(StateChangeInterface $stateChange);
 
     /**
-     * @return array
+     * @return HistoryCollection
      */
     public function getHistory();
 
