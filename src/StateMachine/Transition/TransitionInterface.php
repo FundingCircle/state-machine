@@ -22,4 +22,84 @@ interface TransitionInterface
      * @return string
      */
     public function getName();
+
+    /**
+     * @return int
+     */
+    public function getIdentifier();
+
+    /**
+     * @param int $identifier
+     */
+    public function setIdentifier($identifier);
+
+    /**
+     * @return string
+     */
+    public function getObjectClass();
+
+    /**
+     * @param string $objectClass
+     */
+    public function setObjectClass($objectClass);
+
+    /**
+     * @return array
+     */
+    public function getPreTransitions();
+
+    /**
+     * @param string $preTransition
+     */
+    public function addPreTransition($preTransition);
+
+    /**
+     * @return array
+     */
+    public function getPostTransitions();
+
+    /**
+     * @param string $postTransition
+     */
+    public function addPostTransition($postTransition);
+
+    /**
+     * @return array
+     */
+    public function getGuards();
+
+    /**
+     * @param string $guard
+     */
+    public function addGuard($guard);
+
+    /**
+     * @return string
+     */
+    public function getFailedCallback();
+
+    /**
+     * @param string $failedCallback
+     */
+    public function setFailedCallback($failedCallback);
+
+    /**
+     * @return boolean
+     */
+    public function isPassed();
+
+    /**
+     * @param boolean $passed
+     */
+    public function setPassed($passed);
+
+    /**
+     * @return array
+     */
+    public function getMessages();
+
+    /**
+     * @param string $message
+     */
+    public function addMessage($message);
 }

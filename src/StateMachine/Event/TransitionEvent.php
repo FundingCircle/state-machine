@@ -56,7 +56,7 @@ class TransitionEvent extends Event
      */
     public function addMessage($message)
     {
-        $this->messages[] = $message;
+        $this->transition->addMessage($message);
     }
 
     /**
@@ -64,7 +64,7 @@ class TransitionEvent extends Event
      */
     public function getMessages()
     {
-        return $this->messages;
+        return $this->transition->getMessages();
     }
 
     /**

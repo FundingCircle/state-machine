@@ -36,7 +36,7 @@ class GuardsTest extends \PHPUnit_Framework_TestCase
         $stateMachine->boot();
         $return = $stateMachine->transitionTo('checking_out');
         $this->assertTrue($return);
-        $this->assertEmpty($stateMachine->getMessages());
+        $this->assertEmpty($stateMachine->getLastTransition()->getMessages());
     }
 
     public function testGuardExistingTransitionWithFalseReturn()
@@ -53,6 +53,9 @@ class GuardsTest extends \PHPUnit_Framework_TestCase
         $return = $stateMachine->transitionTo('checking_out');
 
         $this->assertFalse($return);
-        $this->assertArraySubset(["Transition is rejected by guard"], $stateMachine->getMessages());
+        $this->assertArraySubset(
+            ["Transition is rejected by guard"],
+            $stateMachine->getLastTransition()->getMessages()
+        );
     }
 }

@@ -21,39 +21,14 @@ class HistoryListener implements HistoryListenerInterface
     ) {
         $stateMachine = $transitionEvent->getObject()->getStateMachine();
         if ($stateMachine instanceof StateMachineHistoryInterface) {
-            $postTransitions = $this->getClassNamesFromEvent($eventDispatcher, Events::EVENT_POST_TRANSITION);
-            $preTransitions = $this->getClassNamesFromEvent($eventDispatcher, Events::EVENT_PRE_TRANSITION);
-            $guards = $this->getClassNamesFromEvent($eventDispatcher, Events::EVENT_ON_GUARD);
+            $transition = $transitionEvent->getTransition();
+            $transition->setObjectClass(get_class($transitionEvent->getObject()));
+            $transition->setIdentifier($transitionEvent->getObject()->getId());
+            $transition->setPassed(!$transitionEvent->isTransitionRejected());
+            $transition->setFailedCallBack($transitionEvent->getFailedCallback());
 
-            $stateChange = new StateChange();
-            $stateChange->setStateMachine($stateMachine->getName());
-            $stateChange->setIdentifier($transitionEvent->getObject()->getId());
-            $stateChange->setMessages($stateMachine->getMessages());
-            $stateChange->setPassed(!$transitionEvent->isTransitionRejected());
-            $stateChange->setPostTransitions($postTransitions);
-            $stateChange->setPreTransitions($preTransitions);
-            $stateChange->setGuards($guards);
-            $stateChange->setTransition($transitionEvent->getTransition()->getName());
-            $stateChange->setFailedCallBack($transitionEvent->getFailedCallback());
-
-            $stateMachine->addStateChange($stateChange);
+            $stateMachine->getHistory()->add($transition);
         }
     }
 
-    /**
-     * @param EventDispatcherInterface $eventDispatcher
-     * @param string                   $eventName
-     *
-     * @return array
-     */
-    private function getClassNamesFromEvent(EventDispatcherInterface $eventDispatcher, $eventName)
-    {
-        $classNames = [];
-        $listeners = $eventDispatcher->getListeners($eventName);
-        foreach ($listeners as $listener) {
-            $classNames[] = get_class($listener);
-        }
-
-        return $classNames;
-    }
 }

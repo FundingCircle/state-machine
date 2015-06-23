@@ -42,17 +42,17 @@ class HistoryTest extends \PHPUnit_Framework_TestCase
 
         $stateMachine->transitionTo('checking_out');
         $lastTransition = $stateMachine->getLastTransition();
-        $statChange = $stateMachine->getHistory()->last();
+        $transition = $stateMachine->getHistory()->last();
 
-        $this->assertFalse($statChange->isPassed());
-        $this->assertEquals(1, $statChange->getIdentifier());
+        $this->assertFalse($transition->isPassed());
+        $this->assertEquals(1, $transition->getIdentifier());
         $this->assertEquals(1, $stateMachine->getHistory()->count());
-        $this->assertEmpty($statChange->getPreTransitions());
-        $this->assertEmpty($statChange->getPostTransitions());
-        $this->assertEmpty($statChange->getMessages());
-        $this->assertEquals(1, count($statChange->getGuards()));
-        $this->assertNotNull($statChange->getFailedCallBack());
-        $this->assertEquals("StateMachine\Tests\Entity\Order", $stateMachine->getHistory()->first()->getStateMachine());
+        $this->assertEmpty($transition->getPreTransitions());
+        $this->assertEmpty($transition->getPostTransitions());
+        $this->assertEmpty($transition->getMessages());
+        $this->assertEquals(1, count($transition->getGuards()));
+        $this->assertNotNull($transition->getFailedCallBack());
+        $this->assertEquals("StateMachine\Tests\Entity\Order", $stateMachine->getHistory()->first()->getObjectClass());
         $this->assertEquals('pending::checking_out', $lastTransition->getName());
     }
 
