@@ -27,7 +27,8 @@
   },
   "autoload": {
     "psr-4": {
-      "StateMachine\\": "src/StateMachine"
+      "StateMachine\\": "src/StateMachine",
+      "StateMachineBundle\\": "src/StateMachineBundle"
     }
   },
   "scripts": {
