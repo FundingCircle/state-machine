@@ -180,7 +180,8 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         }
 
         $this->validateTransition($transition);
-        $this->transitions[$transition]->addGuard(get_class($callable));
+        $callableClass = ($callable instanceof \Closure) ? "closure" : get_class($callable[0]);
+        $this->transitions[$transition]->addGuard($callableClass);
         $this->eventDispatcher->addListener(Events::EVENT_ON_GUARD, $callable);
     }
 
@@ -194,7 +195,8 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         }
 
         $this->validateTransition($transition);
-        $this->transitions[$transition]->addPreTransition(get_class($callable));
+        $callableClass = ($callable instanceof \Closure) ? "closure" : get_class($callable[0]);
+        $this->transitions[$transition]->addPreTransition($callableClass);
         $this->eventDispatcher->addListener(Events::EVENT_PRE_TRANSITION, $callable);
     }
 
@@ -208,7 +210,8 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         }
 
         $this->validateTransition($transition);
-        $this->transitions[$transition]->addPostTransition(get_class($callable));
+        $callableClass = ($callable instanceof \Closure) ? "closure" : get_class($callable[0]);
+        $this->transitions[$transition]->addPostTransition($callableClass);
         $this->eventDispatcher->addListener(Events::EVENT_POST_TRANSITION, $callable, $priority);
     }
 

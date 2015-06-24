@@ -8,3 +8,10 @@ services:
             - @event_dispatcher
             - ~
             - ~
+
+    statemachine.subscriber.doctrine_loader:
+        class: StateMachineBundle\Subscriber\StateMachineLoaderSubscriber
+        arguments:
+            - @statemachine.factory
+        tags:
+            - { name: doctrine.event_subscriber }
