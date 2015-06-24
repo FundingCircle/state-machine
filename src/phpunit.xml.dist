@@ -8,17 +8,20 @@
     processIsolation="false"
     stopOnFailure="false"
     syntaxCheck="false"
-    bootstrap="./Tests/bootstrap.php">
+    bootstrap="./test_bootstrap.php">
     <testsuites>
         <testsuite name="Statemachine Test Suite">
-            <directory suffix="Test.php">./Tests</directory>
+            <directory suffix="Test.php">./</directory>
         </testsuite>
     </testsuites>
     <filter>
         <whitelist>
             <directory>./</directory>
             <exclude>
-                <directory>./Tests</directory>
+                <directory>./StateMachine/Tests</directory>
+                <directory>./StateMachineBundle/Tests</directory>
+                <directory>./test_bootstrap.php</directory>
+                <directory>./StateMachineBundle/DependencyInjection/Configuration.php</directory>
             </exclude>
         </whitelist>
     </filter>
