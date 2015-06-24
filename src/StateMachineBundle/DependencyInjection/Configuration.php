@@ -2,6 +2,7 @@
 
 namespace StateMachineBundle\DependencyInjection;
 
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -12,6 +13,7 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
  */
 class Configuration implements ConfigurationInterface
 {
+    private static $stateTypes = ['initial', 'normal', 'final'];
     /**
      * {@inheritdoc}
      */
@@ -19,11 +21,81 @@ class Configuration implements ConfigurationInterface
     {
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root('state_machine');
-
-        // Here you should define the parameters that are allowed to
-        // configure your bundle. See the documentation linked above for
-        // more information on that topic.
+        $this->addGeneralSection($rootNode);
+        $this->addStateMachinesSection($rootNode);
 
         return $treeBuilder;
+    }
+
+    protected function addGeneralSection(ArrayNodeDefinition $rootNode)
+    {
+        $rootNode
+            ->children()
+                ->scalarNode('transition_class')->defaultValue('StateMachine\Transition\Transition')->end()
+                ->scalarNode('state_accessor')->defaultValue('statemachine.state_accessor')->end()
+                ->scalarNode('history_listener')->defaultValue('statemachine.listener.history')->end()
+            ->end()
+        ;
+    }
+
+    protected function addStateMachinesSection(ArrayNodeDefinition $rootNode)
+    {
+        $rootNode
+            ->children()
+                ->arrayNode('state_machines')
+                    ->prototype('array')
+                        ->children()
+                            ->scalarNode('class')->cannotBeEmpty()->isRequired()->end()
+                            ->scalarNode('property')->cannotBeEmpty()->isRequired()->end()
+                            ->arrayNode('states')
+                                ->prototype('array')
+                                    ->children()
+                                        ->scalarNode('type')
+                                        ->cannotBeEmpty()
+                                        ->defaultValue('normal')
+                                        ->validate()
+                                        ->ifNotInArray(self::$stateTypes)
+                                        ->thenInvalid('Invalid state type "%s" type must be '.implode(',',self::$stateTypes))
+                                        ->end()
+                                    ->end()
+                                ->end()
+                            ->end()->end()
+                            ->arrayNode('transitions')->prototype('array')
+                                ->children()
+                                    ->arrayNode('from')
+                                        ->prototype('variable')->end()
+                                    ->end()
+                                    ->arrayNode('to')
+                                        ->prototype('variable')->end()
+                                    ->end()
+                                    ->arrayNode('guards')
+                                        ->prototype('array')
+                                            ->children()
+                                                ->scalarNode('callback')->end()
+                                                ->scalarNode('method')->end()
+                                            ->end()
+                                        ->end()
+                                    ->end()
+                                    ->arrayNode('pre_transitions')
+                                        ->prototype('array')
+                                            ->children()
+                                                ->scalarNode('callback')->end()
+                                                ->scalarNode('method')->end()
+                                            ->end()
+                                        ->end()
+                                    ->end()
+                                    ->arrayNode('post_transitions')
+                                        ->prototype('array')
+                                            ->children()
+                                                ->scalarNode('callback')->end()
+                                                ->scalarNode('method')->end()
+                                            ->end()
+                                        ->end()
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+            ->end();
     }
 }

@@ -1,0 +1,10 @@
+services:
+    statemachine.listener.history:
+        class: StateMachine\Listener\HistoryListener
+
+    statemachine.factory:
+        class: StateMachineBundle\StateMachine\StateMachineFactory
+        arguments:
+            - @event_dispatcher
+            - ~
+            - ~
