@@ -14,8 +14,7 @@ class StateMachineFixtures
 {
     public static function getOrderStateMachine()
     {
-        $class = "StateMachine\Tests\Entity\Order";
-        $stateMachine = new StateMachine($class, new Order(1), new EventDispatcher(), new StateAccessor());
+        $stateMachine = new StateMachine(new Order(1), new EventDispatcher(), new StateAccessor());
 
         $stateMachine->addState('pending', StateInterface::TYPE_INITIAL);
         $stateMachine->addState('checking_out');
@@ -38,8 +37,7 @@ class StateMachineFixtures
 
     public static function getBidStateMachine()
     {
-        $class = "StateMachine\Tests\Entity\Bid";
-        $stateMachine = new StateMachine($class, new Bid(2), new EventDispatcher(), new StateAccessor());
+        $stateMachine = new StateMachine(new Bid(2), new EventDispatcher(), new StateAccessor());
 
         $stateMachine->addState('new', StateInterface::TYPE_INITIAL);
         $stateMachine->addState('cancelled');

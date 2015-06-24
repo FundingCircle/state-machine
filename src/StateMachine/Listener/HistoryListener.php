@@ -3,9 +3,7 @@
 
 namespace StateMachine\Listener;
 
-use StateMachine\Event\Events;
 use StateMachine\Event\TransitionEvent;
-use StateMachine\History\StateChange;
 use StateMachine\StateMachine\StateMachineHistoryInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

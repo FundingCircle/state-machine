@@ -12,7 +12,6 @@ use StateMachine\Listener\HistoryListenerInterface;
 use StateMachine\State\State;
 use StateMachine\State\StatefulInterface;
 use StateMachine\State\StateInterface;
-use StateMachine\Transition\Transition;
 use StateMachine\Transition\TransitionInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -23,9 +22,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class StateMachine implements StateMachineInterface, StateMachineHistoryInterface
 {
-    /** @var string */
-    private $class;
-
     /** @var StatefulInterface */
     private $object;
 
@@ -56,23 +52,25 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     /** @var array */
     private $messages;
 
+    private $transitionClass;
+
     /**
-     * @param string                   $class
      * @param StatefulInterface        $object
      * @param EventDispatcherInterface $eventDispatcher
      * @param StateAccessorInterface   $stateAccessor
      * @param HistoryListenerInterface $historyListener
+     * @param string                   $transitionClass
      */
     public function __construct(
-        $class,
         StatefulInterface $object,
         EventDispatcherInterface $eventDispatcher,
         StateAccessorInterface $stateAccessor = null,
-        HistoryListenerInterface $historyListener = null
+        HistoryListenerInterface $historyListener = null,
+        $transitionClass = null
     ) {
-        $this->class = $class;
         $this->stateAccessor = $stateAccessor ?: new StateAccessor();
         $this->historyListener = $historyListener ?: new HistoryListener();
+        $this->transitionClass = $transitionClass ?: 'StateMachine\Transition\Transition';
         $this->object = $object;
         $this->eventDispatcher = $eventDispatcher;
         $this->booted = false;
@@ -93,16 +91,6 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         if ($this->booted) {
             throw new StateMachineException("Statemachine is already booted");
         }
-        if (get_class($this->object) !== $this->class) {
-            throw new StateMachineException(
-                sprintf(
-                    "StateMachine expected object of class %s instead of %s",
-                    $this->class,
-                    get_class($this->object)
-                )
-            );
-        }
-
         $state = $this->stateAccessor->getState($this->object);
         //no state found for the object it means it's new instance, set initial state
         if (null === $state || '' == $state) {
@@ -159,9 +147,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
             $toStates = [$to];
         }
 
-        $this->createMultiTransition($fromStates, $toStates);
-
-        return $this;
+        return $this->createMultiTransition($fromStates, $toStates);
     }
 
     /**
@@ -187,7 +173,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     /**
      * {@inheritdoc}
      */
-    public function addGuard($transition, \Closure $callable)
+    public function addGuard($transition, $callable)
     {
         if ($this->booted) {
             throw new StateMachineException("Cannot add more guards to booted StateMachine");
@@ -201,7 +187,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     /**
      * {@inheritdoc}
      */
-    public function addPreTransition($transition, \Closure $callable, $priority = 0)
+    public function addPreTransition($transition, $callable, $priority = 0)
     {
         if ($this->booted) {
             throw new StateMachineException("Cannot add pre-transition to booted StateMachine");
@@ -215,7 +201,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     /**
      * {@inheritdoc}
      */
-    public function addPostTransition($transition, \Closure $callable, $priority = 0)
+    public function addPostTransition($transition, $callable, $priority = 0)
     {
         if ($this->booted) {
             throw new StateMachineException("Cannot add post-transition to booted StateMachine");
@@ -406,28 +392,40 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     /**
      * @param string $from
      * @param string $to
+     *
+     * @return TransitionInterface
+     * @throws StateMachineException
      */
     private function createTransition($from, $to)
     {
         $this->validateState($from);
         $this->validateState($to);
-        $transition = new Transition($this->states[$from], $this->states[$to]);
+        /** @var TransitionInterface $transition */
+        $transition = new $this->transitionClass($this->states[$from], $this->states[$to]);
         $this->transitions[$transition->getName()] = $transition;
+
+        return $transition;
     }
 
     /**
      * @param string[] $fromStates
      * @param string[] $toStates
+     *
+     * @return TransitionInterface[]
      */
     private function createMultiTransition(array $fromStates, array $toStates)
     {
+        $addedTransitions = [];
+
         foreach ($fromStates as $fromState) {
             foreach ($toStates as $toState) {
                 if ($fromState !== $toState) {
-                    $this->createTransition($fromState, $toState);
+                    $addedTransitions[] = $this->createTransition($fromState, $toState);
                 }
             }
         }
+
+        return $addedTransitions;
     }
 
     /**

@@ -12,10 +12,8 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
 {
     public function testCorrectObject()
     {
-        $class = "StateMachine\Tests\Entity\Order";
-        $stateMachine = new StateMachine($class, new Order(1), new EventDispatcher(), new StateAccessor());
-        $this->assertInstanceOf($class, $stateMachine->getObject());
-
+        $stateMachine = new StateMachine(new Order(1), new EventDispatcher(), new StateAccessor());
+        $this->assertNotNull($stateMachine->getObject());
     }
 
     public function testWithNoInitialState()
@@ -25,8 +23,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
             "No initial state is found"
         );
 
-        $class = "StateMachine\Tests\Entity\Order";
-        $stateMachine = new StateMachine($class, new Order(1), new EventDispatcher(), new StateAccessor());
+        $stateMachine = new StateMachine(new Order(1), new EventDispatcher(), new StateAccessor());
         $stateMachine->addState('pending');
         $stateMachine->addState('checking_out');
         $stateMachine->boot();
@@ -188,8 +185,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
     public function testWithWrongProperty()
     {
         $this->setExpectedException('StateMachine\Exception\StateMachineException');
-        $class = "StateMachine\Tests\Entity\Order";
-        $stateMachine = new StateMachine($class, new Order(1), new EventDispatcher(), new StateAccessor('wrong_state'));
+        $stateMachine = new StateMachine(new Order(1), new EventDispatcher(), new StateAccessor('wrong_state'));
 
         $stateMachine->addState('pending', StateInterface::TYPE_INITIAL);
         $stateMachine->addState('checking_out');
@@ -291,14 +287,6 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
         $this->setExpectedException('StateMachine\Exception\StateMachineException');
         $stateMachine = StateMachineFixtures::getOrderStateMachine();
         $stateMachine->transitionTo('paid');
-    }
-
-    public function testBootWithWrongClass()
-    {
-        $this->setExpectedException('StateMachine\Exception\StateMachineException');
-        $class = "StateMachine\Tests\Entity\Order2";
-        $stateMachine = new StateMachine($class, new Order(1), new EventDispatcher(), new StateAccessor());
-        $stateMachine->boot();
     }
 
     public function testBootTwice()

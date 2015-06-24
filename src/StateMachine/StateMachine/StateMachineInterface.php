@@ -72,7 +72,7 @@ interface StateMachineInterface
      * @param string   $transition
      * @param callable $callable
      */
-    public function addGuard($transition, \Closure $callable);
+    public function addGuard($transition, $callable);
 
     /**
      * @param string   $transition
@@ -80,7 +80,7 @@ interface StateMachineInterface
      * @param string   $priority
      *
      */
-    public function addPreTransition($transition, \Closure $callable, $priority);
+    public function addPreTransition($transition, $callable, $priority);
 
     /**
      * @param string   $transition
@@ -88,5 +88,5 @@ interface StateMachineInterface
      * @param string   $priority
      *
      */
-    public function addPostTransition($transition, \Closure $callable, $priority);
+    public function addPostTransition($transition, $callable, $priority);
 }
