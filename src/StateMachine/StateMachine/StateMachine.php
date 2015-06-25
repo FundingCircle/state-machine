@@ -52,7 +52,11 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     /** @var array */
     private $messages;
 
+    /** @var string */
     private $transitionClass;
+
+    /** @var  array */
+    private $transitionOptions = [];
 
     /**
      * @param StatefulInterface        $object
@@ -60,17 +64,20 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
      * @param StateAccessorInterface   $stateAccessor
      * @param HistoryListenerInterface $historyListener
      * @param string                   $transitionClass
+     * @param array                    $transitionOptions
      */
     public function __construct(
         StatefulInterface $object,
         EventDispatcherInterface $eventDispatcher,
         StateAccessorInterface $stateAccessor = null,
         HistoryListenerInterface $historyListener = null,
-        $transitionClass = null
+        $transitionClass = null,
+        $transitionOptions = []
     ) {
         $this->stateAccessor = $stateAccessor ?: new StateAccessor();
-        $this->historyListener = $historyListener ?: new HistoryListener();
+        $this->historyListener = $historyListener?: new HistoryListener();
         $this->transitionClass = $transitionClass ?: 'StateMachine\Transition\Transition';
+        $this->transitionOptions = $transitionOptions;
         $this->object = $object;
         $this->eventDispatcher = $eventDispatcher;
         $this->booted = false;
@@ -80,7 +87,12 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         $this->messages = [];
         $this->historyCollection = new HistoryCollection();
         //register history listener
-        $this->eventDispatcher->addListener(Events::EVENT_HISTORY_CHANGE, [$this->historyListener, 'onHistoryChange']);
+        if ($this->historyListener instanceof HistoryListenerInterface) {
+            $this->eventDispatcher->addListener(
+                Events::EVENT_HISTORY_CHANGE,
+                [$this->historyListener, 'onHistoryChange']
+            );
+        }
     }
 
     /**
@@ -250,8 +262,9 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     /**
      * {@inheritdoc}
      */
-    public function transitionTo($state)
+    public function transitionTo($state, $options = [])
     {
+        $options = array_merge($this->transitionOptions, $options);
         if (!$this->booted) {
             throw new StateMachineException("Statemachine is not booted");
         }
@@ -269,7 +282,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         }
         $transitionName = $this->currentState->getName().TransitionInterface::EDGE_SYMBOL.$state;
         $transition = $this->transitions[$transitionName];
-        $transitionEvent = new TransitionEvent($this->object, $transition);
+        $transitionEvent = new TransitionEvent($this->object, $transition, $options);
 
         //Execute guards
         /** @var TransitionEvent $transitionEvent */
@@ -277,7 +290,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         $this->messages = $transitionEvent->getMessages();
 
         if ($transitionEvent->isTransitionRejected()) {
-            $this->dispatchHistoryChange($transitionEvent);
+            $this->updateTransition($transitionEvent);
 
             return false;
         }
@@ -286,7 +299,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         $this->messages = $transitionEvent->getMessages();
 
         if ($transitionEvent->isTransitionRejected()) {
-            $this->dispatchHistoryChange($transitionEvent);
+            $this->updateTransition($transitionEvent);
 
             return false;
         }
@@ -299,7 +312,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         $this->eventDispatcher->dispatch(Events::EVENT_POST_TRANSITION, $transitionEvent);
         $this->messages = $transitionEvent->getMessages();
 
-        $this->dispatchHistoryChange($transitionEvent);
+        $this->updateTransition($transitionEvent);
 
         return true;
     }
@@ -436,8 +449,15 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
      *
      * @param TransitionEvent $transitionEvent
      */
-    private function dispatchHistoryChange(TransitionEvent $transitionEvent)
+    private function updateTransition(TransitionEvent $transitionEvent)
     {
+        $transition = $transitionEvent->getTransition();
+
+        $transition->setObjectClass(get_class($transitionEvent->getObject()));
+        $transition->setIdentifier($transitionEvent->getObject()->getId());
+        $transition->setPassed(!$transitionEvent->isTransitionRejected());
+        $transition->setFailedCallBack($transitionEvent->getFailedCallback());
+
         $this->eventDispatcher->dispatch(Events::EVENT_HISTORY_CHANGE, $transitionEvent);
     }
 }

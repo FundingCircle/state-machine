@@ -63,10 +63,11 @@ interface StateMachineInterface
      * Transit the object to given state
      *
      * @param string $state
+     * @param array  $options
      *
      * @return bool
      */
-    public function transitionTo($state);
+    public function transitionTo($state, $options = []);
 
     /**
      * @param string   $transition

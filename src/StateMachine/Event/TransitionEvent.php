@@ -17,22 +17,27 @@ class TransitionEvent extends Event
     /** @var  array */
     private $messages;
 
-    /** @var mixed */
+    /** @var string */
     private $failedCallback;
 
     /** @var  bool */
     private $transitionRejected;
 
+    /** @var  array */
+    private $options = [];
+
     /**
      * @param StatefulInterface   $object
      * @param TransitionInterface $transition
+     * @param array               $options
      */
-    public function __construct(StatefulInterface $object, TransitionInterface $transition)
+    public function __construct(StatefulInterface $object, TransitionInterface $transition, $options = [])
     {
         $this->object = $object;
         $this->transition = $transition;
         $this->transitionRejected = false;
         $this->messages = [];
+        $this->options = array_merge($this->options, $options);
     }
 
     /**
@@ -81,6 +86,14 @@ class TransitionEvent extends Event
     public function isTransitionRejected()
     {
         return $this->transitionRejected;
+    }
+
+    /**
+     * @return array
+     */
+    public function getOptions()
+    {
+        return $this->options;
     }
 
     /**

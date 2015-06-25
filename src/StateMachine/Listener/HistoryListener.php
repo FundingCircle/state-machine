@@ -20,13 +20,9 @@ class HistoryListener implements HistoryListenerInterface
         $stateMachine = $transitionEvent->getObject()->getStateMachine();
         if ($stateMachine instanceof StateMachineHistoryInterface) {
             $transition = $transitionEvent->getTransition();
-            $transition->setObjectClass(get_class($transitionEvent->getObject()));
-            $transition->setIdentifier($transitionEvent->getObject()->getId());
-            $transition->setPassed(!$transitionEvent->isTransitionRejected());
-            $transition->setFailedCallBack($transitionEvent->getFailedCallback());
-
             $stateMachine->getHistory()->add($transition);
         }
-    }
 
+        return $transition;
+    }
 }

@@ -37,7 +37,6 @@ class Transition implements TransitionInterface
     {
         $this->fromState = $fromState;
         $this->toState = $toState;
-        $this->name = $fromState->getName().static::EDGE_SYMBOL.$toState->getName();
     }
 
     /**
@@ -61,7 +60,7 @@ class Transition implements TransitionInterface
      */
     public function getName()
     {
-        return $this->name;
+        return $this->fromState->getName().static::EDGE_SYMBOL.$this->toState->getName();
     }
 
     /**
