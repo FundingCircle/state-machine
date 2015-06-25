@@ -26,7 +26,8 @@ class StateMachineLoaderSubscriber implements EventSubscriber
     public function getSubscribedEvents()
     {
         return [
-            'postLoad'
+            'postLoad',
+            'prePersist'
         ];
     }
 
@@ -42,6 +43,23 @@ class StateMachineLoaderSubscriber implements EventSubscriber
         $entity = $eventArgs->getEntity();
 
         if ($entity instanceof StatefulInterface) {
+            $stateMachine = $this->stateMachineFactory->get($entity);
+            $entity->setStateMachine($stateMachine);
+        }
+    }
+
+    /**
+     * While creating new object set statemachine and initial state
+     *
+     * @param LifecycleEventArgs $eventArgs
+     *
+     * @throws \StateMachine\Exception\StateMachineException
+     */
+    public function prePersist(LifecycleEventArgs $eventArgs)
+    {
+        $entity = $eventArgs->getEntity();
+
+        if ($entity instanceof StatefulInterface && $entity->getStateMachine() == null) {
             $stateMachine = $this->stateMachineFactory->get($entity);
             $entity->setStateMachine($stateMachine);
         }

@@ -4,6 +4,7 @@ namespace StateMachineBundle\DependencyInjection;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\DependencyInjection\Loader;
@@ -25,10 +26,10 @@ class StateMachineExtension extends Extension
 
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
-
         $stateMachineFactory = $container->getDefinition('statemachine.factory');
 
-        $historyListener = new Reference($config['history_listener']);
+        $historyListener = $container->getDefinition($config['history_listener']);
+        $historyListener->addTag('kernel.event_subscriber');
 
         $stateMachineFactory->replaceArgument(1, $historyListener);
         $stateMachineFactory->replaceArgument(2, $config['transition_class']);
@@ -39,10 +40,10 @@ class StateMachineExtension extends Extension
                     $guard['callback'] = new Reference($guard['callback']);
                 }
                 foreach ($transition['pre_transitions'] as &$preTransition) {
-                    $guard['callback'] = new Reference($preTransition['callback']);
+                    $preTransition['callback'] = new Reference($preTransition['callback']);
                 }
                 foreach ($transition['post_transitions'] as &$postTransition) {
-                    $guard['callback'] = new Reference($postTransition['callback']);
+                    $postTransition['callback'] = new Reference($postTransition['callback']);
                 }
             }
 

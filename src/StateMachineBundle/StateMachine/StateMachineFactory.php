@@ -21,7 +21,6 @@ class StateMachineFactory
 
     /** @var  HistoryListenerInterface */
     private $historyListener;
-
     /** @var  string */
     private $transitionClass;
 
@@ -30,7 +29,6 @@ class StateMachineFactory
 
     /**
      * @param EventDispatcherInterface $eventDispatcher
-     * @param HistoryListenerInterface $historyListener
      * @param string                   $transitionClass
      */
     public function __construct(
@@ -80,7 +78,9 @@ class StateMachineFactory
             $this->eventDispatcher,
             new StateAccessor($definition['property']),
             $this->historyListener,
-            $this->transitionClass
+//            null, //using subscriber instead to prevent circular reference injection
+            $this->transitionClass,
+            $definition['options']
         );
         //adding states
         foreach ($definition['states'] as $name => $state) {

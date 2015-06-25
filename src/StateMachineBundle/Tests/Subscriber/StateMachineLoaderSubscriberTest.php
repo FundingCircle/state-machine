@@ -53,7 +53,7 @@ class StateMachineLoaderSubscriberTest extends \PHPUnit_Framework_TestCase
         $factoryMock = $this->getMockBuilder('\StateMachineBundle\StateMachine\StateMachineFactory')
             ->disableOriginalConstructor()->getMock();
         $subscriber = new StateMachineLoaderSubscriber($factoryMock);
-        $this->assertEquals(['postLoad'], $subscriber->getSubscribedEvents());
+        $this->assertEquals(['postLoad', 'prePersist'], $subscriber->getSubscribedEvents());
 
     }
 }

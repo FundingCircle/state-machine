@@ -1,6 +1,9 @@
 services:
     statemachine.listener.history:
-        class: StateMachine\Listener\HistoryListener
+        class: StateMachineBundle\Listener\HistoryListener
+        arguments:
+#            TODO make object manager dyanmically depends on config
+            - @service_container
 
     statemachine.factory:
         class: StateMachineBundle\StateMachine\StateMachineFactory
@@ -15,3 +18,11 @@ services:
             - @statemachine.factory
         tags:
             - { name: doctrine.event_subscriber }
+
+    statemachine.subscriber.persistent:
+        class: StateMachineBundle\Subscriber\PersistentSubscriber
+        tags:
+            - { name: kernel.event_subscriber }
+        arguments:
+            - @doctrine.orm.entity_manager
+#TODO make object manager dyanmically depends on config

@@ -14,6 +14,10 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 class Configuration implements ConfigurationInterface
 {
     private static $stateTypes = ['initial', 'normal', 'final'];
+
+    private static $defaultOptions = [
+        'flush' => true
+    ];
     /**
      * {@inheritdoc}
      */
@@ -31,7 +35,7 @@ class Configuration implements ConfigurationInterface
     {
         $rootNode
             ->children()
-                ->scalarNode('transition_class')->defaultValue('StateMachine\Transition\Transition')->end()
+                ->scalarNode('transition_class')->defaultValue('StateMachineBundle\Entity\Transition')->end()
                 ->scalarNode('state_accessor')->defaultValue('statemachine.state_accessor')->end()
                 ->scalarNode('history_listener')->defaultValue('statemachine.listener.history')->end()
             ->end()
@@ -45,8 +49,13 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('state_machines')
                     ->prototype('array')
                         ->children()
+
                             ->scalarNode('class')->cannotBeEmpty()->isRequired()->end()
                             ->scalarNode('property')->cannotBeEmpty()->isRequired()->end()
+                            ->arrayNode('options')
+                                ->prototype('scalar')->end()
+                                ->defaultValue(self::$defaultOptions)
+                            ->end()
                             ->arrayNode('states')
                                 ->prototype('array')
                                     ->children()

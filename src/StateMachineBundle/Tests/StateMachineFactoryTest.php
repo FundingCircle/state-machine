@@ -20,6 +20,7 @@ class StateMachineFactoryTest extends \PHPUnit_Framework_TestCase
         $definition = [
             "class"       => "StateMachineBundle\Tests\Entity\Order",
             "property"    => "state",
+            "options"     => ['flush' => true],
             "states"      => [
                 "new"         => [
                     "type" => "initial"
