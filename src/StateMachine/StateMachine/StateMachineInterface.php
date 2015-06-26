@@ -54,10 +54,11 @@ interface StateMachineInterface
      * Check if it's possible to transit to given state
      *
      * @param string $state
+     * @param bool   $withGuards
      *
      * @return bool
      */
-    public function canTransitionTo($state);
+    public function canTransitionTo($state, $withGuards);
 
     /**
      * Transit the object to given state

@@ -7,6 +7,7 @@ use StateMachine\Exception\StateMachineException;
 use StateMachine\Listener\HistoryListenerInterface;
 use StateMachine\State\StatefulInterface;
 use StateMachine\StateMachine\StateMachine;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -16,11 +17,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class StateMachineFactory
 {
-    /** @var  EventDispatcherInterface */
-    private $eventDispatcher;
-
-    /** @var  HistoryListenerInterface */
-    private $historyListener;
     /** @var  string */
     private $transitionClass;
 
@@ -28,16 +24,10 @@ class StateMachineFactory
     private $stateMachineDefinitions;
 
     /**
-     * @param EventDispatcherInterface $eventDispatcher
-     * @param string                   $transitionClass
+     * @param null $transitionClass
      */
-    public function __construct(
-        EventDispatcherInterface $eventDispatcher,
-        HistoryListenerInterface $historyListener = null,
-        $transitionClass = null
-    ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->historyListener = $historyListener;
+    public function __construct($transitionClass = null)
+    {
         $this->transitionClass = $transitionClass;
     }
 
@@ -75,10 +65,8 @@ class StateMachineFactory
 
         $stateMachine = new StateMachine(
             $statefulObject,
-            $this->eventDispatcher,
             new StateAccessor($definition['property']),
-            $this->historyListener,
-//            null, //using subscriber instead to prevent circular reference injection
+            null,
             $this->transitionClass,
             $definition['options']
         );

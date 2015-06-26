@@ -4,6 +4,7 @@
 namespace StateMachine\Tests\Fixtures;
 
 use StateMachine\Accessor\StateAccessor;
+use StateMachine\Listener\HistoryListener;
 use StateMachine\State\StateInterface;
 use StateMachine\StateMachine\StateMachine;
 use StateMachine\Tests\Entity\Bid;
@@ -14,7 +15,11 @@ class StateMachineFixtures
 {
     public static function getOrderStateMachine()
     {
-        $stateMachine = new StateMachine(new Order(1), new EventDispatcher(), new StateAccessor());
+        $stateMachine = new StateMachine(
+            new Order(1),
+            new StateAccessor(),
+            new HistoryListener()
+        );
 
         $stateMachine->addState('pending', StateInterface::TYPE_INITIAL);
         $stateMachine->addState('checking_out');
@@ -37,7 +42,11 @@ class StateMachineFixtures
 
     public static function getBidStateMachine()
     {
-        $stateMachine = new StateMachine(new Bid(2), new EventDispatcher(), new StateAccessor());
+        $stateMachine = new StateMachine(
+            new Bid(2),
+            new StateAccessor(),
+            new HistoryListener()
+        );
 
         $stateMachine->addState('new', StateInterface::TYPE_INITIAL);
         $stateMachine->addState('cancelled');

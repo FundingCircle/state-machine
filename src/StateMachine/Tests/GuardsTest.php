@@ -58,4 +58,27 @@ class GuardsTest extends \PHPUnit_Framework_TestCase
             $stateMachine->getLastTransition()->getMessages()
         );
     }
+
+    public function testMultiStateMachineWithOneGuard()
+    {
+        $stateMachine1 = StateMachineFixtures::getOrderStateMachine();
+        $stateMachine2 = StateMachineFixtures::getOrderStateMachine();
+
+        $stateMachine1->addGuard(
+            'pending::checking_out',
+            function (TransitionEvent $transitionEvent) {
+                $transitionEvent->addMessage("Transition is rejected by guard");
+                $transitionEvent->rejectTransition($this);
+            }
+        );
+        $stateMachine1->boot();
+        $stateMachine2->boot();
+
+        $this->assertTrue($stateMachine2->canTransitionTo("checking_out"));
+        $this->assertTrue($stateMachine2->transitionTo('checking_out'));
+
+        $this->assertTrue($stateMachine1->canTransitionTo('checking_out'));
+        $this->assertFalse($stateMachine1->canTransitionTo('checking_out', true));
+        $this->assertFalse($stateMachine1->transitionTo('checking_out'));
+    }
 }

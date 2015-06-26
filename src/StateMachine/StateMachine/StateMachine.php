@@ -7,12 +7,12 @@ use StateMachine\Event\Events;
 use StateMachine\Event\TransitionEvent;
 use StateMachine\Exception\StateMachineException;
 use StateMachine\History\HistoryCollection;
-use StateMachine\Listener\HistoryListener;
 use StateMachine\Listener\HistoryListenerInterface;
 use StateMachine\State\State;
 use StateMachine\State\StatefulInterface;
 use StateMachine\State\StateInterface;
 use StateMachine\Transition\TransitionInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -50,7 +50,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     private $historyCollection;
 
     /** @var array */
-    private $messages;
+    private $messages = [];
 
     /** @var string */
     private $transitionClass;
@@ -60,7 +60,6 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
 
     /**
      * @param StatefulInterface        $object
-     * @param EventDispatcherInterface $eventDispatcher
      * @param StateAccessorInterface   $stateAccessor
      * @param HistoryListenerInterface $historyListener
      * @param string                   $transitionClass
@@ -68,31 +67,23 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
      */
     public function __construct(
         StatefulInterface $object,
-        EventDispatcherInterface $eventDispatcher,
         StateAccessorInterface $stateAccessor = null,
         HistoryListenerInterface $historyListener = null,
         $transitionClass = null,
         $transitionOptions = []
     ) {
         $this->stateAccessor = $stateAccessor ?: new StateAccessor();
-        $this->historyListener = $historyListener?: new HistoryListener();
+        $this->historyListener = $historyListener;
         $this->transitionClass = $transitionClass ?: 'StateMachine\Transition\Transition';
         $this->transitionOptions = $transitionOptions;
         $this->object = $object;
-        $this->eventDispatcher = $eventDispatcher;
         $this->booted = false;
         $this->object->setStateMachine($this);
         $this->states = [];
         $this->transitions = [];
         $this->messages = [];
+        $this->eventDispatcher = new EventDispatcher();
         $this->historyCollection = new HistoryCollection();
-        //register history listener
-        if ($this->historyListener instanceof HistoryListenerInterface) {
-            $this->eventDispatcher->addListener(
-                Events::EVENT_HISTORY_CHANGE,
-                [$this->historyListener, 'onHistoryChange']
-            );
-        }
     }
 
     /**
@@ -116,6 +107,14 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         $this->boundTransitionsToStates();
         $this->currentState = $state;
         $this->booted = true;
+
+        //register history listener
+        if ($this->historyListener instanceof HistoryListenerInterface) {
+            $this->eventDispatcher->addListener(
+                Events::EVENT_HISTORY_CHANGE,
+                [$this->historyListener, 'onHistoryChange']
+            );
+        }
     }
 
     /**
@@ -250,13 +249,26 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     /**
      * {@inheritdoc}
      */
-    public function canTransitionTo($state)
+    public function canTransitionTo($state, $withGuards = false)
     {
         if (!$this->booted) {
             throw new StateMachineException("Statemachine is not booted");
         }
 
-        return in_array($state, $this->currentState->getTransitions());
+        $allowedTransition = in_array($state, $this->currentState->getTransitions());
+        //check guards if enabled
+        if ($withGuards && $allowedTransition) {
+            $transitionName = $this->currentState->getName().TransitionInterface::EDGE_SYMBOL.$state;
+            $transition = $this->transitions[$transitionName];
+            $transitionEvent = new TransitionEvent($this->object, $transition);
+            /** @var TransitionEvent $transitionEvent */
+            $transitionEvent = $this->eventDispatcher->dispatch(Events::EVENT_ON_GUARD, $transitionEvent);
+            $this->messages = $transitionEvent->getMessages();
+
+            return !$transitionEvent->isTransitionRejected();
+        }
+
+        return $allowedTransition;
     }
 
     /**
@@ -286,7 +298,10 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
 
         //Execute guards
         /** @var TransitionEvent $transitionEvent */
-        $transitionEvent = $this->eventDispatcher->dispatch(Events::EVENT_ON_GUARD, $transitionEvent);
+        $transitionEvent = $this->eventDispatcher->dispatch(
+            Events::EVENT_ON_GUARD,
+            $transitionEvent
+        );
         $this->messages = $transitionEvent->getMessages();
 
         if ($transitionEvent->isTransitionRejected()) {
@@ -295,7 +310,10 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
             return false;
         }
         //Execute pre transitions
-        $transitionEvent = $this->eventDispatcher->dispatch(Events::EVENT_PRE_TRANSITION, $transitionEvent);
+        $transitionEvent = $this->eventDispatcher->dispatch(
+            Events::EVENT_PRE_TRANSITION,
+            $transitionEvent
+        );
         $this->messages = $transitionEvent->getMessages();
 
         if ($transitionEvent->isTransitionRejected()) {
@@ -309,7 +327,10 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         $this->stateAccessor->setState($this->object, $state);
 
         //Execute post transitions
-        $this->eventDispatcher->dispatch(Events::EVENT_POST_TRANSITION, $transitionEvent);
+        $this->eventDispatcher->dispatch(
+            Events::EVENT_POST_TRANSITION,
+            $transitionEvent
+        );
         $this->messages = $transitionEvent->getMessages();
 
         $this->updateTransition($transitionEvent);

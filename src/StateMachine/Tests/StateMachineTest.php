@@ -12,7 +12,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
 {
     public function testCorrectObject()
     {
-        $stateMachine = new StateMachine(new Order(1), new EventDispatcher(), new StateAccessor());
+        $stateMachine = new StateMachine(new Order(1), new StateAccessor());
         $this->assertNotNull($stateMachine->getObject());
     }
 
@@ -23,7 +23,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
             "No initial state is found"
         );
 
-        $stateMachine = new StateMachine(new Order(1), new EventDispatcher(), new StateAccessor());
+        $stateMachine = new StateMachine(new Order(1), new StateAccessor());
         $stateMachine->addState('pending');
         $stateMachine->addState('checking_out');
         $stateMachine->boot();
@@ -185,7 +185,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
     public function testWithWrongProperty()
     {
         $this->setExpectedException('StateMachine\Exception\StateMachineException');
-        $stateMachine = new StateMachine(new Order(1), new EventDispatcher(), new StateAccessor('wrong_state'));
+        $stateMachine = new StateMachine(new Order(1), new StateAccessor('wrong_state'));
 
         $stateMachine->addState('pending', StateInterface::TYPE_INITIAL);
         $stateMachine->addState('checking_out');
