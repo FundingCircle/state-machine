@@ -77,13 +77,6 @@ class StateMachineFactoryTest extends \PHPUnit_Framework_TestCase
 
     private function getFactory()
     {
-        $eventDispatcherMock = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcher')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $eventDispatcherMock->expects($this->any())
-            ->method('addListener');
-
-        return new StateMachineFactory($eventDispatcherMock);
+        return new StateMachineFactory();
     }
 }

@@ -14,16 +14,12 @@ class HistoryListener extends BaseHistoryListener implements EventSubscriberInte
     /** @var ObjectManager */
     private $objectManager;
 
-    /** @var  ContainerInterface */
-    private $container;
-
     /**
-     * @param ContainerInterface $container
+     * @param ObjectManager $objectManager
      */
-    public function __construct(ContainerInterface $container)
+    public function __construct(ObjectManager $objectManager)
     {
-        $this->container = $container;
-//        $this->objectManager = $objectManager;
+        $this->objectManager = $objectManager;
     }
 
     /**
@@ -39,9 +35,12 @@ class HistoryListener extends BaseHistoryListener implements EventSubscriberInte
             $eventName,
             $eventDispatcher
         );
+        $options = $transitionEvent->getOptions();
 
-        $this->getObjectManager()->persist($transition);
-        $this->getObjectManager()->flush($transition);
+        $this->objectManager->persist($transition);
+        if (isset($options['flush']) && $options['flush'] == true) {
+            $this->objectManager->flush($transition);
+        }
     }
 
     /**
@@ -52,13 +51,5 @@ class HistoryListener extends BaseHistoryListener implements EventSubscriberInte
         return [
             Events::EVENT_HISTORY_CHANGE => 'onHistoryChange'
         ];
-    }
-
-    /**
-     * @return \Doctrine\ORM\EntityManager
-     */
-    private function getObjectManager()
-    {
-        return $this->container->get('doctrine.orm.entity_manager');
     }
 }

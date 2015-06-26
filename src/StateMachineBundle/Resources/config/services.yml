@@ -3,13 +3,12 @@ services:
         class: StateMachineBundle\Listener\HistoryListener
         arguments:
 #            TODO make object manager dyanmically depends on config
-            - @service_container
+#            - @service_container
+            - @doctrine.orm.entity_manager
 
     statemachine.factory:
         class: StateMachineBundle\StateMachine\StateMachineFactory
         arguments:
-            - @event_dispatcher
-            - ~
             - ~
 
     statemachine.subscriber.doctrine_loader:

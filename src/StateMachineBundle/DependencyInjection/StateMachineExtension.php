@@ -31,8 +31,7 @@ class StateMachineExtension extends Extension
         $historyListener = $container->getDefinition($config['history_listener']);
         $historyListener->addTag('kernel.event_subscriber');
 
-        $stateMachineFactory->replaceArgument(1, $historyListener);
-        $stateMachineFactory->replaceArgument(2, $config['transition_class']);
+        $stateMachineFactory->replaceArgument(1, $config['transition_class']);
 
         foreach ($config['state_machines'] as $stateMachine) {
             foreach ($stateMachine['transitions'] as &$transition) {
