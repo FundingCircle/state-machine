@@ -5,6 +5,7 @@ services:
 #            TODO make object manager dyanmically depends on config
 #            - @service_container
             - @doctrine.orm.entity_manager
+            - @security.token_storage
 
     statemachine.factory:
         class: StateMachineBundle\StateMachine\StateMachineFactory

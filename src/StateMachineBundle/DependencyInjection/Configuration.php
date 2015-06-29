@@ -15,9 +15,8 @@ class Configuration implements ConfigurationInterface
 {
     private static $stateTypes = ['initial', 'normal', 'final'];
 
-    private static $defaultOptions = [
-        'flush' => true
-    ];
+    private static $defaultOptions = ['flush' => true];
+
     /**
      * {@inheritdoc}
      */
@@ -38,6 +37,7 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('transition_class')->defaultValue('StateMachineBundle\Entity\Transition')->end()
                 ->scalarNode('state_accessor')->defaultValue('statemachine.state_accessor')->end()
                 ->scalarNode('history_listener')->defaultValue('statemachine.listener.history')->end()
+                ->scalarNode('db_driver')->defaultValue('orm')->end()
             ->end()
         ;
     }
@@ -49,7 +49,6 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('state_machines')
                     ->prototype('array')
                         ->children()
-
                             ->scalarNode('class')->cannotBeEmpty()->isRequired()->end()
                             ->scalarNode('property')->cannotBeEmpty()->isRequired()->end()
                             ->arrayNode('options')
