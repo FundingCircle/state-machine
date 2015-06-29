@@ -7,6 +7,16 @@ use StateMachine\Transition\TransitionInterface;
 interface StateMachineInterface
 {
     /**
+     * @return array
+     */
+    public function getStates();
+
+    /**
+     * @return array
+     */
+    public function getTransitions();
+
+    /**
      *
      * @return void
      */
@@ -44,11 +54,6 @@ interface StateMachineInterface
      * @return TransitionInterface[]
      */
     public function getAllowedTransitions();
-
-    /**
-     * @return array
-     */
-    public function getAllTransitions();
 
     /**
      * Check if it's possible to transit to given state

@@ -120,6 +120,22 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     /**
      * {@inheritdoc}
      */
+    public function getStates()
+    {
+        return $this->states;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getTransitions()
+    {
+        return $this->transitions;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getObject()
     {
         return $this->object;

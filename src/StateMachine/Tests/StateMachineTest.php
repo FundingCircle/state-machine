@@ -51,7 +51,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
     {
         $stateMachine = StateMachineFixtures::getBidStateMachine();
         $stateMachine->addTransition(null, 'cancelled');
-        $transitions = $stateMachine->getAllTransitions();
+        $transitions = $stateMachine->getTransitions();
         $this->assertArrayHasKey('new::cancelled', $transitions);
         $this->assertArrayHasKey('error::cancelled', $transitions);
         $this->assertArrayHasKey('committed::cancelled', $transitions);
@@ -66,7 +66,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
     {
         $stateMachine = StateMachineFixtures::getBidStateMachine();
         $stateMachine->addTransition('paid', null);
-        $transitions = $stateMachine->getAllTransitions();
+        $transitions = $stateMachine->getTransitions();
         $this->assertArrayHasKey('paid::new', $transitions);
         $this->assertArrayHasKey('paid::cancelled', $transitions);
         $this->assertArrayHasKey('paid::originating', $transitions);
@@ -82,7 +82,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
         $stateMachine = StateMachineFixtures::getBidStateMachine();
         $stateMachine->addState('from_many');
         $stateMachine->addTransition(['paid', 'originating'], 'from_many');
-        $transitions = $stateMachine->getAllTransitions();
+        $transitions = $stateMachine->getTransitions();
         $this->assertArrayHasKey('originating::from_many', $transitions);
         $this->assertArrayHasKey('paid::from_many', $transitions);
     }
@@ -91,7 +91,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
     {
         $stateMachine = StateMachineFixtures::getBidStateMachine();
         $stateMachine->addTransition('paid', ['new', 'originating']);
-        $transitions = $stateMachine->getAllTransitions();
+        $transitions = $stateMachine->getTransitions();
         $this->assertArrayHasKey('paid::new', $transitions);
         $this->assertArrayHasKey('paid::originating', $transitions);
     }
@@ -102,7 +102,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
         $stateMachine->addState('source1');
         $stateMachine->addState('source2');
         $stateMachine->addTransition(['source1', 'source2'], null);
-        $transitions = $stateMachine->getAllTransitions();
+        $transitions = $stateMachine->getTransitions();
         $this->assertArrayHasKey('source1::new', $transitions);
         $this->assertArrayHasKey('source2::new', $transitions);
 
@@ -128,7 +128,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
         $stateMachine->addState('destination1');
         $stateMachine->addState('destination2');
         $stateMachine->addTransition(null, ['destination1', 'destination2']);
-        $transitions = $stateMachine->getAllTransitions();
+        $transitions = $stateMachine->getTransitions();
         $this->assertArrayHasKey('new::destination1', $transitions);
         $this->assertArrayHasKey('new::destination2', $transitions);
 
