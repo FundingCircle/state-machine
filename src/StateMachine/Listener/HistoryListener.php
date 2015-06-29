@@ -12,14 +12,11 @@ class HistoryListener implements HistoryListenerInterface
     /**
      * {@inheritdoc}
      */
-    public function onHistoryChange(
-        TransitionEvent $transitionEvent,
-        $eventName,
-        EventDispatcherInterface $eventDispatcher
-    ) {
+    public function onHistoryChange(TransitionEvent $transitionEvent)
+    {
         $stateMachine = $transitionEvent->getObject()->getStateMachine();
+        $transition = $transitionEvent->getTransition();
         if ($stateMachine instanceof StateMachineHistoryInterface) {
-            $transition = $transitionEvent->getTransition();
             $stateMachine->getHistory()->add($transition);
         }
 
