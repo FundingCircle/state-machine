@@ -104,11 +104,12 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
             $this->stateAccessor->setState($this->object, $state->getName());
         }
 
-        $this->boundTransitionsToStates();
+        // Assign the transitions to the states to be able to get allowed transitions easily
+        $this->bindTransitionsToStates();
         $this->currentState = $state;
         $this->booted = true;
 
-        //register history listener
+        // register history listener
         if ($this->historyListener instanceof HistoryListenerInterface) {
             $this->eventDispatcher->addListener(
                 Events::EVENT_HISTORY_CHANGE,
@@ -388,7 +389,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     /**
      * Add transitions to states, triggered after booting
      */
-    private function boundTransitionsToStates()
+    private function bindTransitionsToStates()
     {
         /** @var StateInterface $state */
         foreach ($this->states as $state) {
