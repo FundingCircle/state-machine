@@ -11,3 +11,5 @@ $ phpunit
 EOT
     );
 }
+// Need to load the state machine bundle for tests in that directory to find its own classes.
+$loader->add('StateMachineBundle', __DIR__);

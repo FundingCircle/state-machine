@@ -1,5 +1,7 @@
 <?php
 
+// Purpose: allow arbitrary chaining of processing on a transition via the symfony event dispatcher
+// Stops event propagation when the transition fails somwhere.
 namespace StateMachine\Event;
 
 use Symfony\Component\EventDispatcher\Event;

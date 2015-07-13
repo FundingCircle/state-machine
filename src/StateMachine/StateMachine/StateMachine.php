@@ -96,6 +96,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         }
         $state = $this->stateAccessor->getState($this->object);
         //no state found for the object it means it's new instance, set initial state
+        // TODO: this is probably wrong, since the current state is in the history, and new objects will have a default state
         if (null === $state || '' == $state) {
             $state = $this->getInitialState();
             if (null == $state) {
@@ -106,7 +107,11 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
 
         // Assign the transitions to the states to be able to get allowed transitions easily
         $this->bindTransitionsToStates();
+        // Set this currentstats to the state of the object (this may get out of sync, since the history also has the current state)
+        // TODO: get the current state from the history and have the object always slaved to this.
         $this->currentState = $state;
+        
+        // prevent booting twice
         $this->booted = true;
 
         // register history listener
@@ -152,6 +157,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
 
     /**
      * {@inheritdoc}
+     * TODO: this should also be wrapped in an event, so the events can be triggered (transition needs to be associated with the event.)
      */
     public function addTransition($from = null, $to = null)
     {
