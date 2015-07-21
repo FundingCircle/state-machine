@@ -16,6 +16,10 @@ StateMachineBundle\Entity\Transition:
             type: string
             length: 255
             column: to_state
+        createdAt:
+            column: created_at
+            type: datetime
+            nullable: false
         identifier:
             type: integer
         objectClass:
