@@ -4,5 +4,5 @@
 [Read the Documentation for Bundle](https://github.com/zencap/state-machine/blob/master/src/StateMachineBundle/Resources/doc/index.md)
 ### Running tests
 ```bash
-phpunit -c vendor/zencap/state-machine/src/phpunit.xml.dist
+phpunit -c src/phpunit.xml.dist
 ```
