@@ -1,8 +1,6 @@
 <?php
 namespace StateMachine\StateMachine;
 
-use StateMachine\Accessor\StateAccessor;
-use StateMachine\Accessor\StateAccessorInterface;
 use StateMachine\Event\Events;
 use StateMachine\Event\TransitionEvent;
 use StateMachine\Exception\StateMachineException;
@@ -24,9 +22,6 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
 {
     /** @var StatefulInterface */
     private $object;
-
-    /** @var StateAccessorInterface */
-    private $stateAccessor;
 
     /** @var  HistoryListenerInterface */
     private $historyListener;
@@ -60,19 +55,16 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
 
     /**
      * @param StatefulInterface        $object
-     * @param StateAccessorInterface   $stateAccessor
      * @param HistoryListenerInterface $historyListener
      * @param string                   $transitionClass
      * @param array                    $transitionOptions
      */
     public function __construct(
         StatefulInterface $object,
-        StateAccessorInterface $stateAccessor = null,
         HistoryListenerInterface $historyListener = null,
         $transitionClass = null,
         $transitionOptions = []
     ) {
-        $this->stateAccessor = $stateAccessor ?: new StateAccessor();
         $this->historyListener = $historyListener;
         $this->transitionClass = $transitionClass ?: 'StateMachine\Transition\Transition';
         $this->transitionOptions = $transitionOptions;
@@ -94,7 +86,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         if ($this->booted) {
             throw new StateMachineException("Statemachine is already booted");
         }
-        $state = $this->stateAccessor->getState($this->object);
+        $state = $this->object->getState();
         //no state found for the object it means it's new instance, set initial state
         // TODO: this is probably wrong, since the current state is in the history, and new objects will have a default state
         if (null === $state || '' == $state) {
@@ -102,7 +94,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
             if (null == $state) {
                 throw new StateMachineException("No initial state is found");
             }
-            $this->stateAccessor->setState($this->object, $state->getName());
+            $this->object->setState($state->getName());
         }
 
         // Assign the transitions to the states to be able to get allowed transitions easily
@@ -110,7 +102,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         // Set this currentstats to the state of the object (this may get out of sync, since the history also has the current state)
         // TODO: get the current state from the history and have the object always slaved to this.
         $this->currentState = $state;
-        
+
         // prevent booting twice
         $this->booted = true;
 
@@ -347,7 +339,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
 
         //change state
         $this->currentState = $this->states[$state];
-        $this->stateAccessor->setState($this->object, $state);
+        $this->object->setState($state);
 
         //Execute post transitions
         $this->eventDispatcher->dispatch(
