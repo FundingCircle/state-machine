@@ -2,13 +2,9 @@
 
 namespace StateMachineBundle\StateMachine;
 
-use StateMachine\Accessor\StateAccessor;
 use StateMachine\Exception\StateMachineException;
-use StateMachine\Listener\HistoryListenerInterface;
 use StateMachine\State\StatefulInterface;
 use StateMachine\StateMachine\StateMachine;
-use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * This factory is responsible of registering statemachine definition
@@ -65,7 +61,6 @@ class StateMachineFactory
 
         $stateMachine = new StateMachine(
             $statefulObject,
-            new StateAccessor($definition['property']),
             null,
             $this->transitionClass,
             $definition['options']

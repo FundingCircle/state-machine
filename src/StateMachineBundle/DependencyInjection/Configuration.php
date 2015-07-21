@@ -50,7 +50,6 @@ class Configuration implements ConfigurationInterface
                     ->prototype('array')
                         ->children()
                             ->scalarNode('class')->cannotBeEmpty()->isRequired()->end()
-                            ->scalarNode('property')->cannotBeEmpty()->isRequired()->end()
                             ->arrayNode('options')
                                 ->prototype('scalar')->end()
                                 ->defaultValue(self::$defaultOptions)
