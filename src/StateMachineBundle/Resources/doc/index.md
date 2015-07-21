@@ -1,3 +1,7 @@
+- [Home](https://github.com/zencap/state-machine/blob/master/readme.md)
+- [Library](https://github.com/zencap/state-machine/blob/master/src/StateMachine/readme.md)
+- [Bundle](https://github.com/zencap/state-machine/blob/master/src/StateMachineBundle/Resources/doc/index.md)
+
 ## Scope
 - SF configuration support for yml files
 - Doctrine integrations
