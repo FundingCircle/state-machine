@@ -26,12 +26,12 @@ interface TransitionInterface
     /**
      * @return int
      */
-    public function getIdentifier();
+    public function getObjectIdentifier();
 
     /**
      * @param int $identifier
      */
-    public function setIdentifier($identifier);
+    public function setObjectIdentifier($identifier);
 
     /**
      * @return string

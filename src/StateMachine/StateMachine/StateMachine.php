@@ -498,7 +498,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         $transition = $transitionEvent->getTransition();
 
         $transition->setObjectClass(get_class($transitionEvent->getObject()));
-        $transition->setIdentifier($transitionEvent->getObject()->getId());
+        $transition->setObjectIdentifier($transitionEvent->getObject()->getId());
         $transition->setPassed(!$transitionEvent->isTransitionRejected());
         $transition->setFailedCallBack($transitionEvent->getFailedCallback());
 

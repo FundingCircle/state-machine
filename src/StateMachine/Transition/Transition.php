@@ -13,7 +13,7 @@ class Transition implements TransitionInterface
     /** @var string */
     protected $name;
     /** @var  int */
-    protected $identifier;
+    protected $objectIdentifier;
     /** @var  string */
     protected $objectClass;
     /** @var array */
@@ -66,17 +66,17 @@ class Transition implements TransitionInterface
     /**
      * {@inheritdoc}
      */
-    public function getIdentifier()
+    public function getObjectIdentifier()
     {
-        return $this->identifier;
+        return $this->objectIdentifier;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setIdentifier($identifier)
+    public function setObjectIdentifier($objectIdentifier)
     {
-        $this->identifier = $identifier;
+        $this->objectIdentifier = $objectIdentifier;
     }
 
     /**

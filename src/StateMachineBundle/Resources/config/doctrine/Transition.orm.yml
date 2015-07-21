@@ -20,8 +20,10 @@ StateMachineBundle\Entity\Transition:
             column: created_at
             type: datetime
             nullable: false
-        identifier:
+        objectIdentifier:
             type: integer
+            length: 255
+            column: object_identifier
         objectClass:
             type: string
             length: 255
