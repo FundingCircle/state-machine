@@ -11,7 +11,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class HistoryListener extends BaseHistoryListener implements EventSubscriberInterface
+class HistoryListener implements EventSubscriberInterface
 {
     /** @var ObjectManager */
     private $objectManager;
@@ -34,7 +34,7 @@ class HistoryListener extends BaseHistoryListener implements EventSubscriberInte
      */
     public function onHistoryChange(TransitionEvent $transitionEvent)
     {
-        $transition = parent::onHistoryChange($transitionEvent);
+        $transition = $transitionEvent->getTransition();
         $options = $transitionEvent->getOptions();
 
         if ($transition instanceof TransitionBlameableInterface) {

@@ -17,8 +17,7 @@ class StateMachineFixtures
     {
         $stateMachine = new StateMachine(
             new Order(1),
-            new StateAccessor(),
-            new HistoryListener()
+            new StateAccessor()
         );
 
         $stateMachine->addState('pending', StateInterface::TYPE_INITIAL);
@@ -44,8 +43,7 @@ class StateMachineFixtures
     {
         $stateMachine = new StateMachine(
             new Bid(2),
-            new StateAccessor(),
-            new HistoryListener()
+            new StateAccessor()
         );
 
         $stateMachine->addState('new', StateInterface::TYPE_INITIAL);

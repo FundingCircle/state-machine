@@ -127,12 +127,8 @@ class HistoryListenerTest extends \PHPUnit_Framework_TestCase
 
         $transitionEventMock = $this->getMockBuilder('StateMachine\Event\TransitionEvent')
             ->disableOriginalConstructor()
-            ->setMethods(['getObject', 'getTransition', 'getOptions'])
+            ->setMethods(['getTransition', 'getOptions'])
             ->getMock();
-
-        $transitionEventMock->expects($this->once())
-            ->method('getObject')
-            ->willReturn($statefulMock);
 
         $transitionEventMock->expects($this->any())
             ->method('getTransition')

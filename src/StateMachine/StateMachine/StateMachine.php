@@ -568,6 +568,9 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         $transition->setPassed(!$transitionEvent->isTransitionRejected());
         $transition->setFailedCallBack($transitionEvent->getFailedCallback());
 
+        //add it to history
+        $this->historyCollection->add($transition);
+
         $this->eventDispatcher->dispatch(Events::EVENT_HISTORY_CHANGE, $transitionEvent);
     }
 }
