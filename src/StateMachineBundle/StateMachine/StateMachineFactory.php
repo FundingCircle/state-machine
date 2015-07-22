@@ -79,7 +79,8 @@ class StateMachineFactory
         foreach ($definition['transitions'] as $transition) {
             $from = empty($transition['from']) ? null : $transition['from'];
             $to = empty($transition['to']) ? null : $transition['to'];
-            $addedTransitions = $stateMachine->addTransition($from, $to);
+            $event = empty($transition['event']) ? null : $transition['event'];
+            $addedTransitions = $stateMachine->addTransition($from, $to, $event);
 
             //adding guards
             foreach ($transition['guards'] as $guard) {

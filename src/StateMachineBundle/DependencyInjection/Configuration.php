@@ -76,6 +76,8 @@ class Configuration implements ConfigurationInterface
                                     ->arrayNode('to')
                                         ->prototype('variable')->end()
                                     ->end()
+                                    ->scalarNode('event')
+                                    ->end()
                                     ->arrayNode('guards')
                                         ->prototype('array')
                                             ->children()
