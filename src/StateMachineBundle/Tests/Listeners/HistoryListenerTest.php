@@ -117,8 +117,6 @@ class HistoryListenerTest extends \PHPUnit_Framework_TestCase
             [
                 'getStateMachine',
                 'setStateMachine',
-                'getState',
-                'setState',
                 'getId'
             ]
         );
