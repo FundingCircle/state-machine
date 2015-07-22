@@ -3,11 +3,13 @@
 
 namespace StateMachine\Tests\Fixtures;
 
+use StateMachine\Accessor\StateAccessor;
 use StateMachine\Listener\HistoryListener;
 use StateMachine\State\StateInterface;
 use StateMachine\StateMachine\StateMachine;
 use StateMachine\Tests\Entity\Bid;
 use StateMachine\Tests\Entity\Order;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class StateMachineFixtures
 {
@@ -15,6 +17,7 @@ class StateMachineFixtures
     {
         $stateMachine = new StateMachine(
             new Order(1),
+            new StateAccessor(),
             new HistoryListener()
         );
 
@@ -41,6 +44,7 @@ class StateMachineFixtures
     {
         $stateMachine = new StateMachine(
             new Bid(2),
+            new StateAccessor(),
             new HistoryListener()
         );
 

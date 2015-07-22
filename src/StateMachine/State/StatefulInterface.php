@@ -11,7 +11,6 @@ interface StatefulInterface
      * @return int
      */
     public function getId();
-
     /**
      * @param StateMachineInterface $stateMachine
      */
@@ -21,14 +20,4 @@ interface StatefulInterface
      * @return StateMachineInterface
      */
     public function getStateMachine();
-
-    /**
-     * @return string
-     */
-    public function getState();
-
-    /**
-     * @param string $state
-     */
-    public function setState($state);
 }

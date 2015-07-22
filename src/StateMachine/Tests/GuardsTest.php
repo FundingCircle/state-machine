@@ -1,8 +1,14 @@
 <?php
 namespace StateMachine\Tests;
 
+use StateMachine\Accessor\StateAccessor;
 use StateMachine\Event\TransitionEvent;
+use StateMachine\State\StatefulInterface;
+use StateMachine\State\StateInterface;
+use StateMachine\StateMachine\StateMachine;
+use StateMachine\Tests\Entity\Order;
 use StateMachine\Tests\Fixtures\StateMachineFixtures;
+use StateMachine\Transition\TransitionInterface;
 
 class GuardsTest extends \PHPUnit_Framework_TestCase
 {

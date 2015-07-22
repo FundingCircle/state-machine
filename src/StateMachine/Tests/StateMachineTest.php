@@ -1,16 +1,18 @@
 <?php
 namespace StateMachine\Tests;
 
+use StateMachine\Accessor\StateAccessor;
 use StateMachine\State\StateInterface;
 use StateMachine\StateMachine\StateMachine;
 use StateMachine\Tests\Entity\Order;
 use StateMachine\Tests\Fixtures\StateMachineFixtures;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class StateMachineTest extends \PHPUnit_Framework_TestCase
 {
     public function testCorrectObject()
     {
-        $stateMachine = new StateMachine(new Order(1));
+        $stateMachine = new StateMachine(new Order(1), new StateAccessor());
         $this->assertNotNull($stateMachine->getObject());
     }
 
@@ -21,7 +23,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
             "No initial state is found"
         );
 
-        $stateMachine = new StateMachine(new Order(1));
+        $stateMachine = new StateMachine(new Order(1), new StateAccessor());
         $stateMachine->addState('pending');
         $stateMachine->addState('checking_out');
         $stateMachine->boot();
@@ -178,6 +180,19 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
         $stateMachine->boot();
         $stateMachine->transitionTo('checking_out');
         $this->assertEquals($stateMachine->getCurrentState(), 'checking_out');
+    }
+
+    public function testWithWrongProperty()
+    {
+        $this->setExpectedException('StateMachine\Exception\StateMachineException');
+        $stateMachine = new StateMachine(new Order(1), new StateAccessor('wrong_state'));
+
+        $stateMachine->addState('pending', StateInterface::TYPE_INITIAL);
+        $stateMachine->addState('checking_out');
+
+        $stateMachine->addTransition('pending', 'checking_out');
+        $stateMachine->boot();
+        $stateMachine->transitionTo('checking_out');
     }
 
     public function testStateTypes()
