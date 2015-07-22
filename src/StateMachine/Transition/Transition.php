@@ -12,6 +12,8 @@ class Transition implements TransitionInterface
     protected $toState;
     /** @var string */
     protected $name;
+    /** @var  string */
+    protected $eventName;
     /** @var  int */
     protected $objectIdentifier;
     /** @var  string */
@@ -32,11 +34,13 @@ class Transition implements TransitionInterface
     /**
      * @param StateInterface $fromState
      * @param StateInterface $toState
+     * @param string         $eventName
      */
-    public function __construct(StateInterface $fromState = null, StateInterface $toState = null)
+    public function __construct(StateInterface $fromState = null, StateInterface $toState = null, $eventName = null)
     {
         $this->fromState = $fromState;
         $this->toState = $toState;
+        $this->eventName = $eventName;
     }
 
     /**
@@ -61,6 +65,14 @@ class Transition implements TransitionInterface
     public function getName()
     {
         return $this->fromState->getName().static::EDGE_SYMBOL.$this->toState->getName();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getEventName()
+    {
+        return $this->eventName;
     }
 
     /**

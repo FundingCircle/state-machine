@@ -37,6 +37,9 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     /** @var TransitionInterface[] */
     private $transitions;
 
+    /** @var TransitionInterface[] */
+    private $eventTransitions;
+
     /** @var array */
     private $states;
 
@@ -175,9 +178,8 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
 
     /**
      * {@inheritdoc}
-     * TODO: this should also be wrapped in an event, so the events can be triggered (transition needs to be associated with the event.)
      */
-    public function addTransition($from = null, $to = null)
+    public function addTransition($from = null, $to = null, $eventName = null)
     {
         if ($this->booted) {
             throw new StateMachineException("Cannot add more transitions to booted StateMachine");
@@ -199,7 +201,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
             $toStates = [$to];
         }
 
-        return $this->createMultiTransition($fromStates, $toStates);
+        return $this->createMultiTransition($fromStates, $toStates, $eventName);
     }
 
     /**
@@ -277,6 +279,15 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         }
 
         return $this->currentState->getTransitions();
+    }
+
+    public function getAllowedEvents()
+    {
+        if (!$this->booted) {
+            throw new StateMachineException("Statemachine is not booted");
+        }
+
+        return $this->currentState->getEvents();
     }
 
     /**
@@ -379,6 +390,33 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         return true;
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function triggers($eventName, $options = [])
+    {
+        $options = array_merge($this->transitionOptions, $options);
+        $allowedEvents = $this->getAllowedEvents();
+
+        foreach ($allowedEvents as $transitionName => $event) {
+            if ($event == $eventName) {
+                $transition = $this->transitions[$transitionName];
+
+                return $this->transitionTo($transition->getToState()->getName(), $options);
+            }
+        }
+
+        throw new StateMachineException(
+            sprintf(
+                "Event %s didn't match any transition, allowed events for state %s are [%s]",
+                $eventName,
+                $this->currentState,
+                implode(',', array_keys($this->eventTransitions))
+
+            )
+        );
+    }
+
     //History implementation
     /**
      * {@inheritdoc}
@@ -419,15 +457,20 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         foreach ($this->states as $state) {
             $allowedTransitions = [];
             $allowedTransitionsObjects = [];
+            $allowedEvents = [];
             /** @var TransitionInterface $transition */
             foreach ($this->transitions as $transition) {
                 if ($transition->getFromState()->getName() == $state->getName()) {
                     $allowedTransitionsObjects[] = $transition;
                     $allowedTransitions [] = $transition->getToState()->getName();
+                    if (null != $transition->getEventName()) {
+                        $allowedEvents[$transition->getName()] = $transition->getEventName();
+                    }
                 }
             }
             $state->setTransitions($allowedTransitions);
             $state->setTransitionObjects($allowedTransitionsObjects);
+            $state->setEvents($allowedEvents);
         }
     }
 
@@ -470,17 +513,21 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     /**
      * @param string $from
      * @param string $to
+     * @param string $eventName
      *
      * @return TransitionInterface
      * @throws StateMachineException
      */
-    private function createTransition($from, $to)
+    private function createTransition($from, $to, $eventName = null)
     {
         $this->validateState($from);
         $this->validateState($to);
+
         /** @var TransitionInterface $transition */
-        $transition = new $this->transitionClass($this->states[$from], $this->states[$to]);
+        $transition = new $this->transitionClass($this->states[$from], $this->states[$to], $eventName);
+        //transition getting overridden if it exists already
         $this->transitions[$transition->getName()] = $transition;
+        $this->eventTransitions[$eventName] = $transition;
 
         return $transition;
     }
@@ -488,17 +535,18 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     /**
      * @param string[] $fromStates
      * @param string[] $toStates
+     * @param string   $eventName
      *
      * @return TransitionInterface[]
      */
-    private function createMultiTransition(array $fromStates, array $toStates)
+    private function createMultiTransition(array $fromStates, array $toStates, $eventName = null)
     {
         $addedTransitions = [];
 
         foreach ($fromStates as $fromState) {
             foreach ($toStates as $toState) {
                 if ($fromState !== $toState) {
-                    $addedTransitions[] = $this->createTransition($fromState, $toState);
+                    $addedTransitions[] = $this->createTransition($fromState, $toState, $eventName);
                 }
             }
         }

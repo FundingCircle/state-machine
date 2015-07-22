@@ -24,6 +24,11 @@ interface TransitionInterface
     public function getName();
 
     /**
+     * @return string
+     */
+    public function getEventName();
+
+    /**
      * @return int
      */
     public function getObjectIdentifier();

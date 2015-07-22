@@ -17,7 +17,6 @@ interface StateMachineInterface
     public function getTransitions();
 
     /**
-     *
      * @return void
      */
     public function boot();
@@ -35,12 +34,13 @@ interface StateMachineInterface
     /**
      * Define a new transition to the statemachine
      *
-     * @param $from
-     * @param $to
+     * @param mixed  $from
+     * @param mixed  $to
+     * @param string $eventName
      *
      * @return $this
      */
-    public function addTransition($from, $to);
+    public function addTransition($from, $to, $eventName);
 
     /**
      * @param string $name
@@ -74,6 +74,20 @@ interface StateMachineInterface
      * @return bool
      */
     public function transitionTo($state, $options = []);
+
+    /**
+     * Triggers a specific event
+     *
+     * @param string $eventName
+     *
+     * @return bool
+     */
+    public function triggers($eventName);
+
+    /**
+     * @return array
+     */
+    public function getAllowedEvents();
 
     /**
      * @param string   $transition

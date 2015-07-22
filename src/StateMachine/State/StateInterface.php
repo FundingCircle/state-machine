@@ -26,4 +26,8 @@ interface StateInterface
     public function getTransitionObjects();
 
     public function setTransitionObjects(array $transitionObjects);
+
+    public function getEvents();
+
+    public function setEvents(array $events);
 }

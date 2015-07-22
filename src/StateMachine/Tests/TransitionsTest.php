@@ -4,7 +4,7 @@ namespace StateMachine\Tests;
 use StateMachine\Event\TransitionEvent;
 use StateMachine\Tests\Fixtures\StateMachineFixtures;
 
-class TransitionEventsTest extends \PHPUnit_Framework_TestCase
+class TransitionsTest extends \PHPUnit_Framework_TestCase
 {
     public function testPreTransitionOnNonExistingTransition()
     {

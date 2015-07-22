@@ -11,6 +11,8 @@ class State implements StateInterface
 
     private $transitionObjects;
 
+    private $events;
+
     public function __construct($name, $type = StateInterface::TYPE_NORMAL)
     {
         $this->name = $name;
@@ -62,6 +64,15 @@ class State implements StateInterface
         $this->transitionObjects = $transitionObjects;
     }
 
+    public function getEvents()
+    {
+        return $this->events;
+    }
+
+    public function setEvents(array $events)
+    {
+        $this->events = $events;
+    }
 
     /**
      * @return string
