@@ -94,9 +94,29 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         if ($this->booted) {
             throw new StateMachineException("Statemachine is already booted");
         }
-        $state = $this->stateAccessor->getState($this->object);
+        $state = null;
+        $objectState = $this->stateAccessor->getState($this->object);
+        //gets state from history
+        if (null !== $this->getLastTransition()) {
+            $state = $this->getLastTransition()->getToState()->getName();
+        }
+
+        //state exists in history and not the same as object, conflict alert
+        if (null !== $state
+            && $state !== $objectState
+        ) {
+            throw new StateMachineException(
+                sprintf(
+                    "States conflict, history shows that current state = %s, and object state = %s,
+                     manual check is needed for object class %s with id %s",
+                    $state,
+                    $objectState,
+                    get_class($this->object),
+                    $this->object->getId()
+                )
+            );
+        }
         //no state found for the object it means it's new instance, set initial state
-        // TODO: this is probably wrong, since the current state is in the history, and new objects will have a default state
         if (null === $state || '' == $state) {
             $state = $this->getInitialState();
             if (null == $state) {
@@ -107,10 +127,8 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
 
         // Assign the transitions to the states to be able to get allowed transitions easily
         $this->bindTransitionsToStates();
-        // Set this currentstats to the state of the object (this may get out of sync, since the history also has the current state)
-        // TODO: get the current state from the history and have the object always slaved to this.
         $this->currentState = $state;
-        
+
         // prevent booting twice
         $this->booted = true;
 

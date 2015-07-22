@@ -2,11 +2,12 @@
 namespace StateMachine\Tests;
 
 use StateMachine\Accessor\StateAccessor;
+use StateMachine\State\State;
 use StateMachine\State\StateInterface;
 use StateMachine\StateMachine\StateMachine;
 use StateMachine\Tests\Entity\Order;
 use StateMachine\Tests\Fixtures\StateMachineFixtures;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use StateMachine\Transition\Transition;
 
 class StateMachineTest extends \PHPUnit_Framework_TestCase
 {
@@ -34,6 +35,62 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
         $stateMachine = StateMachineFixtures::getBidStateMachine();
         $stateMachine->boot();
         $this->assertEquals(1, count($stateMachine->getCurrentState()->getTransitionObjects()));
+    }
+
+    public function testWithHistoryStateConflict()
+    {
+        $this->setExpectedException(
+            'StateMachine\Exception\StateMachineException'
+        );
+        $object = new Order(2);
+        $object->setState("new");
+        $stateMachine = new StateMachine($object);
+
+        $stateMachine->addState('new', StateInterface::TYPE_INITIAL);
+        $stateMachine->addState('cancelled');
+        $stateMachine->addState('originating');
+        $stateMachine->addState('committed');
+        $stateMachine->addState('error');
+        $stateMachine->addState('paid', StateInterface::TYPE_FINAL);
+
+        $stateMachine->addTransition('new', 'committed');
+        $stateMachine->addTransition('originating', 'error');
+        $stateMachine->addTransition('originating', 'paid');
+        $stateMachine->addTransition('error', 'committed');
+        $stateMachine->addTransition('committed', 'originating');
+
+        $lastTransition = new Transition(new State("new"), new State("committed"));
+        $stateMachine->getHistory()->add($lastTransition);
+
+        $stateMachine->boot();
+
+    }
+
+    public function testWithHistoryStateNoConflict()
+    {
+        $object = new Order(2);
+        $object->setState("committed");
+        $stateMachine = new StateMachine($object);
+
+        $stateMachine->addState('new', StateInterface::TYPE_INITIAL);
+        $stateMachine->addState('cancelled');
+        $stateMachine->addState('originating');
+        $stateMachine->addState('committed');
+        $stateMachine->addState('error');
+        $stateMachine->addState('paid', StateInterface::TYPE_FINAL);
+
+        $stateMachine->addTransition('new', 'committed');
+        $stateMachine->addTransition('originating', 'error');
+        $stateMachine->addTransition('originating', 'paid');
+        $stateMachine->addTransition('error', 'committed');
+        $stateMachine->addTransition('committed', 'originating');
+
+        $lastTransition = new Transition(new State("new"), new State("committed"));
+        $stateMachine->getHistory()->add($lastTransition);
+
+        $stateMachine->boot();
+        $this->assertEquals("committed", $stateMachine->getCurrentState());
+
     }
 
     public function testTwoInitialStates()
