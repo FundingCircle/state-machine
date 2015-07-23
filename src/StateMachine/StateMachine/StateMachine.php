@@ -12,8 +12,7 @@ use StateMachine\State\State;
 use StateMachine\State\StatefulInterface;
 use StateMachine\State\StateInterface;
 use StateMachine\Transition\TransitionInterface;
-use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use StateMachine\EventDispatcher\EventDispatcher;
 
 /**
  * Class StateMachine
@@ -46,7 +45,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     /** @var bool */
     private $booted;
 
-    /** @var EventDispatcherInterface */
+    /** @var EventDispatcher */
     private $eventDispatcher;
 
     /** @var TransitionInterface[] */
@@ -312,12 +311,16 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         if ($withGuards && $allowedTransition) {
             $transitionName = $this->currentState->getName().TransitionInterface::EDGE_SYMBOL.$state;
             $transition = $this->transitions[$transitionName];
-            $transitionEvent = new TransitionEvent($this->object, $transition);
             /** @var TransitionEvent $transitionEvent */
-            $transitionEvent = $this->eventDispatcher->dispatch(Events::EVENT_ON_GUARD, $transitionEvent);
-            $this->messages = $transitionEvent->getMessages();
+            $transitionEvent = new TransitionEvent($this->object, $transition);
 
-            return !$transitionEvent->isTransitionRejected();
+            return $this->eventDispatcher->dispatch(
+                Events::EVENT_ON_GUARD,
+                $transitionEvent,
+                $this->messages
+            );
+
+
         }
 
         return $allowedTransition;
@@ -350,25 +353,25 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
 
         //Execute guards
         /** @var TransitionEvent $transitionEvent */
-        $transitionEvent = $this->eventDispatcher->dispatch(
+        $response = $this->eventDispatcher->dispatch(
             Events::EVENT_ON_GUARD,
-            $transitionEvent
+            $transitionEvent,
+            $this->messages
         );
-        $this->messages = $transitionEvent->getMessages();
 
-        if ($transitionEvent->isTransitionRejected()) {
+        if (!$response) {
             $this->updateTransition($transitionEvent);
 
             return false;
         }
         //Execute pre transitions
-        $transitionEvent = $this->eventDispatcher->dispatch(
+        $response = $this->eventDispatcher->dispatch(
             Events::EVENT_PRE_TRANSITION,
-            $transitionEvent
+            $transitionEvent,
+            $this->messages
         );
-        $this->messages = $transitionEvent->getMessages();
 
-        if ($transitionEvent->isTransitionRejected()) {
+        if (!$response) {
             $this->updateTransition($transitionEvent);
 
             return false;
@@ -381,9 +384,9 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         //Execute post transitions
         $this->eventDispatcher->dispatch(
             Events::EVENT_POST_TRANSITION,
-            $transitionEvent
+            $transitionEvent,
+            $this->messages
         );
-        $this->messages = $transitionEvent->getMessages();
 
         $this->updateTransition($transitionEvent);
 

@@ -24,7 +24,7 @@ class TransitionsTest extends \PHPUnit_Framework_TestCase
         $stateMachine->addPreTransition(
             "new::committed",
             function (TransitionEvent $transitionEvent) {
-                $transitionEvent->rejectTransition($this);
+                return false;
             }
         );
 
@@ -39,7 +39,7 @@ class TransitionsTest extends \PHPUnit_Framework_TestCase
         $stateMachine->addPreTransition(
             "new::committed",
             function (TransitionEvent $transitionEvent) {
-                //do nothing
+                return true;
             }
         );
 

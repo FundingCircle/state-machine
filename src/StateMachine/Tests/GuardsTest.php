@@ -1,14 +1,8 @@
 <?php
 namespace StateMachine\Tests;
 
-use StateMachine\Accessor\StateAccessor;
 use StateMachine\Event\TransitionEvent;
-use StateMachine\State\StatefulInterface;
-use StateMachine\State\StateInterface;
-use StateMachine\StateMachine\StateMachine;
-use StateMachine\Tests\Entity\Order;
 use StateMachine\Tests\Fixtures\StateMachineFixtures;
-use StateMachine\Transition\TransitionInterface;
 
 class GuardsTest extends \PHPUnit_Framework_TestCase
 {
@@ -30,7 +24,7 @@ class GuardsTest extends \PHPUnit_Framework_TestCase
         $stateMachine->addGuard(
             'pending::checking_out',
             function () {
-                //do nothing
+                return true;
             }
         );
         $stateMachine->boot();
@@ -46,7 +40,8 @@ class GuardsTest extends \PHPUnit_Framework_TestCase
             'pending::checking_out',
             function (TransitionEvent $transitionEvent) {
                 $transitionEvent->addMessage("Transition is rejected by guard");
-                $transitionEvent->rejectTransition($this);
+
+                return false;
             }
         );
         $stateMachine->boot();
@@ -68,7 +63,8 @@ class GuardsTest extends \PHPUnit_Framework_TestCase
             'pending::checking_out',
             function (TransitionEvent $transitionEvent) {
                 $transitionEvent->addMessage("Transition is rejected by guard");
-                $transitionEvent->rejectTransition($this);
+
+                return false;
             }
         );
         $stateMachine1->boot();
