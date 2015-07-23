@@ -4,7 +4,7 @@ namespace StateMachine\History;
 
 use Symfony\Component\EventDispatcher\Event;
 
-class StateChange extends Event
+class History extends Event
 {
     /** @var  string */
     protected $objectIdentifier;

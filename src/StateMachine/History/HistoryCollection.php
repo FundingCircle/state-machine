@@ -44,7 +44,7 @@ class HistoryCollection implements \Countable
     }
 
     /**
-     * @return StateChange
+     * @return History
      */
     public function first()
     {
@@ -52,7 +52,7 @@ class HistoryCollection implements \Countable
     }
 
     /**
-     * @return StateChange
+     * @return History
      */
     public function last()
     {
@@ -60,9 +60,9 @@ class HistoryCollection implements \Countable
     }
 
     /**
-     * @param StateChange $value
+     * @param History $value
      */
-    public function add(StateChange $value)
+    public function add(History $value)
     {
         $this->elements[] = $value;
     }

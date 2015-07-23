@@ -91,30 +91,6 @@ class TransitionEvent extends Event
     }
 
     /**
-     * @param string $failedCallback
-     */
-    public function setFailedCallback($failedCallback)
-    {
-        $this->failedCallback = $failedCallback;
-    }
-
-    /**
-     * @param StatefulInterface $object
-     */
-    public function setObject($object)
-    {
-        $this->object = $object;
-    }
-
-    /**
-     * @param boolean $passed
-     */
-    public function setPassed($passed)
-    {
-        $this->passed = $passed;
-    }
-
-    /**
      * @return boolean
      */
     public function isPassed()

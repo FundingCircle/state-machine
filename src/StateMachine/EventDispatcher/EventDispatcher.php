@@ -2,7 +2,7 @@
 namespace StateMachine\EventDispatcher;
 
 use StateMachine\Event\TransitionEvent;
-use StateMachine\History\StateChange;
+use StateMachine\History\History;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcher as BaseEventDispatcher;
 
@@ -28,7 +28,7 @@ class EventDispatcher extends BaseEventDispatcher
             }
 
             return true;
-        } elseif ($event instanceof StateChange) {
+        } elseif ($event instanceof History) {
             foreach ($this->getListeners($eventName) as $listener) {
                 $event = call_user_func($listener, $event, $eventName);
                 if ($event->isPropagationStopped()) {

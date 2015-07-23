@@ -7,7 +7,7 @@ use StateMachine\Event\Events;
 use StateMachine\Event\TransitionEvent;
 use StateMachine\Exception\StateMachineException;
 use StateMachine\History\HistoryCollection;
-use StateMachine\History\StateChange;
+use StateMachine\History\History;
 use StateMachine\Listener\HistoryListenerInterface;
 use StateMachine\State\State;
 use StateMachine\State\StatefulInterface;
@@ -81,7 +81,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         $this->historyListener = $historyListener;
         $this->transitionClass = $transitionClass ?: 'StateMachine\Transition\Transition';
         $this->transitionOptions = $transitionOptions;
-        $this->historyClass = $historyClass ?: 'StateMachine\History\StateChange';
+        $this->historyClass = $historyClass ?: 'StateMachine\History\History';
         $this->object = $object;
         $this->booted = false;
         $this->object->setStateMachine($this);
@@ -569,7 +569,8 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     private function updateTransition(TransitionEvent $transitionEvent)
     {
         $transition = $transitionEvent->getTransition();
-        $stateChangeEvent = new StateChange();
+        /** @var History $stateChangeEvent */
+        $stateChangeEvent = new $this->historyClass();
 
         $stateChangeEvent->setEvent($transition->getEventName());
         $stateChangeEvent->setFailedCallBack($transitionEvent->getFailedCallback());

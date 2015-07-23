@@ -5,7 +5,7 @@ use Doctrine\Common\Persistence\ObjectManager;
 use StateMachine\Event\Events;
 use StateMachine\Event\TransitionEvent;
 use StateMachine\Exception\StateMachineException;
-use StateMachine\History\StateChange;
+use StateMachine\History\History;
 use StateMachine\Listener\HistoryListener as BaseHistoryListener;
 use StateMachineBundle\Model\BlameableStateChange;
 use StateMachineBundle\Model\BlameableStateChangeInterface;
@@ -34,7 +34,7 @@ class HistoryListener implements EventSubscriberInterface
     /**
      * {@inheritdoc}
      */
-    public function onHistoryChange(StateChange $stateChangeEvent)
+    public function onHistoryChange(History $stateChangeEvent)
     {
         $options = $stateChangeEvent->getOptions();
 

@@ -2,7 +2,7 @@
 namespace StateMachine\Tests;
 
 use StateMachine\Accessor\StateAccessor;
-use StateMachine\History\StateChange;
+use StateMachine\History\History;
 use StateMachine\State\State;
 use StateMachine\State\StateInterface;
 use StateMachine\StateMachine\StateMachine;
@@ -60,7 +60,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
         $stateMachine->addTransition('error', 'committed');
         $stateMachine->addTransition('committed', 'originating');
 
-        $lastStateChange = new StateChange();
+        $lastStateChange = new History();
         $lastStateChange->setFrom('new');
         $lastStateChange->setTo("committed");
         $stateMachine->getHistory()->add($lastStateChange);
@@ -88,7 +88,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
         $stateMachine->addTransition('error', 'committed');
         $stateMachine->addTransition('committed', 'originating');
 
-        $lastStateChange = new StateChange();
+        $lastStateChange = new History();
         $lastStateChange->setFrom('new');
         $lastStateChange->setTo("committed");
         $stateMachine->getHistory()->add($lastStateChange);

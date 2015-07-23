@@ -1,9 +1,9 @@
 <?php
 namespace StateMachineBundle\Entity;
 
-use StateMachine\History\StateChange as BaseStateChange;
+use StateMachine\History\History as BaseHistory;
 
-abstract class History extends BaseStateChange
+abstract class History extends BaseHistory
 {
     /**
      * @var \DateTime
