@@ -2,6 +2,7 @@
 namespace StateMachine\StateMachine;
 
 use StateMachine\History\HistoryCollection;
+use StateMachine\History\StateChange;
 use StateMachine\Transition\TransitionInterface;
 
 interface StateMachineHistoryInterface
@@ -12,7 +13,7 @@ interface StateMachineHistoryInterface
     public function getHistory();
 
     /**
-     * @return TransitionInterface
+     * @return StateChange
      */
-    public function getLastTransition();
+    public function getLastStateChange();
 }

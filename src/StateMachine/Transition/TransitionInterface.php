@@ -29,26 +29,6 @@ interface TransitionInterface
     public function getEventName();
 
     /**
-     * @return int
-     */
-    public function getObjectIdentifier();
-
-    /**
-     * @param int $identifier
-     */
-    public function setObjectIdentifier($identifier);
-
-    /**
-     * @return string
-     */
-    public function getObjectClass();
-
-    /**
-     * @param string $objectClass
-     */
-    public function setObjectClass($objectClass);
-
-    /**
      * @return array
      */
     public function getPreTransitions();
@@ -77,34 +57,4 @@ interface TransitionInterface
      * @param string $guard
      */
     public function addGuard($guard);
-
-    /**
-     * @return string
-     */
-    public function getFailedCallback();
-
-    /**
-     * @param string $failedCallback
-     */
-    public function setFailedCallback($failedCallback);
-
-    /**
-     * @return boolean
-     */
-    public function isPassed();
-
-    /**
-     * @param boolean $passed
-     */
-    public function setPassed($passed);
-
-    /**
-     * @return array
-     */
-    public function getMessages();
-
-    /**
-     * @param string $message
-     */
-    public function addMessage($message);
 }

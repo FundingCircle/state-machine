@@ -68,7 +68,8 @@ class StateMachineFactory
             new StateAccessor($definition['property']),
             null,
             $this->transitionClass,
-            $definition['options']
+            $definition['options'],
+            $definition['history_class']
         );
         //adding states
         foreach ($definition['states'] as $name => $state) {

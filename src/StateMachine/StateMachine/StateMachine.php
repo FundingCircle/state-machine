@@ -7,6 +7,7 @@ use StateMachine\Event\Events;
 use StateMachine\Event\TransitionEvent;
 use StateMachine\Exception\StateMachineException;
 use StateMachine\History\HistoryCollection;
+use StateMachine\History\StateChange;
 use StateMachine\Listener\HistoryListenerInterface;
 use StateMachine\State\State;
 use StateMachine\State\StatefulInterface;
@@ -66,18 +67,21 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
      * @param HistoryListenerInterface $historyListener
      * @param string                   $transitionClass
      * @param array                    $transitionOptions
+     * @param string                   $historyClass
      */
     public function __construct(
         StatefulInterface $object,
         StateAccessorInterface $stateAccessor = null,
         HistoryListenerInterface $historyListener = null,
         $transitionClass = null,
-        $transitionOptions = []
+        $transitionOptions = [],
+        $historyClass = null
     ) {
         $this->stateAccessor = $stateAccessor ?: new StateAccessor();
         $this->historyListener = $historyListener;
         $this->transitionClass = $transitionClass ?: 'StateMachine\Transition\Transition';
         $this->transitionOptions = $transitionOptions;
+        $this->historyClass = $historyClass ?: 'StateMachine\History\StateChange';
         $this->object = $object;
         $this->booted = false;
         $this->object->setStateMachine($this);
@@ -99,8 +103,8 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         $state = null;
         $objectState = $this->stateAccessor->getState($this->object);
         //gets state from history
-        if (null !== $this->getLastTransition()) {
-            $state = $this->getLastTransition()->getToState()->getName();
+        if (null !== $this->getLastStateChange()) {
+            $state = $this->getLastStateChange()->getTo();
         }
 
         //state exists in history and not the same as object, conflict alert
@@ -432,7 +436,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     /**
      * {@inheritdoc}
      */
-    public function getLastTransition()
+    public function getLastStateChange()
     {
         return $this->historyCollection->last() ?: null;
     }
@@ -565,15 +569,23 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     private function updateTransition(TransitionEvent $transitionEvent)
     {
         $transition = $transitionEvent->getTransition();
+        $stateChangeEvent = new StateChange();
 
-        $transition->setObjectClass(get_class($transitionEvent->getObject()));
-        $transition->setObjectIdentifier($transitionEvent->getObject()->getId());
-        $transition->setPassed(!$transitionEvent->isTransitionRejected());
-        $transition->setFailedCallBack($transitionEvent->getFailedCallback());
+        $stateChangeEvent->setEvent($transition->getEventName());
+        $stateChangeEvent->setFailedCallBack($transitionEvent->getFailedCallback());
+        $stateChangeEvent->setFrom($transition->getFromState()->getName());
+        $stateChangeEvent->setTo($transition->getToState()->getName());
+        $stateChangeEvent->setGuards($transition->getGuards());
+        $stateChangeEvent->setPreTransitions($transition->getPreTransitions());
+        $stateChangeEvent->setPostTransitions($transition->getPostTransitions());
+        $stateChangeEvent->setPassed($transitionEvent->isPassed());
+        $stateChangeEvent->setMessages($transitionEvent->getMessages());
+        $stateChangeEvent->setObjectIdentifier($transitionEvent->getObject()->getId());
+        $stateChangeEvent->setOptions($transitionEvent->getOptions());
 
         //add it to history
-        $this->historyCollection->add($transition);
+        $this->historyCollection->add($stateChangeEvent);
 
-        $this->eventDispatcher->dispatch(Events::EVENT_HISTORY_CHANGE, $transitionEvent);
+        $this->eventDispatcher->dispatch(Events::EVENT_HISTORY_CHANGE, $stateChangeEvent);
     }
 }

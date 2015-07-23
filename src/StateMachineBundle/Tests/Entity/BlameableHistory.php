@@ -3,11 +3,11 @@
 
 namespace StateMachineBundle\Tests\Entity;
 
-use StateMachineBundle\Entity\Transition;
-use StateMachineBundle\Model\TransitionBlameableInterface;
+use StateMachineBundle\Entity\History;
+use StateMachineBundle\Model\BlameableStateChangeInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class BlameableTransition extends Transition implements TransitionBlameableInterface
+class BlameableHistory extends History implements BlameableStateChangeInterface
 {
     private $user;
 

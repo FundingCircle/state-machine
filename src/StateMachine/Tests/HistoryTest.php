@@ -17,7 +17,8 @@ class HistoryTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(3, $stateMachine->getHistory()->count());
         $this->assertNotEmpty($stateMachine->getHistory()->toArray());
-        $this->assertEquals('purchased::shipped', $stateMachine->getLastTransition()->getName());
+        $this->assertEquals('purchased', $stateMachine->getLastStateChange()->getFrom());
+        $this->assertEquals('shipped', $stateMachine->getLastStateChange()->getTo());
     }
 
     public function testHistoryWithZeroTransitions()
@@ -26,7 +27,7 @@ class HistoryTest extends \PHPUnit_Framework_TestCase
         $stateMachine->boot();
 
         $this->assertEquals(0, count($stateMachine->getHistory()));
-        $this->assertNull($stateMachine->getLastTransition());
+        $this->assertNull($stateMachine->getLastStateChange());
     }
 
     public function testHistoryWithFailedGuard()
@@ -41,7 +42,7 @@ class HistoryTest extends \PHPUnit_Framework_TestCase
         $stateMachine->boot();
 
         $stateMachine->transitionTo('checking_out');
-        $lastTransition = $stateMachine->getLastTransition();
+        $lastTransition = $stateMachine->getLastStateChange();
         $transition = $stateMachine->getHistory()->last();
 
         $this->assertFalse($transition->isPassed());
@@ -52,8 +53,9 @@ class HistoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEmpty($transition->getMessages());
         $this->assertEquals(1, count($transition->getGuards()));
         $this->assertNotNull($transition->getFailedCallBack());
-        $this->assertEquals("StateMachine\Tests\Entity\Order", $stateMachine->getHistory()->first()->getObjectClass());
-        $this->assertEquals('pending::checking_out', $lastTransition->getName());
+        $this->assertEquals(1, $stateMachine->getHistory()->first()->getObjectIdentifier());
+        $this->assertEquals('pending', $lastTransition->getFrom());
+        $this->assertEquals('checking_out', $lastTransition->getTo());
     }
 
     public function testHistoryWithTwoMovesWithFirstFailed()
@@ -63,7 +65,7 @@ class HistoryTest extends \PHPUnit_Framework_TestCase
         $stateMachine->addGuard(
             'pending::checking_out',
             function (TransitionEvent $transitionEvent) {
-                $transitionEvent->rejectTransition($this);
+                return false;
             }
         );
         $stateMachine->boot();

@@ -3,7 +3,7 @@ namespace StateMachineBundle\Model;
 
 use Symfony\Component\Security\Core\User\UserInterface;
 
-interface TransitionBlameableInterface
+interface BlameableStateChangeInterface
 {
     /**
      * @param UserInterface $user

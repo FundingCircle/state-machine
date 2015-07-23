@@ -19,14 +19,14 @@ class TransitionEvent extends Event
     /** @var  array */
     private $messages;
 
+    /** @var  array */
+    private $options = [];
+
     /** @var string */
     private $failedCallback;
 
-    /** @var  bool */
-    private $transitionRejected;
-
-    /** @var  array */
-    private $options = [];
+    /** @var boolean */
+    protected $passed;
 
     /**
      * @param StatefulInterface   $object
@@ -37,9 +37,9 @@ class TransitionEvent extends Event
     {
         $this->object = $object;
         $this->transition = $transition;
-        $this->transitionRejected = false;
         $this->messages = [];
         $this->options = array_merge($this->options, $options);
+        $this->passed = true;
     }
 
     /**
@@ -63,7 +63,7 @@ class TransitionEvent extends Event
      */
     public function addMessage($message)
     {
-        $this->transition->addMessage($message);
+        $this->messages[] = $message;
     }
 
     /**
@@ -71,7 +71,7 @@ class TransitionEvent extends Event
      */
     public function getMessages()
     {
-        return $this->transition->getMessages();
+        return $this->messages;
     }
 
     /**
@@ -83,19 +83,43 @@ class TransitionEvent extends Event
     }
 
     /**
-     * @return boolean
-     */
-    public function isTransitionRejected()
-    {
-        return $this->transitionRejected;
-    }
-
-    /**
      * @return array
      */
     public function getOptions()
     {
         return $this->options;
+    }
+
+    /**
+     * @param string $failedCallback
+     */
+    public function setFailedCallback($failedCallback)
+    {
+        $this->failedCallback = $failedCallback;
+    }
+
+    /**
+     * @param StatefulInterface $object
+     */
+    public function setObject($object)
+    {
+        $this->object = $object;
+    }
+
+    /**
+     * @param boolean $passed
+     */
+    public function setPassed($passed)
+    {
+        $this->passed = $passed;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isPassed()
+    {
+        return $this->passed;
     }
 
     /**
@@ -105,7 +129,7 @@ class TransitionEvent extends Event
     {
         //@TODO may be add method too
         $this->failedCallback = get_class($callable);
-        $this->transitionRejected = true;
+        $this->passed = false;
         $this->stopPropagation();
     }
 }

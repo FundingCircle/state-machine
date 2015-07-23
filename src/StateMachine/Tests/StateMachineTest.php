@@ -2,6 +2,7 @@
 namespace StateMachine\Tests;
 
 use StateMachine\Accessor\StateAccessor;
+use StateMachine\History\StateChange;
 use StateMachine\State\State;
 use StateMachine\State\StateInterface;
 use StateMachine\StateMachine\StateMachine;
@@ -59,8 +60,10 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
         $stateMachine->addTransition('error', 'committed');
         $stateMachine->addTransition('committed', 'originating');
 
-        $lastTransition = new Transition(new State("new"), new State("committed"));
-        $stateMachine->getHistory()->add($lastTransition);
+        $lastStateChange = new StateChange();
+        $lastStateChange->setFrom('new');
+        $lastStateChange->setTo("committed");
+        $stateMachine->getHistory()->add($lastStateChange);
 
         $stateMachine->boot();
 
@@ -85,9 +88,10 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
         $stateMachine->addTransition('error', 'committed');
         $stateMachine->addTransition('committed', 'originating');
 
-        $lastTransition = new Transition(new State("new"), new State("committed"));
-        $stateMachine->getHistory()->add($lastTransition);
-
+        $lastStateChange = new StateChange();
+        $lastStateChange->setFrom('new');
+        $lastStateChange->setTo("committed");
+        $stateMachine->getHistory()->add($lastStateChange);
         $stateMachine->boot();
         $this->assertEquals("committed", $stateMachine->getCurrentState());
 

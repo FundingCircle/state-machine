@@ -1,15 +1,10 @@
 <?php
 namespace StateMachineBundle\Entity;
 
-use StateMachine\Transition\Transition as BaseTransition;
+use StateMachine\History\StateChange as BaseStateChange;
 
-class Transition extends BaseTransition
+abstract class History extends BaseStateChange
 {
-    /**
-     * @var int
-     */
-    protected $id;
-
     /**
      * @var \DateTime
      */

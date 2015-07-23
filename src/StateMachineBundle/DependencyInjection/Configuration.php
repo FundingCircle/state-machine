@@ -34,7 +34,7 @@ class Configuration implements ConfigurationInterface
     {
         $rootNode
             ->children()
-                ->scalarNode('transition_class')->defaultValue('StateMachineBundle\Entity\Transition')->end()
+                ->scalarNode('transition_class')->defaultValue('StateMachine\Transition\Transition')->end()
                 ->scalarNode('state_accessor')->defaultValue('statemachine.state_accessor')->end()
                 ->scalarNode('history_listener')->defaultValue('statemachine.listener.history')->end()
                 ->scalarNode('db_driver')->defaultValue('orm')->end()
@@ -51,6 +51,7 @@ class Configuration implements ConfigurationInterface
                         ->children()
                             ->scalarNode('class')->cannotBeEmpty()->isRequired()->end()
                             ->scalarNode('property')->cannotBeEmpty()->isRequired()->end()
+                            ->scalarNode('history_class')->cannotBeEmpty()->isRequired()->end()
                             ->arrayNode('options')
                                 ->prototype('scalar')->end()
                                 ->defaultValue(self::$defaultOptions)

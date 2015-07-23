@@ -3,7 +3,7 @@
 namespace StateMachineBundle\Tests\Listeners;
 
 use StateMachineBundle\Listener\HistoryListener;
-use StateMachineBundle\Tests\Entity\BlameableTransition;
+use StateMachineBundle\Tests\Entity\BlameableHistory;
 
 class HistoryListenerTest extends \PHPUnit_Framework_TestCase
 {
@@ -30,10 +30,10 @@ class HistoryListenerTest extends \PHPUnit_Framework_TestCase
         $objectManagerMock->expects($this->once())
             ->method('flush');
 
-        $transitionEventMock = $this->getTransitionEventMock(['flush' => true]);
+        $stateChangeEventMock = $this->getStateChangeEventMock(['flush' => true]);
 
         $listener = $this->getListener($objectManagerMock, $this->getTokenStorageMock());
-        $listener->onHistoryChange($transitionEventMock);
+        $listener->onHistoryChange($stateChangeEventMock);
 
     }
 
@@ -48,10 +48,10 @@ class HistoryListenerTest extends \PHPUnit_Framework_TestCase
         $objectManagerMock->expects($this->never())
             ->method('flush');
 
-        $transitionEventMock = $this->getTransitionEventMock(['flush' => false]);
+        $stateChangeEventMock = $this->getStateChangeEventMock(['flush' => false]);
 
         $listener = $this->getListener($objectManagerMock, $this->getTokenStorageMock());
-        $listener->onHistoryChange($transitionEventMock);
+        $listener->onHistoryChange($stateChangeEventMock);
     }
 
     public function testHistoryChangeWithBlameableTransition()
@@ -65,18 +65,17 @@ class HistoryListenerTest extends \PHPUnit_Framework_TestCase
         $objectManagerMock->expects($this->once())
             ->method('flush');
 
-        $blameableTransition = new BlameableTransition();
-
-        $transitionEventMock = $this->getTransitionEventMock(['flush' => true], $blameableTransition);
+        $blameableTransition = new BlameableHistory();
+        $blameableTransition->setOptions(['flush' => true]);
 
         $userMock = $this->getMock('Symfony\Component\Security\Core\User\UserInterface');
         $tokenStorageMock = $this->getTokenStorageMock($userMock);
 
         $listener = $this->getListener($objectManagerMock, $tokenStorageMock);
-        $transitionEvent = $listener->onHistoryChange($transitionEventMock);
+        $stateChangeEvent = $listener->onHistoryChange($blameableTransition);
         $this->assertInstanceOf(
             'Symfony\Component\Security\Core\User\UserInterface',
-            $transitionEvent->getTransition()->getUser()
+            $stateChangeEvent->getUser()
         );
     }
 
@@ -89,27 +88,19 @@ class HistoryListenerTest extends \PHPUnit_Framework_TestCase
         $objectManagerMock = $this->getMockBuilder('Doctrine\Common\Persistence\ObjectManager')
             ->getMock();
 
-        $blameableTransition = new BlameableTransition();
-
-        $transitionEventMock = $this->getTransitionEventMock(['flush' => true], $blameableTransition);
+        $blameableTransition = new BlameableHistory();
 
         $tokenStorageMock = $this->getTokenStorageMock();
 
         $listener = $this->getListener($objectManagerMock, $tokenStorageMock);
-        $listener->onHistoryChange($transitionEventMock);
+        $listener->onHistoryChange($blameableTransition);
     }
 
-    private function getTransitionEventMock($options, $transitionMock = null)
+    private function getStateChangeEventMock($options)
     {
-        if ($transitionMock == null) {
-            $transitionMock = $this->getMockBuilder('StateMachine\Transition\TransitionInterface')
-                ->disableOriginalConstructor()
-                ->getMock();
-        }
-
         $stateMachineMock = $this->getMockClass(
             'StateMachine\StateMachine\StateMachineHistoryInterface',
-            ['getHistory', 'getLastTransition']
+            ['getHistory', 'getLastStateChange']
         );
 
         $statefulMock = $this->getMock(
@@ -125,20 +116,48 @@ class HistoryListenerTest extends \PHPUnit_Framework_TestCase
             ->method('getStateMachine')
             ->willReturn($stateMachineMock);
 
-        $transitionEventMock = $this->getMockBuilder('StateMachine\Event\TransitionEvent')
+        $stateChangeEventMock = $this->getMockBuilder('StateMachine\History\StateChange')
             ->disableOriginalConstructor()
             ->setMethods(['getTransition', 'getOptions'])
             ->getMock();
 
-        $transitionEventMock->expects($this->any())
-            ->method('getTransition')
-            ->willReturn($transitionMock);
-
-        $transitionEventMock->expects($this->once())
+        $stateChangeEventMock->expects($this->once())
             ->method('getOptions')
             ->willReturn($options);
 
-        return $transitionEventMock;
+        return $stateChangeEventMock;
+    }
+
+    private function getBlameAbleStateChangeEventMock($options)
+    {
+        $stateMachineMock = $this->getMockClass(
+            'StateMachine\StateMachine\StateMachineHistoryInterface',
+            ['getHistory', 'getLastStateChange']
+        );
+
+        $statefulMock = $this->getMock(
+            'StateMachine\State\StatefulInterface',
+            [
+                'getStateMachine',
+                'setStateMachine',
+                'getId'
+            ]
+        );
+
+        $statefulMock->expects($this->any())
+            ->method('getStateMachine')
+            ->willReturn($stateMachineMock);
+
+        $stateChangeEventMock = $this->getMockBuilder('StateMachine\History\StateChange')
+            ->disableOriginalConstructor()
+            ->setMethods(['getTransition', 'getOptions'])
+            ->getMock();
+
+        $stateChangeEventMock->expects($this->once())
+            ->method('getOptions')
+            ->willReturn($options);
+
+        return $stateChangeEventMock;
     }
 
     private function getTokenStorageMock($user = null)

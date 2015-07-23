@@ -2,8 +2,6 @@
 
 namespace StateMachine\History;
 
-use StateMachine\Transition\TransitionInterface;
-
 class HistoryCollection implements \Countable
 {
     /**
@@ -46,7 +44,7 @@ class HistoryCollection implements \Countable
     }
 
     /**
-     * @return TransitionInterface
+     * @return StateChange
      */
     public function first()
     {
@@ -54,7 +52,7 @@ class HistoryCollection implements \Countable
     }
 
     /**
-     * @return TransitionInterface
+     * @return StateChange
      */
     public function last()
     {
@@ -62,9 +60,9 @@ class HistoryCollection implements \Countable
     }
 
     /**
-     * @param TransitionInterface $value
+     * @param StateChange $value
      */
-    public function add(TransitionInterface $value)
+    public function add(StateChange $value)
     {
         $this->elements[] = $value;
     }

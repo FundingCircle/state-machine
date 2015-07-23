@@ -1,0 +1,46 @@
+StateMachineBundle\Entity\History:
+    type: mappedSuperclass
+    fields:
+        objectIdentifier:
+            type: integer
+            length: 255
+            column: object_identifier
+        failedCallBack:
+            type: string
+            length: 255
+            column: failed_callback
+            nullable: true
+        messages:
+            type: json_array
+            nullable: true
+        passed:
+            type: boolean
+            column: is_passed
+        from:
+            type: string
+            length: 255
+            column: from
+        to:
+            type: string
+            length: 255
+            column: to
+        event:
+            type: string
+            length: 255
+            column: event
+        guards:
+            type: json_array
+            nullable: true
+        preTransitions:
+            type: json_array
+            column: pre_transitions
+            nullable: true
+        postTransitions:
+            type: json_array
+            column: post_transitions
+            nullable: true
+        createdAt:
+            column: created_at
+            type: datetime
+            nullable: false
+    lifecycleCallbacks: {  }

@@ -14,22 +14,13 @@ class Transition implements TransitionInterface
     protected $name;
     /** @var  string */
     protected $eventName;
-    /** @var  int */
-    protected $objectIdentifier;
-    /** @var  string */
-    protected $objectClass;
     /** @var array */
     protected $preTransitions;
     /** @var array */
     protected $postTransitions;
     /** @var array */
     protected $guards;
-    /** @var  string */
-    protected $failedCallback;
-    /** @var boolean */
-    protected $passed;
-    /** @var array */
-    protected $messages;
+
 
     /**
      * @param StateInterface $fromState
@@ -78,38 +69,6 @@ class Transition implements TransitionInterface
     /**
      * {@inheritdoc}
      */
-    public function getObjectIdentifier()
-    {
-        return $this->objectIdentifier;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setObjectIdentifier($objectIdentifier)
-    {
-        $this->objectIdentifier = $objectIdentifier;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getObjectClass()
-    {
-        return $this->objectClass;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setObjectClass($objectClass)
-    {
-        $this->objectClass = $objectClass;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getPreTransitions()
     {
         return $this->preTransitions;
@@ -153,53 +112,5 @@ class Transition implements TransitionInterface
     public function addGuard($guard)
     {
         $this->guards[] = $guard;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getFailedCallback()
-    {
-        return $this->failedCallback;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setFailedCallback($failedCallback)
-    {
-        $this->failedCallback = $failedCallback;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isPassed()
-    {
-        return $this->passed;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setPassed($passed)
-    {
-        $this->passed = $passed;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getMessages()
-    {
-        return $this->messages;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function addMessage($message)
-    {
-        $this->messages[] = $message;
     }
 }

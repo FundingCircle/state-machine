@@ -58,7 +58,7 @@ class PersistentSubscriberTest extends \PHPUnit_Framework_TestCase
 
         $stateMachineMock = $this->getMockClass(
             'StateMachine\StateMachine\StateMachineHistoryInterface',
-            ['getHistory', 'getLastTransition']
+            ['getHistory', 'getLastStateChange']
         );
 
         $statefulMock = $this->getMock(
