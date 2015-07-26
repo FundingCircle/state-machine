@@ -16,4 +16,9 @@ interface StateMachineHistoryInterface
      * @return History
      */
     public function getLastStateChange();
+
+    /**
+     * @return string
+     */
+    public function getHistoryClass();
 }

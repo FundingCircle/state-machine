@@ -2,9 +2,6 @@ services:
     statemachine.listener.history:
         class: StateMachineBundle\Listener\HistoryListener
         arguments:
-#            TODO make object manager dyanmically depends on config
-#            - @service_container
-            - @doctrine.orm.entity_manager
             - @security.token_storage
 
     statemachine.factory:
@@ -16,6 +13,7 @@ services:
         class: StateMachineBundle\Subscriber\StateMachineLoaderSubscriber
         arguments:
             - @statemachine.factory
+            - @security.token_storage
         tags:
             - { name: doctrine.event_subscriber }
 
@@ -26,3 +24,6 @@ services:
         arguments:
             - @doctrine.orm.entity_manager
 #TODO make object manager dyanmically depends on config
+
+    test_fallbacks:
+        class: StateMachineBundle\Tests\Listeners\MockListener

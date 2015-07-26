@@ -2,11 +2,13 @@
 namespace StateMachineBundle\Listener;
 
 use Doctrine\Common\Persistence\ObjectManager;
+use StateMachine\Event\BootEvent;
 use StateMachine\Event\Events;
 use StateMachine\Event\TransitionEvent;
 use StateMachine\Exception\StateMachineException;
 use StateMachine\History\History;
 use StateMachine\Listener\HistoryListener as BaseHistoryListener;
+use StateMachine\StateMachine\StateMachineHistoryInterface;
 use StateMachineBundle\Model\BlameableStateChange;
 use StateMachineBundle\Model\BlameableStateChangeInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;

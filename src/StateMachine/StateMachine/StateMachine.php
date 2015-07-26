@@ -3,6 +3,7 @@ namespace StateMachine\StateMachine;
 
 use StateMachine\Accessor\StateAccessor;
 use StateMachine\Accessor\StateAccessorInterface;
+use StateMachine\Event\BootEvent;
 use StateMachine\Event\Events;
 use StateMachine\Event\TransitionEvent;
 use StateMachine\Exception\StateMachineException;
@@ -61,6 +62,9 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     /** @var  array */
     private $transitionOptions = [];
 
+    /** @var string */
+    private $historyClass;
+
     /**
      * @param StatefulInterface        $object
      * @param StateAccessorInterface   $stateAccessor
@@ -68,6 +72,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
      * @param string                   $transitionClass
      * @param array                    $transitionOptions
      * @param string                   $historyClass
+     * @param EventDispatcher          $eventDispatcher
      */
     public function __construct(
         StatefulInterface $object,
@@ -75,7 +80,8 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         HistoryListenerInterface $historyListener = null,
         $transitionClass = null,
         $transitionOptions = [],
-        $historyClass = null
+        $historyClass = null,
+        EventDispatcher $eventDispatcher = null
     ) {
         $this->stateAccessor = $stateAccessor ?: new StateAccessor();
         $this->historyListener = $historyListener;
@@ -88,7 +94,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         $this->states = [];
         $this->transitions = [];
         $this->messages = [];
-        $this->eventDispatcher = new EventDispatcher();
+        $this->eventDispatcher = $eventDispatcher ?: new EventDispatcher();
         $this->historyCollection = new HistoryCollection();
     }
 
@@ -100,16 +106,18 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         if ($this->booted) {
             throw new StateMachineException("Statemachine is already booted");
         }
+
         $state = null;
         $objectState = $this->stateAccessor->getState($this->object);
         //gets state from history
         if (null !== $this->getLastStateChange()) {
-            $state = $this->getLastStateChange()->getTo();
+            /** @var StateInterface $state */
+            $state = $this->states[$this->getLastStateChange()->getToState()];
         }
 
         //state exists in history and not the same as object, conflict alert
         if (null !== $state
-            && $state !== $objectState
+            && $state->getName() !== $objectState
         ) {
             throw new StateMachineException(
                 sprintf(
@@ -177,6 +185,14 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     public function getCurrentState()
     {
         return $this->currentState;
+    }
+
+    /**
+     * @return EventDispatcher
+     */
+    public function getEventDispatcher()
+    {
+        return $this->eventDispatcher;
     }
 
     /**
@@ -442,6 +458,14 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getHistoryClass()
+    {
+        return $this->historyClass;
+    }
+
+    /**
      * Find the initial state in the state machine
      * @return StateInterface
      */
@@ -572,10 +596,10 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         /** @var History $stateChangeEvent */
         $stateChangeEvent = new $this->historyClass();
 
-        $stateChangeEvent->setEvent($transition->getEventName());
+        $stateChangeEvent->setEventName($transition->getEventName());
         $stateChangeEvent->setFailedCallBack($transitionEvent->getFailedCallback());
-        $stateChangeEvent->setFrom($transition->getFromState()->getName());
-        $stateChangeEvent->setTo($transition->getToState()->getName());
+        $stateChangeEvent->setFromState($transition->getFromState()->getName());
+        $stateChangeEvent->setToState($transition->getToState()->getName());
         $stateChangeEvent->setGuards($transition->getGuards());
         $stateChangeEvent->setPreTransitions($transition->getPreTransitions());
         $stateChangeEvent->setPostTransitions($transition->getPostTransitions());

@@ -19,7 +19,7 @@ class StateMachineLoaderSubscriberTest extends \PHPUnit_Framework_TestCase
             ->method('getEntity')
             ->willReturn(new NonStatefulOrder());
 
-        $subscriber = new StateMachineLoaderSubscriber($factoryMock);
+        $subscriber = new StateMachineLoaderSubscriber($factoryMock, $this->getTokenStorage());
 
         $subscriber->postLoad($eventArgsMock);
     }
@@ -27,6 +27,10 @@ class StateMachineLoaderSubscriberTest extends \PHPUnit_Framework_TestCase
     public function testPostLoadWithStateFulEntity()
     {
         $stateMachineMock = $this->getMock('StateMachine\StateMachine\StateMachineInterface');
+        $stateMachineMock->expects($this->any())
+            ->method("getEventDispatcher")
+            ->willReturn($this->getMock("StateMachine\EventDispatcher\EventDispatcher"));
+
         $factoryMock = $this->getMockBuilder('\StateMachineBundle\StateMachine\StateMachineFactory')
             ->disableOriginalConstructor()->getMock();
 
@@ -42,7 +46,11 @@ class StateMachineLoaderSubscriberTest extends \PHPUnit_Framework_TestCase
             ->method('getEntity')
             ->willReturn($stateFulObject);
 
-        $subscriber = new StateMachineLoaderSubscriber($factoryMock);
+        $eventArgsMock->expects($this->any())
+            ->method("getEntityManager")
+            ->willReturn($this->getMock('Doctrine\Common\Persistence\ObjectManager'));
+
+        $subscriber = new StateMachineLoaderSubscriber($factoryMock, $this->getTokenStorage());
 
         $subscriber->postLoad($eventArgsMock);
         $this->assertInstanceOf('StateMachine\StateMachine\StateMachineInterface', $stateFulObject->getStateMachine());
@@ -60,7 +68,11 @@ class StateMachineLoaderSubscriberTest extends \PHPUnit_Framework_TestCase
             ->method('getEntity')
             ->willReturn(new NonStatefulOrder());
 
-        $subscriber = new StateMachineLoaderSubscriber($factoryMock);
+        $eventArgsMock->expects($this->any())
+            ->method("getEntityManager")
+            ->willReturn($this->getMock('Doctrine\Common\Persistence\ObjectManager'));
+
+        $subscriber = new StateMachineLoaderSubscriber($factoryMock, $this->getTokenStorage());
 
         $subscriber->prePersist($eventArgsMock);
     }
@@ -68,6 +80,10 @@ class StateMachineLoaderSubscriberTest extends \PHPUnit_Framework_TestCase
     public function testPrePersistWithStateFulEntity()
     {
         $stateMachineMock = $this->getMock('StateMachine\StateMachine\StateMachineInterface');
+        $stateMachineMock->expects($this->any())
+            ->method("getEventDispatcher")
+            ->willReturn($this->getMock("StateMachine\EventDispatcher\EventDispatcher"));
+
         $factoryMock = $this->getMockBuilder('\StateMachineBundle\StateMachine\StateMachineFactory')
             ->disableOriginalConstructor()->getMock();
 
@@ -83,7 +99,11 @@ class StateMachineLoaderSubscriberTest extends \PHPUnit_Framework_TestCase
             ->method('getEntity')
             ->willReturn($stateFulObject);
 
-        $subscriber = new StateMachineLoaderSubscriber($factoryMock);
+        $eventArgsMock->expects($this->any())
+            ->method("getEntityManager")
+            ->willReturn($this->getMock('Doctrine\Common\Persistence\ObjectManager'));
+
+        $subscriber = new StateMachineLoaderSubscriber($factoryMock, $this->getTokenStorage());
 
         $subscriber->prePersist($eventArgsMock);
         $this->assertInstanceOf('StateMachine\StateMachine\StateMachineInterface', $stateFulObject->getStateMachine());
@@ -94,7 +114,17 @@ class StateMachineLoaderSubscriberTest extends \PHPUnit_Framework_TestCase
     {
         $factoryMock = $this->getMockBuilder('\StateMachineBundle\StateMachine\StateMachineFactory')
             ->disableOriginalConstructor()->getMock();
-        $subscriber = new StateMachineLoaderSubscriber($factoryMock);
+        $subscriber = new StateMachineLoaderSubscriber($factoryMock, $this->getTokenStorage());
         $this->assertEquals(['postLoad', 'prePersist'], $subscriber->getSubscribedEvents());
+    }
+
+
+    private function getTokenStorage()
+    {
+        $tokenStorageMock = $this->getMock(
+            'Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface'
+        );
+
+        return $tokenStorageMock;
     }
 }

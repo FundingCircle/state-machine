@@ -17,8 +17,8 @@ class HistoryTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(3, $stateMachine->getHistory()->count());
         $this->assertNotEmpty($stateMachine->getHistory()->toArray());
-        $this->assertEquals('purchased', $stateMachine->getLastStateChange()->getFrom());
-        $this->assertEquals('shipped', $stateMachine->getLastStateChange()->getTo());
+        $this->assertEquals('purchased', $stateMachine->getLastStateChange()->getFromState());
+        $this->assertEquals('shipped', $stateMachine->getLastStateChange()->getToState());
     }
 
     public function testHistoryWithZeroTransitions()
@@ -54,8 +54,8 @@ class HistoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(1, count($transition->getGuards()));
         $this->assertNotNull($transition->getFailedCallBack());
         $this->assertEquals(1, $stateMachine->getHistory()->first()->getObjectIdentifier());
-        $this->assertEquals('pending', $lastTransition->getFrom());
-        $this->assertEquals('checking_out', $lastTransition->getTo());
+        $this->assertEquals('pending', $lastTransition->getFromState());
+        $this->assertEquals('checking_out', $lastTransition->getToState());
     }
 
     public function testHistoryWithTwoMovesWithFirstFailed()

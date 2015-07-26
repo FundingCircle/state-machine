@@ -13,12 +13,39 @@
 
 ## Installation
 
-### Step 1: Download FOSUserBundle using composer
+### Step 1: Download Statemachine using composer
 
-Add FOSUserBundle by running the command:
+Add this to composer.json
 
+``` javascript
+    "zencap/state-machine":"dev"
+```
+and
+``` javascript
+"repositories": [
+    {
+      "type": "package",
+      "package": {
+        "name": "zencap/state-machine",
+        "version": "dev",
+        "source": {
+          "type": "git",
+          "url": "https://github.com/zencap/state-machine.git",
+          "reference": "dev"
+        },
+        "autoload": {
+          "psr-4": {
+            "StateMachine\\": "src/StateMachine",
+            "StateMachineBundle\\": "src/StateMachineBundle"
+          }
+        }
+      }
+    }
+```
+
+then run
 ``` bash
-$ php composer.phar require zencap/state-machine
+$ composer update zencap/state-machine
 ```
 
 ### Step 2: Enable the bundle

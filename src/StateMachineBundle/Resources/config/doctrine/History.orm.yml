@@ -16,18 +16,19 @@ StateMachineBundle\Entity\History:
         passed:
             type: boolean
             column: is_passed
-        from:
+        fromState:
             type: string
             length: 255
-            column: from
-        to:
+            column: from_state
+        toState:
             type: string
             length: 255
-            column: to
-        event:
+            column: to_state
+        eventName:
             type: string
             length: 255
-            column: event
+            column: event_name
+            nullable: true
         guards:
             type: json_array
             nullable: true

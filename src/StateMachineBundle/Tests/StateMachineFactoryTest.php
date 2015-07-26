@@ -73,6 +73,7 @@ class StateMachineFactoryTest extends \PHPUnit_Framework_TestCase
         $factory = $this->getFactory();
         $factory->register($definition);
         $stateMachine = $factory->get(new Order(1));
+        $stateMachine->boot();
         $this->assertEquals('new', $stateMachine->getCurrentState()->getName());
     }
 

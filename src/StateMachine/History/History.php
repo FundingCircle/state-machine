@@ -19,13 +19,13 @@ class History extends Event
     protected $passed;
 
     /** @var  string */
-    protected $from;
+    protected $fromState;
 
     /** @var  string */
-    protected $to;
+    protected $toState;
 
     /** @var  string */
-    protected $event;
+    protected $eventName;
 
     /** @var  array */
     protected $guards;
@@ -38,6 +38,14 @@ class History extends Event
 
     /** @var  array */
     protected $options;
+
+    public function __construct()
+    {
+        $this->guards = [];
+        $this->preTransitions = [];
+        $this->postTransitions = [];
+        $this->failedCallBack = '';
+    }
 
     /**
      * @return string
@@ -106,49 +114,49 @@ class History extends Event
     /**
      * @return string
      */
-    public function getFrom()
+    public function getFromState()
     {
-        return $this->from;
+        return $this->fromState;
     }
 
     /**
-     * @param string $from
+     * @param string $fromState
      */
-    public function setFrom($from)
+    public function setFromState($fromState)
     {
-        $this->from = $from;
-    }
-
-    /**
-     * @return string
-     */
-    public function getTo()
-    {
-        return $this->to;
-    }
-
-    /**
-     * @param string $to
-     */
-    public function setTo($to)
-    {
-        $this->to = $to;
+        $this->fromState = $fromState;
     }
 
     /**
      * @return string
      */
-    public function getEvent()
+    public function getToState()
     {
-        return $this->event;
+        return $this->toState;
     }
 
     /**
-     * @param string $event
+     * @param string $toState
      */
-    public function setEvent($event)
+    public function setToState($toState)
     {
-        $this->event = $event;
+        $this->toState = $toState;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEventName()
+    {
+        return $this->eventName;
+    }
+
+    /**
+     * @param string $eventName
+     */
+    public function setEventName($eventName)
+    {
+        $this->eventName = $eventName;
     }
 
     /**

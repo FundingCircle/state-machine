@@ -32,6 +32,9 @@ class Transition implements TransitionInterface
         $this->fromState = $fromState;
         $this->toState = $toState;
         $this->eventName = $eventName;
+        $this->guards = [];
+        $this->preTransitions = [];
+        $this->postTransitions = [];
     }
 
     /**

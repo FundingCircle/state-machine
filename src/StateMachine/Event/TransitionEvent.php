@@ -40,6 +40,7 @@ class TransitionEvent extends Event
         $this->messages = [];
         $this->options = array_merge($this->options, $options);
         $this->passed = true;
+        $this->failedCallback = '';
     }
 
     /**

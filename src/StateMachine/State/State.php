@@ -17,6 +17,7 @@ class State implements StateInterface
     {
         $this->name = $name;
         $this->type = $type;
+        $this->transitions = [];
     }
 
     public function isInitial()

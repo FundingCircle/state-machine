@@ -1,6 +1,7 @@
 <?php
 namespace StateMachine\StateMachine;
 
+use StateMachine\EventDispatcher\EventDispatcher;
 use StateMachine\State\StatefulInterface;
 use StateMachine\Transition\TransitionInterface;
 
@@ -30,6 +31,11 @@ interface StateMachineInterface
      * @return string
      */
     public function getCurrentState();
+
+    /**
+     * @return EventDispatcher
+     */
+    public function getEventDispatcher();
 
     /**
      * Define a new transition to the statemachine

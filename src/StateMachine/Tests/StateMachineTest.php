@@ -61,8 +61,8 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
         $stateMachine->addTransition('committed', 'originating');
 
         $lastStateChange = new History();
-        $lastStateChange->setFrom('new');
-        $lastStateChange->setTo("committed");
+        $lastStateChange->setFromState('new');
+        $lastStateChange->setToState("committed");
         $stateMachine->getHistory()->add($lastStateChange);
 
         $stateMachine->boot();
@@ -89,8 +89,8 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
         $stateMachine->addTransition('committed', 'originating');
 
         $lastStateChange = new History();
-        $lastStateChange->setFrom('new');
-        $lastStateChange->setTo("committed");
+        $lastStateChange->setFromState('new');
+        $lastStateChange->setToState("committed");
         $stateMachine->getHistory()->add($lastStateChange);
         $stateMachine->boot();
         $this->assertEquals("committed", $stateMachine->getCurrentState());

@@ -7,8 +7,7 @@ use StateMachine\Exception\StateMachineException;
 use StateMachine\Listener\HistoryListenerInterface;
 use StateMachine\State\StatefulInterface;
 use StateMachine\StateMachine\StateMachine;
-use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use StateMachine\EventDispatcher\EventDispatcher;
 
 /**
  * This factory is responsible of registering statemachine definition
@@ -63,13 +62,15 @@ class StateMachineFactory
         }
         $definition = $this->stateMachineDefinitions[$class];
 
+        $eventDispatcher = new EventDispatcher();
         $stateMachine = new StateMachine(
             $statefulObject,
             new StateAccessor($definition['property']),
             null,
             $this->transitionClass,
             $definition['options'],
-            $definition['history_class']
+            $definition['history_class'],
+            $eventDispatcher
         );
         //adding states
         foreach ($definition['states'] as $name => $state) {
@@ -112,8 +113,6 @@ class StateMachineFactory
             }
 
         }
-        //booting the machine here, so it can't be changed somewhere else
-        $stateMachine->boot();
 
         return $stateMachine;
     }
