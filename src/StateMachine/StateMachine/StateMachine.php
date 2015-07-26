@@ -255,7 +255,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         $this->validateTransition($transition);
         $callableClass = ($callable instanceof \Closure) ? "closure" : get_class($callable[0]);
         $this->transitions[$transition]->addGuard($callableClass);
-        $this->eventDispatcher->addListener(Events::EVENT_ON_GUARD, $callable);
+        $this->eventDispatcher->addListener($transition."_".Events::EVENT_ON_GUARD, $callable);
     }
 
     /**
@@ -270,7 +270,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         $this->validateTransition($transition);
         $callableClass = ($callable instanceof \Closure) ? "closure" : get_class($callable[0]);
         $this->transitions[$transition]->addPreTransition($callableClass);
-        $this->eventDispatcher->addListener(Events::EVENT_PRE_TRANSITION, $callable);
+        $this->eventDispatcher->addListener($transition."_".Events::EVENT_PRE_TRANSITION, $callable);
     }
 
     /**
@@ -285,7 +285,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         $this->validateTransition($transition);
         $callableClass = ($callable instanceof \Closure) ? "closure" : get_class($callable[0]);
         $this->transitions[$transition]->addPostTransition($callableClass);
-        $this->eventDispatcher->addListener(Events::EVENT_POST_TRANSITION, $callable, $priority);
+        $this->eventDispatcher->addListener($transition."_".Events::EVENT_POST_TRANSITION, $callable, $priority);
     }
 
     /**
@@ -335,7 +335,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
             $transitionEvent = new TransitionEvent($this->object, $transition);
 
             return $this->eventDispatcher->dispatch(
-                Events::EVENT_ON_GUARD,
+                $transitionName."_".Events::EVENT_ON_GUARD,
                 $transitionEvent,
                 $this->messages
             );
@@ -374,7 +374,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         //Execute guards
         /** @var TransitionEvent $transitionEvent */
         $response = $this->eventDispatcher->dispatch(
-            Events::EVENT_ON_GUARD,
+            $transitionName."_".Events::EVENT_ON_GUARD,
             $transitionEvent,
             $this->messages
         );
@@ -386,7 +386,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         }
         //Execute pre transitions
         $response = $this->eventDispatcher->dispatch(
-            Events::EVENT_PRE_TRANSITION,
+            $transitionName."_".Events::EVENT_PRE_TRANSITION,
             $transitionEvent,
             $this->messages
         );
@@ -402,6 +402,14 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         $this->stateAccessor->setState($this->object, $state);
 
         //Execute post transitions
+        $this->eventDispatcher->dispatch(
+            $transitionName."_".Events::EVENT_POST_TRANSITION,
+            $transitionEvent,
+            $this->messages
+        );
+
+        //@TODO this mainly dispatched for persistent subscriber in the bundle
+        //Execute general post transitions
         $this->eventDispatcher->dispatch(
             Events::EVENT_POST_TRANSITION,
             $transitionEvent,
