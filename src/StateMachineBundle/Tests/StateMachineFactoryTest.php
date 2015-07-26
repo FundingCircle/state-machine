@@ -54,21 +54,21 @@ class StateMachineFactoryTest extends \PHPUnit_Framework_TestCase
                 0 => [
                     "callback"   => $this->getMock('StateMachineBundle\Tests\Listeners\MockListener'),
                     "method"     => "callbackMethod",
-                    "transition" => "new::cancelled",
+                    "transition" => "new->cancelled",
                 ],
             ],
             "pre_transitions"  => [
                 0 => [
                     "callback"   => $this->getMock('StateMachineBundle\Tests\Listeners\MockListener'),
                     "method"     => "callbackMethod",
-                    "transition" => "new::cancelled",
+                    "transition" => "new->cancelled",
                 ],
             ],
             "post_transitions" => [
                 0 => [
                     "callback"   => $this->getMock('StateMachineBundle\Tests\Listeners\MockListener'),
                     "method"     => "callbackMethod",
-                    "transition" => "new::cancelled",
+                    "transition" => "new->cancelled",
                 ],
             ]
         ];

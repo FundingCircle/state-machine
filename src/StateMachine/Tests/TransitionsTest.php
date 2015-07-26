@@ -11,7 +11,7 @@ class TransitionsTest extends \PHPUnit_Framework_TestCase
         $this->setExpectedException('StateMachine\Exception\StateMachineException');
         $stateMachine = StateMachineFixtures::getBidStateMachine();
         $stateMachine->addPreTransition(
-            "non_existing::non_existing",
+            "non_existing->non_existing",
             function () {
 
             }
@@ -22,7 +22,7 @@ class TransitionsTest extends \PHPUnit_Framework_TestCase
     {
         $stateMachine = StateMachineFixtures::getBidStateMachine();
         $stateMachine->addPreTransition(
-            "new::committed",
+            "new->committed",
             function (TransitionEvent $transitionEvent) {
                 return false;
             }
@@ -37,7 +37,7 @@ class TransitionsTest extends \PHPUnit_Framework_TestCase
     {
         $stateMachine = StateMachineFixtures::getBidStateMachine();
         $stateMachine->addPreTransition(
-            "new::committed",
+            "new->committed",
             function (TransitionEvent $transitionEvent) {
                 return true;
             }
@@ -54,7 +54,7 @@ class TransitionsTest extends \PHPUnit_Framework_TestCase
         $this->setExpectedException('StateMachine\Exception\StateMachineException');
         $stateMachine = StateMachineFixtures::getBidStateMachine();
         $stateMachine->addPostTransition(
-            "non_existing::non_existing",
+            "non_existing->non_existing",
             function () {
 
             }
@@ -65,7 +65,7 @@ class TransitionsTest extends \PHPUnit_Framework_TestCase
     {
         $stateMachine = StateMachineFixtures::getBidStateMachine();
         $stateMachine->addPostTransition(
-            "new::committed",
+            "new->committed",
             function (TransitionEvent $transitionEvent) {
                 $transitionEvent->rejectTransition($this);
             }
@@ -80,7 +80,7 @@ class TransitionsTest extends \PHPUnit_Framework_TestCase
     {
         $stateMachine = StateMachineFixtures::getBidStateMachine();
         $stateMachine->addPostTransition(
-            "new::committed",
+            "new->committed",
             function (TransitionEvent $transitionEvent) {
                 //do nothing
             }

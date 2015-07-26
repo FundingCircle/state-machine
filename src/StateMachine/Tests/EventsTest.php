@@ -33,28 +33,28 @@ class TransitionEventsTest extends \PHPUnit_Framework_TestCase
         $stateMachine->boot();
 
         $allowedEvents = $stateMachine->getAllowedEvents();
-        $this->assertArrayHasKey('new::committed', $allowedEvents);
-        $this->assertArrayHasKey('new::cancelled', $allowedEvents);
-        $this->assertArrayHasKey('new::error', $allowedEvents);
+        $this->assertArrayHasKey('new->committed', $allowedEvents);
+        $this->assertArrayHasKey('new->cancelled', $allowedEvents);
+        $this->assertArrayHasKey('new->error', $allowedEvents);
 
-        $this->assertEquals($allowedEvents['new::committed'], 'commit');
-        $this->assertEquals($allowedEvents['new::cancelled'], 'cancel');
-        $this->assertEquals($allowedEvents['new::error'], 'fail');
+        $this->assertEquals($allowedEvents['new->committed'], 'commit');
+        $this->assertEquals($allowedEvents['new->cancelled'], 'cancel');
+        $this->assertEquals($allowedEvents['new->error'], 'fail');
 
         $return = $stateMachine->triggers("cancel");
 
         $this->assertTrue($return);
 
         $allowedEvents = $stateMachine->getAllowedEvents();
-        $this->assertArrayHasKey('cancelled::new', $allowedEvents);
-        $this->assertArrayHasKey('cancelled::originating', $allowedEvents);
-        $this->assertArrayHasKey('cancelled::committed', $allowedEvents);
-        $this->assertArrayHasKey('cancelled::error', $allowedEvents);
-        $this->assertArrayHasKey('cancelled::paid', $allowedEvents);
+        $this->assertArrayHasKey('cancelled->new', $allowedEvents);
+        $this->assertArrayHasKey('cancelled->originating', $allowedEvents);
+        $this->assertArrayHasKey('cancelled->committed', $allowedEvents);
+        $this->assertArrayHasKey('cancelled->error', $allowedEvents);
+        $this->assertArrayHasKey('cancelled->paid', $allowedEvents);
 
-        $this->assertEquals($allowedEvents['cancelled::new'], 'reopen');
-        $this->assertEquals($allowedEvents['cancelled::originating'], 'reopen');
-        $this->assertEquals($allowedEvents['cancelled::committed'], 'reopen');
-        $this->assertEquals($allowedEvents['cancelled::paid'], 'reopen');
+        $this->assertEquals($allowedEvents['cancelled->new'], 'reopen');
+        $this->assertEquals($allowedEvents['cancelled->originating'], 'reopen');
+        $this->assertEquals($allowedEvents['cancelled->committed'], 'reopen');
+        $this->assertEquals($allowedEvents['cancelled->paid'], 'reopen');
     }
 }

@@ -11,7 +11,7 @@ class GuardsTest extends \PHPUnit_Framework_TestCase
         $this->setExpectedException("StateMachine\Exception\StateMachineException");
         $stateMachine = StateMachineFixtures::getOrderStateMachine();
         $stateMachine->addGuard(
-            'pending::refunded',
+            'pending->refunded',
             function () {
             }
         );
@@ -22,7 +22,7 @@ class GuardsTest extends \PHPUnit_Framework_TestCase
     {
         $stateMachine = StateMachineFixtures::getOrderStateMachine();
         $stateMachine->addGuard(
-            'pending::checking_out',
+            'pending->checking_out',
             function () {
                 return true;
             }
@@ -37,7 +37,7 @@ class GuardsTest extends \PHPUnit_Framework_TestCase
     {
         $stateMachine = StateMachineFixtures::getOrderStateMachine();
         $stateMachine->addGuard(
-            'pending::checking_out',
+            'pending->checking_out',
             function (TransitionEvent $transitionEvent) {
                 $transitionEvent->addMessage("Transition is rejected by guard");
 
@@ -60,7 +60,7 @@ class GuardsTest extends \PHPUnit_Framework_TestCase
         $stateMachine2 = StateMachineFixtures::getOrderStateMachine();
 
         $stateMachine1->addGuard(
-            'pending::checking_out',
+            'pending->checking_out',
             function (TransitionEvent $transitionEvent) {
                 $transitionEvent->addMessage("Transition is rejected by guard");
 
