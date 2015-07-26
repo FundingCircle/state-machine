@@ -64,14 +64,109 @@ public function registerBundles()
     );
 }
 ```
-### Step 3: Create transition class
+### Step 3: Config
 
-TBD
+``` yaml
+#app/config/config/yml
+state_machine:
+    state_machines:
+        bank_transaction:
+            object:
+                class: AppBundle\Entity\BankTransaction
+                property: state
+            history_class: AppBundle\Entity\BankTransactionHistory
+            states:
+              new: { type: initial } #intial state is required
+              exported: ~
+              bank_processing: ~
+              failed: ~
+              succeeded: ~
+            transitions:
+              - { from: [new] ,to: [ exported ], event: "export" }
+              - { from: [exported] ,to: [ bank_processing ], event: "transfer to bank"}
+              - { from: [bank_processing] ,to: [ succeeded ], event: "transaction confirm"}
+              - { from: [succeeded, bank_processing] ,to: [ failed ], event: "fail" }
+            guards:
+              #service callback exmaple
+              - { transition: "new->exported" ,callback: app.test_callback ,method: onGuardSuccess }
+              #class callback example (methid should be static)
+              - { transition: "new->exported" ,callback: StateMachineBundle\Tests\Listeners\MockListener ,method: simpleCallback }
 
+```
+
+### Step 4: Entity
+
+The stateful entity should implement
+`StateMachine\StateMachine\StatefulInterface`, You can use `StateMachine\Traits\StatefulTrait`for ready made implementation as example below
+
+``` php
+namespace AppBundle\Entity;
+
+use StateMachine\State\StatefulInterface;
+use StateMachine\Traits\StatefulTrait;
+
+/**
+ * BankTransaction
+ *
+ * @ORM\Table(name="bank_transactions")
+ * @ORM\Entity
+ */
+class BankTransaction implements StatefulInterface
+{
+    use StatefulTrait;
+...
+}
+```
+
+### Step 5: History class
+
+You need to create `BankTransactionHistory` as valid doctrine entity, this entity will hold the history for the configured statemachine
+
+Example below
+
+``` php
+<?php
+
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use StateMachineBundle\Entity\History as BaseHistory;
+
+/**
+ * @ORM\Entity()
+ * @ORM\Table("state_machine_history_bank_transaction")
+ */
+class BankTransactionHistory extends BaseHistory
+{
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+
+    /**
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+}
+
+
+```
 ## Usage
 
-TBD
 
+``` php
+        $em = $this->getDoctrine()->getManager();
+        $bankTransaction = new BankTransaction();
+        $em->persist($bankTransaction);
+        $bankTransaction->getStateMachine()->transitionTo("exported"));
+```
 ## More
 
 ### Blameable
