@@ -158,20 +158,106 @@ class BankTransactionHistory extends BaseHistory
 
 
 ```
+
+and update doctrine schema
 ## Usage
 
 
 ``` php
-        $em = $this->getDoctrine()->getManager();
-        $bankTransaction = new BankTransaction();
-        $em->persist($bankTransaction);
-        $bankTransaction->getStateMachine()->transitionTo("exported"));
+$em = $this->getDoctrine()->getManager();
+$bankTransaction = new BankTransaction();
+
+$em->persist($bankTransaction);
+
+//checks if transition is possible
+$bankTransaction->getStateMachine()->canTransitionTo("exported"));
+//move to certain state
+$bankTransaction->getStateMachine()->transitionTo("exported"));
+//or by trigger event
+$bankTransaction->getStateMachine()->trigger("export"));
+//returns current state
+$bankTransaction->getStateMachine()->getCurrentState();
+//returns allowed transitions
+$bankTransaction->getStateMachine()->getAllowedTransitions();
+//returns allowed events
+$bankTransaction->getStateMachine()->getAllowedEvents();
+
+//History methods
+//returns collection of configured history class
+$bankTransaction->getStateMachine()->getHistory();
+
+//returns last state change
+$bankTransaction->getStateMachine()->getLastStateChange();
 ```
-## More
 
 ### Blameable
 
-To track which user modify stateful objects
+In order to track which user modified stateful objects history class must implement `StateMachineBundle\Model\BlameableStateChangeInterface`
+Same history class but with blameable behavior
+``` php
+<?php
+
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use StateMachineBundle\Entity\History as BaseHistory;
+use StateMachineBundle\Model\BlameableStateChangeInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
+
+/**
+ * @ORM\Entity()
+ * @ORM\Table("state_machine_history_bank_transaction")
+ */
+class BankTransactionHistory extends BaseHistory implements BlameableStateChangeInterface
+{
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+
+    /**
+     * @var UserInterface
+     * @ORM\ManyToOne(targetEntity="User")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     */
+    private $user;
+
+    /**
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param UserInterface $user
+     */
+    public function setUser(UserInterface $user)
+    {
+        $this->user = $user;
+    }
+
+    /**
+     * @return UserInterface
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+}
+```
+and update doctrine schema
+
+Now with every state change the user_id will be recorded
 
 ### Rendering
+
+TBD
 ### Manual flushing
+
+TBD
