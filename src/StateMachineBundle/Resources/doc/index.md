@@ -82,15 +82,15 @@ state_machine:
               failed: ~
               succeeded: ~
             transitions:
-              - { from: [new] ,to: [ exported ], event: "export" }
-              - { from: [exported] ,to: [ bank_processing ], event: "transfer to bank"}
-              - { from: [bank_processing] ,to: [ succeeded ], event: "transaction confirm"}
-              - { from: [succeeded, bank_processing] ,to: [ failed ], event: "fail" }
+              - { from: [new], to: [ exported ], event: "export" }
+              - { from: [exported], to: [ bank_processing ], event: "transfer to bank"}
+              - { from: [bank_processing], to: [ succeeded ], event: "transaction confirm"}
+              - { from: [succeeded, bank_processing], to: [ failed ], event: "fail" }
             guards:
               #service callback exmaple
-              - { transition: "new->exported" ,callback: app.test_callback ,method: onGuardSuccess }
-              #class callback example (methid should be static)
-              - { transition: "new->exported" ,callback: StateMachineBundle\Tests\Listeners\MockListener ,method: simpleCallback }
+              - { transition: "new->exported", callback: app.test_callback ,method: onGuardSuccess }
+              #class callback example (method should be static)
+              - { transition: "new->exported", callback: StateMachineBundle\Tests\Listeners\MockListener, method: simpleCallback }
 
 ```
 
