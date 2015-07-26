@@ -25,4 +25,9 @@ class MockListener
     {
         return true;
     }
+
+    public static function simpleCallback(TransitionEvent $transitionEvent)
+    {
+        return false;
+    }
 }

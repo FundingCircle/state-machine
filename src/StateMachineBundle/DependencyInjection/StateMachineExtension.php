@@ -35,17 +35,32 @@ class StateMachineExtension extends Extension
 
         foreach ($config['state_machines'] as $stateMachine) {
             foreach ($stateMachine['guards'] as &$guard) {
-                $guard['callback'] = new Reference($guard['callback']);
+                $guard['callback'] = $this->resolveCallback($guard);
             }
             foreach ($stateMachine['pre_transitions'] as &$preTransition) {
-                $preTransition['callback'] = new Reference($preTransition['callback']);
+                $preTransition['callback'] = $this->resolveCallback($preTransition);
             }
             foreach ($stateMachine['post_transitions'] as &$postTransition) {
-                $postTransition['callback'] = new Reference($postTransition['callback']);
+                $postTransition['callback'] = $this->resolveCallback($postTransition);
             }
 
-
             $stateMachineFactory->addMethodCall('register', [$stateMachine]);
+        }
+    }
+
+    /**
+     * Detect if it's class or service
+     *
+     * @param $callback
+     *
+     * @return Reference
+     */
+    private function resolveCallback($callback)
+    {
+        if (class_exists($callback['callback'])) {
+            return $callback['callback'];
+        } else {
+            return new Reference($callback['callback']);
         }
     }
 }
