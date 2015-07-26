@@ -11,7 +11,6 @@ use StateMachine\History\HistoryCollection;
 use StateMachine\History\History;
 use StateMachine\Listener\HistoryListenerInterface;
 use StateMachine\State\State;
-use StateMachine\State\StatefulInterface;
 use StateMachine\State\StateInterface;
 use StateMachine\Transition\TransitionInterface;
 use StateMachine\EventDispatcher\EventDispatcher;

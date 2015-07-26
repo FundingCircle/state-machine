@@ -3,7 +3,7 @@ namespace StateMachine\Accessor;
 
 use Symfony\Component\PropertyAccess\PropertyAccessor;
 use StateMachine\Exception\StateMachineException;
-use StateMachine\State\StatefulInterface;
+use StateMachine\StateMachine\StatefulInterface;
 
 class StateAccessor extends PropertyAccessor implements StateAccessorInterface
 {

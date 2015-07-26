@@ -5,7 +5,7 @@
 namespace StateMachine\Event;
 
 use Symfony\Component\EventDispatcher\Event;
-use StateMachine\State\StatefulInterface;
+use StateMachine\StateMachine\StatefulInterface;
 use StateMachine\Transition\TransitionInterface;
 
 class TransitionEvent extends Event

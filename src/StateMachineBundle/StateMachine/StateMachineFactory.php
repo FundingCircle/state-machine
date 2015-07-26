@@ -4,7 +4,7 @@ namespace StateMachineBundle\StateMachine;
 
 use StateMachine\Accessor\StateAccessor;
 use StateMachine\Exception\StateMachineException;
-use StateMachine\State\StatefulInterface;
+use StateMachine\StateMachine\StatefulInterface;
 use StateMachine\StateMachine\StateMachine;
 use StateMachine\EventDispatcher\EventDispatcher;
 

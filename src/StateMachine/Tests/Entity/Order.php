@@ -1,7 +1,7 @@
 <?php
 namespace StateMachine\Tests\Entity;
 
-use StateMachine\State\StatefulInterface;
+use StateMachine\StateMachine\StatefulInterface;
 use StateMachine\Traits\StatefulTrait;
 
 class Order implements StatefulInterface

@@ -104,7 +104,7 @@ class HistoryListenerTest extends \PHPUnit_Framework_TestCase
         );
 
         $statefulMock = $this->getMock(
-            'StateMachine\State\StatefulInterface',
+            'StateMachine\StateMachine\StatefulInterface',
             [
                 'getStateMachine',
                 'setStateMachine',

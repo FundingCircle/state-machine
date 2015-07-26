@@ -2,7 +2,7 @@
 
 namespace StateMachine\Accessor;
 
-use StateMachine\State\StatefulInterface;
+use StateMachine\StateMachine\StatefulInterface;
 
 interface StateAccessorInterface
 {

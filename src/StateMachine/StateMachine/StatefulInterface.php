@@ -1,9 +1,7 @@
 <?php
 
 
-namespace StateMachine\State;
-
-use StateMachine\StateMachine\StateMachineInterface;
+namespace StateMachine\StateMachine;
 
 interface StatefulInterface
 {
@@ -11,6 +9,7 @@ interface StatefulInterface
      * @return int
      */
     public function getId();
+
     /**
      * @param StateMachineInterface $stateMachine
      */

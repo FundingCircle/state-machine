@@ -5,7 +5,7 @@ namespace StateMachineBundle\Subscriber;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ORM\Event\LifecycleEventArgs;
-use StateMachine\State\StatefulInterface;
+use StateMachine\StateMachine\StatefulInterface;
 use StateMachine\StateMachine\StateMachineHistoryInterface;
 use StateMachine\StateMachine\StateMachineInterface;
 use StateMachineBundle\Listener\HistoryListener;
