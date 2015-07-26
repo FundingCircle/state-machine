@@ -28,6 +28,6 @@ class MockListener
 
     public static function simpleCallback(TransitionEvent $transitionEvent)
     {
-        return false;
+        return true;
     }
 }

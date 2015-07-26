@@ -36,7 +36,7 @@ class StateMachineFactory
      */
     public function register(array $definition)
     {
-        $this->stateMachineDefinitions[$definition['class']] = $definition;
+        $this->stateMachineDefinitions[$definition['object']['class']] = $definition;
     }
 
     /**
@@ -65,7 +65,7 @@ class StateMachineFactory
         $eventDispatcher = new EventDispatcher();
         $stateMachine = new StateMachine(
             $statefulObject,
-            new StateAccessor($definition['property']),
+            new StateAccessor($definition['object']['property']),
             null,
             $this->transitionClass,
             $definition['options'],
