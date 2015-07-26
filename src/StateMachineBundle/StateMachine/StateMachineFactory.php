@@ -4,7 +4,6 @@ namespace StateMachineBundle\StateMachine;
 
 use StateMachine\Accessor\StateAccessor;
 use StateMachine\Exception\StateMachineException;
-use StateMachine\Listener\HistoryListenerInterface;
 use StateMachine\State\StatefulInterface;
 use StateMachine\StateMachine\StateMachine;
 use StateMachine\EventDispatcher\EventDispatcher;
@@ -60,8 +59,9 @@ class StateMachineFactory
                 )
             );
         }
+        // get definition prepared by the container
         $definition = $this->stateMachineDefinitions[$class];
-
+        //defining the StateMachine
         $eventDispatcher = new EventDispatcher();
         $stateMachine = new StateMachine(
             $statefulObject,
@@ -72,6 +72,7 @@ class StateMachineFactory
             $definition['history_class'],
             $eventDispatcher
         );
+
         //adding states
         foreach ($definition['states'] as $name => $state) {
             $stateMachine->addState($name, $state['type']);
@@ -82,35 +83,30 @@ class StateMachineFactory
             $from = empty($transition['from']) ? null : $transition['from'];
             $to = empty($transition['to']) ? null : $transition['to'];
             $event = empty($transition['event']) ? null : $transition['event'];
-            $addedTransitions = $stateMachine->addTransition($from, $to, $event);
+            $stateMachine->addTransition($from, $to, $event);
+        }
 
-            //adding guards
-            foreach ($transition['guards'] as $guard) {
-                foreach ($addedTransitions as $addedTransition) {
-                    $stateMachine->addGuard(
-                        $addedTransition->getName(),
-                        [$guard['callback'], $guard['method']]
-                    );
-                }
-            }
-            //adding pre-transitions
-            foreach ($transition['pre_transitions'] as $guard) {
-                foreach ($addedTransitions as $addedTransition) {
-                    $stateMachine->addPreTransition(
-                        $addedTransition->getName(),
-                        [$guard['callback'], $guard['method']]
-                    );
-                }
-            }
-            //adding post-transitions
-            foreach ($transition['pre_transitions'] as $guard) {
-                foreach ($addedTransitions as $addedTransition) {
-                    $stateMachine->addPostTransition(
-                        $addedTransition->getName(),
-                        [$guard['callback'], $guard['method']]
-                    );
-                }
-            }
+        //adding guards
+        foreach ($definition['guards'] as $guard) {
+            $stateMachine->addGuard(
+                $guard["transition"],
+                [$guard['callback'], $guard['method']]
+            );
+        }
+        //adding pre-transitions
+        foreach ($definition['pre_transitions'] as $preTransition) {
+            $stateMachine->addPreTransition(
+                $preTransition["transition"],
+                [$preTransition['callback'], $preTransition['method']]
+            );
+
+        }
+        //adding post-transitions
+        foreach ($definition['pre_transitions'] as $postTransition) {
+            $stateMachine->addPostTransition(
+                $postTransition["transition"],
+                [$postTransition['callback'], $postTransition['method']]
+            );
 
         }
 

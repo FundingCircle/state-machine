@@ -34,17 +34,16 @@ class StateMachineExtension extends Extension
         $stateMachineFactory->replaceArgument(0, $config['transition_class']);
 
         foreach ($config['state_machines'] as $stateMachine) {
-            foreach ($stateMachine['transitions'] as &$transition) {
-                foreach ($transition['guards'] as &$guard) {
-                    $guard['callback'] = new Reference($guard['callback']);
-                }
-                foreach ($transition['pre_transitions'] as &$preTransition) {
-                    $preTransition['callback'] = new Reference($preTransition['callback']);
-                }
-                foreach ($transition['post_transitions'] as &$postTransition) {
-                    $postTransition['callback'] = new Reference($postTransition['callback']);
-                }
+            foreach ($stateMachine['guards'] as &$guard) {
+                $guard['callback'] = new Reference($guard['callback']);
             }
+            foreach ($stateMachine['pre_transitions'] as &$preTransition) {
+                $preTransition['callback'] = new Reference($preTransition['callback']);
+            }
+            foreach ($stateMachine['post_transitions'] as &$postTransition) {
+                $postTransition['callback'] = new Reference($postTransition['callback']);
+            }
+
 
             $stateMachineFactory->addMethodCall('register', [$stateMachine]);
         }

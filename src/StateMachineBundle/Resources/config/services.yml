@@ -25,5 +25,5 @@ services:
             - @doctrine.orm.entity_manager
 #TODO make object manager dyanmically depends on config
 
-    test_fallbacks:
+    test_callback:
         class: StateMachineBundle\Tests\Listeners\MockListener

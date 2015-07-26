@@ -18,11 +18,11 @@ class StateMachineFactoryTest extends \PHPUnit_Framework_TestCase
     public function testGetStateMachine()
     {
         $definition = [
-            "class"         => "StateMachineBundle\Tests\Entity\Order",
-            "property"      => "state",
-            "history_class" => "StateMachineBundle\Tests\Entity\History",
-            "options"       => ['flush' => true],
-            "states"        => [
+            "class"            => "StateMachineBundle\Tests\Entity\Order",
+            "property"         => "state",
+            "history_class"    => "StateMachineBundle\Tests\Entity\History",
+            "options"          => ['flush' => true],
+            "states"           => [
                 "new"         => [
                     "type" => "initial"
                 ],
@@ -42,31 +42,34 @@ class StateMachineFactoryTest extends \PHPUnit_Framework_TestCase
                     "type" => "final"
                 ],
             ],
-            "transitions"   => [
+            "transitions"      => [
                 "t1" => [
-                    "from"             => [],
-                    "to"               => [
+                    "from" => [],
+                    "to"   => [
                         0 => "cancelled",
                     ],
-                    "guards"           => [
-                        0 => [
-                            "callback" => $this->getMock('StateMachineBundle\Tests\Listeners\MockListener'),
-                            "method"   => "callbackMethod",
-                        ],
-                    ],
-                    "pre_transitions"  => [
-                        0 => [
-                            "callback" => $this->getMock('StateMachineBundle\Tests\Listeners\MockListener'),
-                            "method"   => "callbackMethod",
-                        ],
-                    ],
-                    "post_transitions" => [
-                        0 => [
-                            "callback" => $this->getMock('StateMachineBundle\Tests\Listeners\MockListener'),
-                            "method"   => "callbackMethod",
-                        ],
-                    ]
                 ]
+            ],
+            "guards"           => [
+                0 => [
+                    "callback"   => $this->getMock('StateMachineBundle\Tests\Listeners\MockListener'),
+                    "method"     => "callbackMethod",
+                    "transition" => "new::cancelled",
+                ],
+            ],
+            "pre_transitions"  => [
+                0 => [
+                    "callback"   => $this->getMock('StateMachineBundle\Tests\Listeners\MockListener'),
+                    "method"     => "callbackMethod",
+                    "transition" => "new::cancelled",
+                ],
+            ],
+            "post_transitions" => [
+                0 => [
+                    "callback"   => $this->getMock('StateMachineBundle\Tests\Listeners\MockListener'),
+                    "method"     => "callbackMethod",
+                    "transition" => "new::cancelled",
+                ],
             ]
         ];
 
