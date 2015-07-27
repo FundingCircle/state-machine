@@ -126,7 +126,7 @@ class Graphviz implements VisualisationInterface
                 /* @var $trans TransitionInterface */
                 $this->graph->beginEdge(
                     array($state->getName(), $trans->getToState()->getName()),
-                    array('label' => $trans->getName())
+                    array('label' => $trans->getEventName())
                 )
                     ->end();
             }
