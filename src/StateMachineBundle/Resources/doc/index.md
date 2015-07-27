@@ -87,7 +87,7 @@ state_machine:
               - { from: [bank_processing], to: [ succeeded ], event: "transaction confirm"}
               - { from: [succeeded, bank_processing], to: [ failed ], event: "fail" }
             guards:
-              #service callback exmaple
+              #service callback example
               - { transition: "new->exported", callback: app.test_callback ,method: onGuardSuccess }
               #class callback example (method should be static)
               - { transition: "new->exported", callback: StateMachineBundle\Tests\Listeners\MockListener, method: simpleCallback }

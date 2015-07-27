@@ -3,7 +3,6 @@ namespace StateMachine\StateMachine;
 
 use StateMachine\Accessor\StateAccessor;
 use StateMachine\Accessor\StateAccessorInterface;
-use StateMachine\Event\BootEvent;
 use StateMachine\Event\Events;
 use StateMachine\Event\TransitionEvent;
 use StateMachine\Exception\StateMachineException;
