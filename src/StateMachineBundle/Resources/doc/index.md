@@ -190,7 +190,7 @@ $bankTransaction->getStateMachine()->getHistory();
 $bankTransaction->getStateMachine()->getLastStateChange();
 ```
 
-### Blameable
+## Blameable
 
 In order to track which user modified stateful objects history class must implement `StateMachineBundle\Model\BlameableStateChangeInterface`
 Same history class but with blameable behavior
@@ -255,9 +255,43 @@ and update doctrine schema
 
 Now with every state change the user_id will be recorded
 
-### Rendering
+## Rendering
 
-TBD
-### Manual flushing
+In order to render the Graph in twig
+use the below filter directly in template where you want to display the graph
 
-TBD
+`{{ object|renderGraph }}`
+
+## Manual flushing
+
+By default after state change the object is persisted and flushed, if that's not convenient, you can move from state to another without flusing, by passing `flush` option to false
+
+``` php
+$bankTransaction->getStateMachine()->canTransitionTo("exported"), ["flush"=> false]);
+
+$bankTransaction->getStateMachine()->transitionTo("exported"), ["flush"=> false]);
+```
+
+## Configuration reference
+
+``` yaml
+state_machine:
+    transition_class: StateMachine\Transition\Transition
+    state_accessor: statemachine.state_accessor
+    history_listener: statemachine.listener.history
+    db_driver: orm
+    state_machines:
+        state_machine_name:  #required
+            object:
+                class: ~  #required the stateful entity
+                property: ~ #required the class property that represent states
+            history_class: ~ #required
+            states: [] #required
+            transitions: [] #required { from: ~, to: ~, event: ~}
+            guards:[] #optional  #{ transition: ~ ,callback: ~, method: ~}
+            pre_transitions:[] #optional { transition: ~ ,callback: ~, method: ~}
+            post_transitions:[] #optional { transition: ~ ,callback: ~, method: ~}
+
+
+```
+
