@@ -1,4 +1,5 @@
 <?php
+
 namespace StateMachineBundle\History;
 
 use StateMachine\Exception\StateMachineException;
@@ -38,10 +39,10 @@ class PersistentHistoryManager implements HistoryManagerInterface
             $om = $this->registry->getManager(get_class($statefulObject));
             $stateChanges = $om->getRepository($stateMachine->getHistoryClass())->findBy(
                 [
-                    'objectIdentifier' => $stateMachine->getObject()->getId()
+                    'objectIdentifier' => $stateMachine->getObject()->getId(),
                 ],
                 [
-                    'createdAt' => 'desc'
+                    'createdAt' => 'desc',
                 ]
             );
 

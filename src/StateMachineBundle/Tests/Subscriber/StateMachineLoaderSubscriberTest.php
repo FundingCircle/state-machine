@@ -1,4 +1,5 @@
 <?php
+
 namespace StateMachineBundle\Tests\Subscriber;
 
 use StateMachineBundle\Subscriber\StateMachineLoaderSubscriber;
@@ -28,7 +29,7 @@ class StateMachineLoaderSubscriberTest extends \PHPUnit_Framework_TestCase
     {
         $stateMachineMock = $this->getMock('StateMachine\StateMachine\StateMachineInterface');
         $stateMachineMock->expects($this->any())
-            ->method("getEventDispatcher")
+            ->method('getEventDispatcher')
             ->willReturn($this->getMock("StateMachine\EventDispatcher\EventDispatcher"));
 
         $factoryMock = $this->getMockBuilder('\StateMachineBundle\StateMachine\StateMachineFactory')
@@ -47,7 +48,7 @@ class StateMachineLoaderSubscriberTest extends \PHPUnit_Framework_TestCase
             ->willReturn($stateFulObject);
 
         $eventArgsMock->expects($this->any())
-            ->method("getEntityManager")
+            ->method('getEntityManager')
             ->willReturn($this->getMock('Doctrine\Common\Persistence\ObjectManager'));
 
         $subscriber = new StateMachineLoaderSubscriber($factoryMock, $this->getTokenStorage());
@@ -69,7 +70,7 @@ class StateMachineLoaderSubscriberTest extends \PHPUnit_Framework_TestCase
             ->willReturn(new NonStatefulOrder());
 
         $eventArgsMock->expects($this->any())
-            ->method("getEntityManager")
+            ->method('getEntityManager')
             ->willReturn($this->getMock('Doctrine\Common\Persistence\ObjectManager'));
 
         $subscriber = new StateMachineLoaderSubscriber($factoryMock, $this->getTokenStorage());
@@ -81,7 +82,7 @@ class StateMachineLoaderSubscriberTest extends \PHPUnit_Framework_TestCase
     {
         $stateMachineMock = $this->getMock('StateMachine\StateMachine\StateMachineInterface');
         $stateMachineMock->expects($this->any())
-            ->method("getEventDispatcher")
+            ->method('getEventDispatcher')
             ->willReturn($this->getMock("StateMachine\EventDispatcher\EventDispatcher"));
 
         $factoryMock = $this->getMockBuilder('\StateMachineBundle\StateMachine\StateMachineFactory')
@@ -100,7 +101,7 @@ class StateMachineLoaderSubscriberTest extends \PHPUnit_Framework_TestCase
             ->willReturn($stateFulObject);
 
         $eventArgsMock->expects($this->any())
-            ->method("getEntityManager")
+            ->method('getEntityManager')
             ->willReturn($this->getMock('Doctrine\Common\Persistence\ObjectManager'));
 
         $subscriber = new StateMachineLoaderSubscriber($factoryMock, $this->getTokenStorage());
@@ -109,7 +110,6 @@ class StateMachineLoaderSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('StateMachine\StateMachine\StateMachineInterface', $stateFulObject->getStateMachine());
     }
 
-
     public function testGetSubscribedEvents()
     {
         $factoryMock = $this->getMockBuilder('\StateMachineBundle\StateMachine\StateMachineFactory')
@@ -117,7 +117,6 @@ class StateMachineLoaderSubscriberTest extends \PHPUnit_Framework_TestCase
         $subscriber = new StateMachineLoaderSubscriber($factoryMock, $this->getTokenStorage());
         $this->assertEquals(['postLoad', 'prePersist'], $subscriber->getSubscribedEvents());
     }
-
 
     private function getTokenStorage()
     {

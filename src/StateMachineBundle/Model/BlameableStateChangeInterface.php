@@ -1,4 +1,5 @@
 <?php
+
 namespace StateMachineBundle\Model;
 
 use Symfony\Component\Security\Core\User\UserInterface;

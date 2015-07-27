@@ -40,7 +40,7 @@ class PersistentSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            Events::EVENT_POST_TRANSITION => ['onPostTransaction', 255]
+            Events::EVENT_POST_TRANSITION => ['onPostTransaction', 255],
         ];
     }
 }

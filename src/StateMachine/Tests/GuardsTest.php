@@ -1,4 +1,5 @@
 <?php
+
 namespace StateMachine\Tests;
 
 use StateMachine\Event\TransitionEvent;
@@ -39,7 +40,7 @@ class GuardsTest extends \PHPUnit_Framework_TestCase
         $stateMachine->addGuard(
             'pending->checking_out',
             function (TransitionEvent $transitionEvent) {
-                $transitionEvent->addMessage("Transition is rejected by guard");
+                $transitionEvent->addMessage('Transition is rejected by guard');
 
                 return false;
             }
@@ -49,7 +50,7 @@ class GuardsTest extends \PHPUnit_Framework_TestCase
 
         $this->assertFalse($return);
         $this->assertArraySubset(
-            ["Transition is rejected by guard"],
+            ['Transition is rejected by guard'],
             $stateMachine->getLastStateChange()->getMessages()
         );
     }
@@ -62,7 +63,7 @@ class GuardsTest extends \PHPUnit_Framework_TestCase
         $stateMachine1->addGuard(
             'pending->checking_out',
             function (TransitionEvent $transitionEvent) {
-                $transitionEvent->addMessage("Transition is rejected by guard");
+                $transitionEvent->addMessage('Transition is rejected by guard');
 
                 return false;
             }
@@ -70,7 +71,7 @@ class GuardsTest extends \PHPUnit_Framework_TestCase
         $stateMachine1->boot();
         $stateMachine2->boot();
 
-        $this->assertTrue($stateMachine2->canTransitionTo("checking_out"));
+        $this->assertTrue($stateMachine2->canTransitionTo('checking_out'));
         $this->assertTrue($stateMachine2->transitionTo('checking_out'));
 
         $this->assertTrue($stateMachine1->canTransitionTo('checking_out'));

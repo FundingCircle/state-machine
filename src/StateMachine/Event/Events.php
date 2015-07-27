@@ -3,6 +3,7 @@
 // Defines Events for the Symfony event dispatcher
 // TODO: do we reallyl want to run this through the event dispatcher? What do we gain from that?
 
+
 namespace StateMachine\Event;
 
 final class Events

@@ -1,9 +1,9 @@
 <?php
+
 namespace StateMachine\StateMachine;
 
 use StateMachine\History\HistoryCollection;
 use StateMachine\History\History;
-use StateMachine\Transition\TransitionInterface;
 
 interface StateMachineHistoryInterface
 {

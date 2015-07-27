@@ -7,7 +7,7 @@ use StateMachine\StateMachine\StatefulInterface;
 interface HistoryManagerInterface
 {
     /**
-     * Load history for given stateful object
+     * Load history for given stateful object.
      *
      * @param StatefulInterface $statefulObject
      *
@@ -16,7 +16,7 @@ interface HistoryManagerInterface
     public function load(StatefulInterface $statefulObject);
 
     /**
-     * Add one more record to the history
+     * Add one more record to the history.
      *
      * @param StatefulInterface $object
      * @param History           $history

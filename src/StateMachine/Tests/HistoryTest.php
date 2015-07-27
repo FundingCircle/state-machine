@@ -1,4 +1,5 @@
 <?php
+
 namespace StateMachine\Tests;
 
 use StateMachine\Event\TransitionEvent;

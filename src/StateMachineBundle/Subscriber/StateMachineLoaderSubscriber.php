@@ -3,12 +3,8 @@
 namespace StateMachineBundle\Subscriber;
 
 use Doctrine\Common\EventSubscriber;
-use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use StateMachine\StateMachine\StatefulInterface;
-use StateMachine\StateMachine\StateMachineHistoryInterface;
-use StateMachine\StateMachine\StateMachineInterface;
-use StateMachineBundle\Listener\HistoryListener;
 use StateMachineBundle\StateMachine\StateMachineFactory;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
@@ -37,12 +33,12 @@ class StateMachineLoaderSubscriber implements EventSubscriber
     {
         return [
             'postLoad',
-            'prePersist'
+            'prePersist',
         ];
     }
 
     /**
-     * Check if loaded entity is StateFul and attach the corresponded statemachine to it
+     * Check if loaded entity is StateFul and attach the corresponded statemachine to it.
      *
      * @param LifecycleEventArgs $eventArgs
      *
@@ -65,7 +61,7 @@ class StateMachineLoaderSubscriber implements EventSubscriber
     }
 
     /**
-     * While creating new object set statemachine and initial state
+     * While creating new object set statemachine and initial state.
      *
      * @param LifecycleEventArgs $eventArgs
      *
@@ -84,5 +80,4 @@ class StateMachineLoaderSubscriber implements EventSubscriber
             $entity->setStateMachine($stateMachine);
         }
     }
-
 }

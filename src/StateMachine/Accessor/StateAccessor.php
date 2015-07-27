@@ -1,4 +1,5 @@
 <?php
+
 namespace StateMachine\Accessor;
 
 use Symfony\Component\PropertyAccess\PropertyAccessor;

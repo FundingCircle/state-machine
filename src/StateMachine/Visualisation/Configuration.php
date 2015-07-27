@@ -1,4 +1,5 @@
 <?php
+
 namespace StateMachine\Visualisation;
 
 /**
@@ -14,19 +15,19 @@ class Configuration
     /**
      * Constructor.
      *
-     * @param boolean     $renderProperties flag
+     * @param bool        $renderProperties flag
      * @param string|null $markCurrentState fillcolor
      */
     public function __construct($renderProperties = false, $markCurrentState = null)
     {
-        $this->renderProperties = (bool)$renderProperties;
+        $this->renderProperties = (bool) $renderProperties;
         $this->markCurrentState = $markCurrentState;
     }
 
     /**
      * Returns whether state properties shall be rendered or not.
      *
-     * @return boolean
+     * @return bool
      */
     public function renderProperties()
     {

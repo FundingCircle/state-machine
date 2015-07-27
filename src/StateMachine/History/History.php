@@ -13,7 +13,7 @@ class History
     /** @var  array */
     protected $messages;
 
-    /** @var  boolean */
+    /** @var  bool */
     protected $passed;
 
     /** @var  string */
@@ -94,7 +94,7 @@ class History
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isPassed()
     {
@@ -102,7 +102,7 @@ class History
     }
 
     /**
-     * @param boolean $passed
+     * @param bool $passed
      */
     public function setPassed($passed)
     {

@@ -1,4 +1,5 @@
 <?php
+
 namespace StateMachine\Traits;
 
 use StateMachine\StateMachine\StateMachineInterface;

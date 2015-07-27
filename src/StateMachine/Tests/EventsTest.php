@@ -1,10 +1,10 @@
 <?php
+
 namespace StateMachine\Tests;
 
-use StateMachine\Event\TransitionEvent;
 use StateMachine\Tests\Fixtures\StateMachineFixtures;
 
-class TransitionEventsTest extends \PHPUnit_Framework_TestCase
+class EventsTest extends \PHPUnit_Framework_TestCase
 {
     public function testTriggersUndefinedEvent()
     {
@@ -12,7 +12,7 @@ class TransitionEventsTest extends \PHPUnit_Framework_TestCase
         $stateMachine = StateMachineFixtures::getOrderStateMachine();
         $stateMachine->boot();
 
-        $stateMachine->triggers("armageddon");
+        $stateMachine->triggers('armageddon');
     }
 
     public function testTriggersSuccess()
@@ -20,7 +20,7 @@ class TransitionEventsTest extends \PHPUnit_Framework_TestCase
         $stateMachine = StateMachineFixtures::getBidStateMachine();
         $stateMachine->boot();
 
-        $return = $stateMachine->triggers("commit");
+        $return = $stateMachine->triggers('commit');
         $this->assertTrue($return);
     }
 
@@ -28,7 +28,7 @@ class TransitionEventsTest extends \PHPUnit_Framework_TestCase
     {
         $stateMachine = StateMachineFixtures::getBidStateMachine();
         $stateMachine->addTransition(null, 'cancelled', 'cancel');
-        $stateMachine->addTransition("cancelled", null, 'reopen');
+        $stateMachine->addTransition('cancelled', null, 'reopen');
         $stateMachine->addTransition(null, 'error', 'fail');
         $stateMachine->boot();
 
@@ -41,7 +41,7 @@ class TransitionEventsTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($allowedEvents['new->cancelled'], 'cancel');
         $this->assertEquals($allowedEvents['new->error'], 'fail');
 
-        $return = $stateMachine->triggers("cancel");
+        $return = $stateMachine->triggers('cancel');
 
         $this->assertTrue($return);
 

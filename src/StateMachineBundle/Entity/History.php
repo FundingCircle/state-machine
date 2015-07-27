@@ -1,4 +1,5 @@
 <?php
+
 namespace StateMachineBundle\Entity;
 
 use StateMachine\History\History as BaseHistory;

@@ -1,4 +1,5 @@
 <?php
+
 namespace StateMachine\StateMachine;
 
 use StateMachine\EventDispatcher\EventDispatcher;
@@ -17,7 +18,6 @@ interface StateMachineInterface
     public function getTransitions();
 
     /**
-     * @return void
      */
     public function boot();
 
@@ -37,7 +37,7 @@ interface StateMachineInterface
     public function getEventDispatcher();
 
     /**
-     * Define a new transition to the statemachine
+     * Define a new transition to the statemachine.
      *
      * @param mixed  $from
      * @param mixed  $to
@@ -61,7 +61,7 @@ interface StateMachineInterface
     public function getAllowedTransitions();
 
     /**
-     * Check if it's possible to transit to given state
+     * Check if it's possible to transit to given state.
      *
      * @param string $state
      * @param bool   $withGuards
@@ -71,7 +71,7 @@ interface StateMachineInterface
     public function canTransitionTo($state, $withGuards);
 
     /**
-     * Transit the object to given state
+     * Transit the object to given state.
      *
      * @param string $state
      * @param array  $options
@@ -81,7 +81,7 @@ interface StateMachineInterface
     public function transitionTo($state, $options = []);
 
     /**
-     * Triggers a specific event
+     * Triggers a specific event.
      *
      * @param string $eventName
      *
@@ -104,7 +104,6 @@ interface StateMachineInterface
      * @param string   $transition
      * @param callable $callable
      * @param string   $priority
-     *
      */
     public function addPreTransition($transition, $callable, $priority);
 
@@ -112,7 +111,6 @@ interface StateMachineInterface
      * @param string   $transition
      * @param callable $callable
      * @param string   $priority
-     *
      */
     public function addPostTransition($transition, $callable, $priority);
 }

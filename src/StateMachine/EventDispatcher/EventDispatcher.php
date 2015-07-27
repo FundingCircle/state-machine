@@ -1,4 +1,5 @@
 <?php
+
 namespace StateMachine\EventDispatcher;
 
 use StateMachine\Event\TransitionEvent;
@@ -29,6 +30,6 @@ class EventDispatcher extends BaseEventDispatcher
             return true;
         }
 
-        throw new \Exception("Event should be instance of ".TransitionEvent::class);
+        throw new \Exception('Event should be instance of '.TransitionEvent::class);
     }
 }

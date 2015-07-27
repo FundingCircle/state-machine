@@ -1,6 +1,5 @@
 <?php
 
-
 namespace StateMachine\StateMachine;
 
 interface StatefulInterface

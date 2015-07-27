@@ -1,6 +1,5 @@
 <?php
 
-
 namespace StateMachineBundle\Tests\Entity;
 
 use StateMachineBundle\Entity\History;

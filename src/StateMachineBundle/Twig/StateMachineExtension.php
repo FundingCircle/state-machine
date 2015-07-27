@@ -31,6 +31,6 @@ class StateMachineExtension extends \Twig_Extension
      */
     public function getName()
     {
-        return "statemachine";
+        return 'statemachine';
     }
 }

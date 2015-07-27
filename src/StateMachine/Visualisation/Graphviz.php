@@ -1,4 +1,5 @@
 <?php
+
 namespace StateMachine\Visualisation;
 
 use StateMachine\StateMachine\StateMachineInterface;
@@ -7,26 +8,27 @@ use Alom\Graphviz\Digraph;
 use StateMachine\Transition\TransitionInterface;
 
 /**
- * Visualisation of a State machine using Graphviz
+ * Visualisation of a State machine using Graphviz.
  *
  * This class geneates dot source code which can be rendered
  * by graphviz. Pass a configuration object to control how
  * the nodes are rendered.
  *
  * @link http://www.graphviz.org/Gallery/directed/fsm.gv.txt
+ *
  * @author Daniel Pozzi <bonndan76@googlemail.com>
  */
 class Graphviz implements VisualisationInterface
 {
     /**
-     * the graphviz graph representation
+     * the graphviz graph representation.
      *
      * @var \Alom\Graphviz\Digraph
      */
     private $graph;
 
     /**
-     * visualisation options
+     * visualisation options.
      *
      * @var Configuration
      */
@@ -77,8 +79,8 @@ class Graphviz implements VisualisationInterface
     /**
      * Returns the node attributes.
      *
-     * @param  StateMachineInterface $stateMachine
-     * @param  string                $state
+     * @param StateMachineInterface $stateMachine
+     * @param string                $state
      *
      * @return array
      */
@@ -100,7 +102,7 @@ class Graphviz implements VisualisationInterface
     /**
      * Returns the node label.
      *
-     * @param  StateInterface $state
+     * @param StateInterface $state
      *
      * @return string
      */
@@ -134,7 +136,7 @@ class Graphviz implements VisualisationInterface
     }
 
     /**
-     * Parse SVG from dot source
+     * Parse SVG from dot source.
      *
      * @param string $dotString
      *
@@ -143,9 +145,9 @@ class Graphviz implements VisualisationInterface
     private function parseSvg($dotString)
     {
         $descriptorSpec = array(
-            0 => array("pipe", "r"), // stdin
-            1 => array("pipe", "w"), // stdout
-            2 => array("pipe", "a") // stderr
+            0 => array('pipe', 'r'), // stdin
+            1 => array('pipe', 'w'), // stdout
+            2 => array('pipe', 'a'), // stderr
         );
 
         $process = proc_open('dot -Tsvg', $descriptorSpec, $pipes);

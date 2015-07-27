@@ -6,12 +6,12 @@ class StateMachineExtensionTest extends \PHPUnit_Framework_TestCase
 {
     public function testEmptyConfig()
     {
-//@TODO
+        //@TODO
     }
 
     public function testInvalidConfig()
     {
-//@TODO
+        //@TODO
     }
 
     public function testOnlyRequiredConfig()

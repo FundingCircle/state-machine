@@ -1,4 +1,5 @@
 <?php
+
 namespace StateMachine\State;
 
 class State implements StateInterface
@@ -82,5 +83,4 @@ class State implements StateInterface
     {
         return $this->name;
     }
-
 }

@@ -25,7 +25,7 @@ class TransitionEvent extends Event
     /** @var string */
     private $failedCallback;
 
-    /** @var boolean */
+    /** @var bool */
     protected $passed;
 
     /**
@@ -92,7 +92,7 @@ class TransitionEvent extends Event
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isPassed()
     {

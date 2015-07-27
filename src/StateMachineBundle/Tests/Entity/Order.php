@@ -34,7 +34,6 @@ class Order implements StatefulInterface
         $this->state = $state;
     }
 
-
     /**
      * @return mixed
      */

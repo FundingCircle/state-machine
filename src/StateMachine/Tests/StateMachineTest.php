@@ -1,4 +1,5 @@
 <?php
+
 namespace StateMachine\Tests;
 
 use StateMachine\Accessor\StateAccessor;
@@ -22,7 +23,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
     {
         $this->setExpectedException(
             'StateMachine\Exception\StateMachineException',
-            "No initial state is found"
+            'No initial state is found'
         );
 
         $stateMachine = new StateMachine(new Order(1), new StateAccessor());
@@ -44,7 +45,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
             'StateMachine\Exception\StateMachineException'
         );
         $object = new Order(2);
-        $object->setState("new");
+        $object->setState('new');
         $stateMachine = new StateMachine($object);
 
         $stateMachine->addState('new', StateInterface::TYPE_INITIAL);
@@ -62,17 +63,16 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
 
         $lastStateChange = new History();
         $lastStateChange->setFromState('new');
-        $lastStateChange->setToState("committed");
+        $lastStateChange->setToState('committed');
         $stateMachine->getHistory()->add($lastStateChange);
 
         $stateMachine->boot();
-
     }
 
     public function testWithHistoryStateNoConflict()
     {
         $object = new Order(2);
-        $object->setState("committed");
+        $object->setState('committed');
         $stateMachine = new StateMachine($object);
 
         $stateMachine->addState('new', StateInterface::TYPE_INITIAL);
@@ -90,18 +90,17 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
 
         $lastStateChange = new History();
         $lastStateChange->setFromState('new');
-        $lastStateChange->setToState("committed");
+        $lastStateChange->setToState('committed');
         $stateMachine->getHistory()->add($lastStateChange);
         $stateMachine->boot();
-        $this->assertEquals("committed", $stateMachine->getCurrentState());
-
+        $this->assertEquals('committed', $stateMachine->getCurrentState());
     }
 
     public function testTwoInitialStates()
     {
         $this->setExpectedException(
             'StateMachine\Exception\StateMachineException',
-            "Statemachine cannot have more than one initial state, current initial state is (pending)"
+            'Statemachine cannot have more than one initial state, current initial state is (pending)'
         );
 
         $stateMachine = StateMachineFixtures::getOrderStateMachine();
@@ -135,7 +134,6 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('paid->error', $transitions);
         //not to have transition to self
         $this->assertArrayNotHasKey('paid->paid', $transitions);
-
     }
 
     public function testFromManyTransitions()
@@ -216,7 +214,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
 
         $allowedTransitions = $stateMachine->getAllowedTransitions();
 
-        $this->assertEquals("pending", $stateMachine->getCurrentState());
+        $this->assertEquals('pending', $stateMachine->getCurrentState());
 
         $this->assertEquals(['checking_out', 'cancelled'], $allowedTransitions);
         $this->assertTrue($stateMachine->canTransitionTo('cancelled'));
@@ -276,7 +274,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
     {
         $this->setExpectedException('StateMachine\Exception\StateMachineException');
         $stateMachine = StateMachineFixtures::getOrderStateMachine();
-        $stateMachine->addTransition("new", 'cancelled');
+        $stateMachine->addTransition('new', 'cancelled');
         $stateMachine->boot();
     }
 
@@ -286,7 +284,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
         $stateMachine = StateMachineFixtures::getOrderStateMachine();
         $stateMachine->boot();
         $stateMachine->addPostTransition(
-            "new->committed",
+            'new->committed',
             function () {
             }
         );
@@ -298,7 +296,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
         $stateMachine = StateMachineFixtures::getOrderStateMachine();
         $stateMachine->boot();
         $stateMachine->addPreTransition(
-            "new->committed",
+            'new->committed',
             function () {
             }
         );
@@ -310,7 +308,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
         $stateMachine = StateMachineFixtures::getOrderStateMachine();
         $stateMachine->boot();
         $stateMachine->addGuard(
-            "new->committed",
+            'new->committed',
             function () {
             }
         );
@@ -324,9 +322,8 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
         );
         $stateMachine = StateMachineFixtures::getOrderStateMachine();
         $stateMachine->boot();
-        $stateMachine->addTransition("new->committed");
+        $stateMachine->addTransition('new->committed');
     }
-
 
     public function testGetAllowedTransitionsForNonBootedMachine()
     {
@@ -342,7 +339,6 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
         $stateMachine->canTransitionTo('paid');
     }
 
-
     public function testTransitToForNonBootedMachine()
     {
         $this->setExpectedException('StateMachine\Exception\StateMachineException');
@@ -356,6 +352,5 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
         $stateMachine = StateMachineFixtures::getOrderStateMachine();
         $stateMachine->boot();
         $stateMachine->boot();
-
     }
 }

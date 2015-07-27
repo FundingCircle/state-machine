@@ -30,7 +30,6 @@ class PersistentSubscriberTest extends \PHPUnit_Framework_TestCase
         $subscriber = new PersistentSubscriber($objectManagerMock);
         $transitionEventMock = $this->getTransitionEventMock(['flush' => true]);
         $subscriber->onPostTransaction($transitionEventMock);
-
     }
 
     public function testPostTransitionWithNoFlush()
@@ -58,7 +57,7 @@ class PersistentSubscriberTest extends \PHPUnit_Framework_TestCase
 
         $stateMachineMock = $this->getMockClass(
             'StateMachine\StateMachine\StateMachineHistoryInterface',
-            ['getHistory', 'getLastStateChange','getHistoryClass','getObject']
+            ['getHistory', 'getLastStateChange', 'getHistoryClass', 'getObject']
         );
 
         $statefulMock = $this->getMock(
@@ -66,7 +65,7 @@ class PersistentSubscriberTest extends \PHPUnit_Framework_TestCase
             [
                 'getStateMachine',
                 'setStateMachine',
-                'getId'
+                'getId',
             ]
         );
 

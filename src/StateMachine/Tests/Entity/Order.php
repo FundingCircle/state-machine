@@ -1,4 +1,5 @@
 <?php
+
 namespace StateMachine\Tests\Entity;
 
 use StateMachine\StateMachine\StatefulInterface;
@@ -9,7 +10,6 @@ class Order implements StatefulInterface
     use StatefulTrait;
     private $state;
     private $id;
-
 
     public function __construct($id)
     {

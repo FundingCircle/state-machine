@@ -1,4 +1,5 @@
 <?php
+
 namespace StateMachineBundle\Tests\Fixtures;
 
 use StateMachine\Event\TransitionEvent;
@@ -12,7 +13,7 @@ class GuardCallBacks
 
     public function failedCallBack(TransitionEvent $transitionEvent)
     {
-        $transitionEvent->addMessage("I am failed guard");
+        $transitionEvent->addMessage('I am failed guard');
         $transitionEvent->rejectTransition($this);
     }
 }

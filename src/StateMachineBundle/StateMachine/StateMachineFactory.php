@@ -12,7 +12,7 @@ use StateMachine\EventDispatcher\EventDispatcher;
 /**
  * This factory is responsible of registering statemachine definition
  * and create statemachines on demand,
- * This is the only place where statemachine is created and booted
+ * This is the only place where statemachine is created and booted.
  */
 class StateMachineFactory
 {
@@ -36,7 +36,7 @@ class StateMachineFactory
     }
 
     /**
-     * Register statemachine definition
+     * Register statemachine definition.
      *
      * @param array $definition
      */
@@ -46,11 +46,12 @@ class StateMachineFactory
     }
 
     /**
-     * Create and boot statemachine for given stateful object
+     * Create and boot statemachine for given stateful object.
      *
      * @param StatefulInterface $statefulObject
      *
      * @return StateMachine
+     *
      * @throws StateMachineException
      */
     public function get(StatefulInterface $statefulObject)
@@ -60,7 +61,7 @@ class StateMachineFactory
         if (!isset($this->stateMachineDefinitions[$class])) {
             throw new StateMachineException(
                 sprintf(
-                    "Definition for class :%s is not found, have you forgot to define statemachine in config.yml",
+                    'Definition for class :%s is not found, have you forgot to define statemachine in config.yml',
                     $class
                 )
             );
@@ -95,25 +96,23 @@ class StateMachineFactory
         //adding guards
         foreach ($definition['guards'] as $guard) {
             $stateMachine->addGuard(
-                $guard["transition"],
+                $guard['transition'],
                 [$guard['callback'], $guard['method']]
             );
         }
         //adding pre-transitions
         foreach ($definition['pre_transitions'] as $preTransition) {
             $stateMachine->addPreTransition(
-                $preTransition["transition"],
+                $preTransition['transition'],
                 [$preTransition['callback'], $preTransition['method']]
             );
-
         }
         //adding post-transitions
         foreach ($definition['pre_transitions'] as $postTransition) {
             $stateMachine->addPostTransition(
-                $postTransition["transition"],
+                $postTransition['transition'],
                 [$postTransition['callback'], $postTransition['method']]
             );
-
         }
 
         return $stateMachine;

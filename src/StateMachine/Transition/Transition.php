@@ -21,7 +21,6 @@ class Transition implements TransitionInterface
     /** @var array */
     protected $guards;
 
-
     /**
      * @param StateInterface $fromState
      * @param StateInterface $toState

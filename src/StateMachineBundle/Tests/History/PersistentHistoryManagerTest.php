@@ -23,18 +23,18 @@ class PersistentHistoryManagerTest extends \PHPUnit_Framework_TestCase
 
         $stateMachineMock = $this->getMock(
             'StateMachine\StateMachine\StateMachineHistoryInterface',
-            ['getHistory', 'getLastStateChange', "getHistoryClass", 'getObject']
+            ['getHistory', 'getLastStateChange', 'getHistoryClass', 'getObject']
         );
 
         $stateMachineMock->expects($this->once())
-            ->method("getHistory")->willReturn(new HistoryCollection());
+            ->method('getHistory')->willReturn(new HistoryCollection());
 
         $objectMock = $this->getMockBuilder("StateMachineBundle\Tests\Entity\Order")
             ->disableOriginalConstructor()
             ->getMock();
 
         $objectMock->expects($this->once())
-            ->method("getStateMachine")
+            ->method('getStateMachine')
             ->willReturn($stateMachineMock);
 
         $historyManager = $this->getHistoryManager(
@@ -59,18 +59,18 @@ class PersistentHistoryManagerTest extends \PHPUnit_Framework_TestCase
 
         $stateMachineMock = $this->getMock(
             'StateMachine\StateMachine\StateMachineHistoryInterface',
-            ['getHistory', 'getLastStateChange', "getHistoryClass", 'getObject']
+            ['getHistory', 'getLastStateChange', 'getHistoryClass', 'getObject']
         );
 
         $stateMachineMock->expects($this->once())
-            ->method("getHistory")->willReturn(new HistoryCollection());
+            ->method('getHistory')->willReturn(new HistoryCollection());
 
         $objectMock = $this->getMockBuilder("StateMachineBundle\Tests\Entity\Order")
             ->disableOriginalConstructor()
             ->getMock();
 
         $objectMock->expects($this->once())
-            ->method("getStateMachine")
+            ->method('getStateMachine')
             ->willReturn($stateMachineMock);
 
         $historyManager = $this->getHistoryManager(
@@ -104,18 +104,18 @@ class PersistentHistoryManagerTest extends \PHPUnit_Framework_TestCase
 
         $stateMachineMock = $this->getMock(
             'StateMachine\StateMachine\StateMachineHistoryInterface',
-            ['getHistory', 'getLastStateChange', "getHistoryClass", 'getObject']
+            ['getHistory', 'getLastStateChange', 'getHistoryClass', 'getObject']
         );
 
         $stateMachineMock->expects($this->once())
-            ->method("getHistory")->willReturn(new HistoryCollection());
+            ->method('getHistory')->willReturn(new HistoryCollection());
 
         $objectMock = $this->getMockBuilder("StateMachineBundle\Tests\Entity\Order")
             ->disableOriginalConstructor()
             ->getMock();
 
         $objectMock->expects($this->once())
-            ->method("getStateMachine")
+            ->method('getStateMachine')
             ->willReturn($stateMachineMock);
 
         $stateChange = $historyManager->add($objectMock, $blameableStateChange);
@@ -152,7 +152,7 @@ class PersistentHistoryManagerTest extends \PHPUnit_Framework_TestCase
         $registryMock = $this->getMockBuilder("Symfony\Bridge\Doctrine\RegistryInterface")
             ->getMock();
 
-        $registryMock->expects($this->any())->method("getManager")
+        $registryMock->expects($this->any())->method('getManager')
             ->willReturn($objectManagerMock);
 
         return $registryMock;
@@ -162,7 +162,7 @@ class PersistentHistoryManagerTest extends \PHPUnit_Framework_TestCase
     {
         $stateMachineMock = $this->getMockClass(
             'StateMachine\StateMachine\StateMachineHistoryInterface',
-            ['getHistory', 'getLastStateChange', "getHistoryClass", "getObject"]
+            ['getHistory', 'getLastStateChange', 'getHistoryClass', 'getObject']
         );
 
         $statefulMock = $this->getMock(
@@ -170,7 +170,7 @@ class PersistentHistoryManagerTest extends \PHPUnit_Framework_TestCase
             [
                 'getStateMachine',
                 'setStateMachine',
-                'getId'
+                'getId',
             ]
         );
 
@@ -208,7 +208,6 @@ class PersistentHistoryManagerTest extends \PHPUnit_Framework_TestCase
             ->willReturn($tokenMock);
 
         return $tokenStoragetMock;
-
     }
 
     private function getHistoryManager($registryMock, $tokenStorageMock)

@@ -1,4 +1,5 @@
 <?php
+
 namespace StateMachine\Visualisation;
 
 use StateMachine\StateMachine\StateMachineInterface;
