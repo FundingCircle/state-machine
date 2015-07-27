@@ -23,6 +23,11 @@ services:
             - { name: kernel.event_subscriber }
         arguments:
             - @doctrine.orm.entity_manager
+
+    statemachine.twig.state_machine:
+        class: StateMachineBundle\Twig\StateMachineExtension
+        tags:
+            - { name: twig.extension }
 #TODO make object manager dyanmically depends on config
 
     test_callback:
