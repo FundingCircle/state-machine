@@ -28,10 +28,10 @@ class StateMachineExtension extends Extension
         $config = $this->processConfiguration($configuration, $configs);
         $stateMachineFactory = $container->getDefinition('statemachine.factory');
 
-        $historyListener = $container->getDefinition($config['history_listener']);
-        $historyListener->addTag('kernel.event_subscriber');
+        $historyManager = $container->getDefinition($config['history_manager']);
 
-        $stateMachineFactory->replaceArgument(0, $config['transition_class']);
+        $stateMachineFactory->replaceArgument(0, $historyManager);
+        $stateMachineFactory->replaceArgument(1, $config['transition_class']);
 
         foreach ($config['state_machines'] as $stateMachine) {
             foreach ($stateMachine['guards'] as &$guard) {

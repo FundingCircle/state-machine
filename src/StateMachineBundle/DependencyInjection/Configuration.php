@@ -36,7 +36,7 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->scalarNode('transition_class')->defaultValue('StateMachine\Transition\Transition')->end()
                 ->scalarNode('state_accessor')->defaultValue('statemachine.state_accessor')->end()
-                ->scalarNode('history_listener')->defaultValue('statemachine.listener.history')->end()
+                ->scalarNode('history_manager')->defaultValue('statemachine.history_manager')->end()
                 ->scalarNode('db_driver')->defaultValue('orm')->end()
             ->end()
         ;

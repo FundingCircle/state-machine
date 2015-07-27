@@ -84,6 +84,9 @@ class StateMachineFactoryTest extends \PHPUnit_Framework_TestCase
 
     private function getFactory()
     {
-        return new StateMachineFactory();
+        $historyManagerMock = $this->getMockBuilder('StateMachine\History\HistoryManagerInterface')
+            ->getMock();
+
+        return new StateMachineFactory($historyManagerMock);
     }
 }

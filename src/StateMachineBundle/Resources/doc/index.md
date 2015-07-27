@@ -91,6 +91,10 @@ state_machine:
               - { transition: "new->exported", callback: app.test_callback ,method: onGuardSuccess }
               #class callback example (method should be static)
               - { transition: "new->exported", callback: StateMachineBundle\Tests\Listeners\MockListener, method: simpleCallback }
+            pre_transitions:
+              #...
+            post_transitions:
+              #...
 
 ```
 
@@ -278,7 +282,7 @@ $bankTransaction->getStateMachine()->transitionTo("exported"), ["flush"=> false]
 state_machine:
     transition_class: StateMachine\Transition\Transition
     state_accessor: statemachine.state_accessor
-    history_listener: statemachine.listener.history
+    history_manager: statemachine.history_manager
     db_driver: orm
     state_machines:
         state_machine_name:  #required

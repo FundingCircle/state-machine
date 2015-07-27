@@ -21,7 +21,7 @@ class StateMachineLoaderSubscriber implements EventSubscriber
     private $tokenStorage;
 
     /**
-     * @param StateMachineFactory $stateMachineFactory
+     * @param StateMachineFactory   $stateMachineFactory
      * @param TokenStorageInterface $tokenStorage
      */
     public function __construct(StateMachineFactory $stateMachineFactory, TokenStorageInterface $tokenStorage)
@@ -57,10 +57,7 @@ class StateMachineLoaderSubscriber implements EventSubscriber
             $stateMachine->getEventDispatcher()->addSubscriber(
                 new PersistentSubscriber($eventArgs->getEntityManager())
             );
-            $stateMachine->getEventDispatcher()->addSubscriber(
-                new HistoryListener($eventArgs->getEntityManager(), $this->tokenStorage)
-            );
-            $this->loadHistory($stateMachine, $eventArgs->getEntityManager());
+            //@TODO load all history here
 
             $stateMachine->boot();
             $entity->setStateMachine($stateMachine);
@@ -83,33 +80,9 @@ class StateMachineLoaderSubscriber implements EventSubscriber
             $stateMachine->getEventDispatcher()->addSubscriber(
                 new PersistentSubscriber($eventArgs->getEntityManager())
             );
-            $stateMachine->getEventDispatcher()->addSubscriber(
-                new HistoryListener($eventArgs->getEntityManager(), $this->tokenStorage)
-            );
             $stateMachine->boot();
             $entity->setStateMachine($stateMachine);
         }
     }
 
-    /**
-     * @param StateMachineInterface $stateMachine
-     * @param ObjectManager         $em
-     */
-    private function loadHistory(StateMachineInterface $stateMachine, ObjectManager $em)
-    {
-        if ($stateMachine instanceof StateMachineHistoryInterface) {
-            $stateChanges = $em->getRepository($stateMachine->getHistoryClass())->findBy(
-                [
-                    'objectIdentifier' => $stateMachine->getObject()->getId()
-                ],
-                [
-                    'createdAt' => 'desc'
-                ]
-            );
-
-            foreach ($stateChanges as $stateChange) {
-                $stateMachine->getHistory()->add($stateChange);
-            }
-        }
-    }
 }

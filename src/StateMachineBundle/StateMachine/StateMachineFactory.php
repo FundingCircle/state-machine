@@ -4,6 +4,7 @@ namespace StateMachineBundle\StateMachine;
 
 use StateMachine\Accessor\StateAccessor;
 use StateMachine\Exception\StateMachineException;
+use StateMachine\History\HistoryManagerInterface;
 use StateMachine\StateMachine\StatefulInterface;
 use StateMachine\StateMachine\StateMachine;
 use StateMachine\EventDispatcher\EventDispatcher;
@@ -15,6 +16,9 @@ use StateMachine\EventDispatcher\EventDispatcher;
  */
 class StateMachineFactory
 {
+    /** @var  HistoryManagerInterface */
+    private $historyManager;
+
     /** @var  string */
     private $transitionClass;
 
@@ -22,10 +26,12 @@ class StateMachineFactory
     private $stateMachineDefinitions;
 
     /**
-     * @param null $transitionClass
+     * @param HistoryManagerInterface $historyManager
+     * @param null                    $transitionClass
      */
-    public function __construct($transitionClass = null)
+    public function __construct(HistoryManagerInterface $historyManager, $transitionClass = null)
     {
+        $this->historyManager = $historyManager;
         $this->transitionClass = $transitionClass;
     }
 
@@ -66,10 +72,10 @@ class StateMachineFactory
         $stateMachine = new StateMachine(
             $statefulObject,
             new StateAccessor($definition['object']['property']),
-            null,
             $this->transitionClass,
             $definition['options'],
             $definition['history_class'],
+            $this->historyManager,
             $eventDispatcher
         );
 

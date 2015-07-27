@@ -1,12 +1,8 @@
 services:
-    statemachine.listener.history:
-        class: StateMachineBundle\Listener\HistoryListener
-        arguments:
-            - @security.token_storage
-
     statemachine.factory:
         class: StateMachineBundle\StateMachine\StateMachineFactory
         arguments:
+            - @statemachine.history_manager
             - ~
 
     statemachine.subscriber.doctrine_loader:
@@ -23,6 +19,13 @@ services:
             - { name: kernel.event_subscriber }
         arguments:
             - @doctrine.orm.entity_manager
+
+    statemachine.history_manager:
+        class: StateMachineBundle\History\PersistentHistoryManager
+        arguments:
+            - @doctrine
+#            - @doctrine.orm.entity_manager
+            - @security.token_storage
 
     statemachine.twig.state_machine:
         class: StateMachineBundle\Twig\StateMachineExtension
