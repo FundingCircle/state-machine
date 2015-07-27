@@ -2,7 +2,6 @@
 namespace StateMachine\EventDispatcher;
 
 use StateMachine\Event\TransitionEvent;
-use StateMachine\History\History;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcher as BaseEventDispatcher;
 
@@ -28,15 +27,6 @@ class EventDispatcher extends BaseEventDispatcher
             }
 
             return true;
-        } elseif ($event instanceof History) {
-            foreach ($this->getListeners($eventName) as $listener) {
-                $event = call_user_func($listener, $event, $eventName);
-                if ($event->isPropagationStopped()) {
-                    break;
-                }
-            }
-
-            return $event;
         }
 
         throw new \Exception("Event should be instance of ".TransitionEvent::class);

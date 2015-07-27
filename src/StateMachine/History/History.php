@@ -2,9 +2,7 @@
 
 namespace StateMachine\History;
 
-use Symfony\Component\EventDispatcher\Event;
-
-class History extends Event
+class History
 {
     /** @var  string */
     protected $objectIdentifier;

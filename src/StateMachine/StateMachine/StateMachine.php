@@ -8,6 +8,8 @@ use StateMachine\Event\TransitionEvent;
 use StateMachine\Exception\StateMachineException;
 use StateMachine\History\HistoryCollection;
 use StateMachine\History\History;
+use StateMachine\History\HistoryManager;
+use StateMachine\History\HistoryManagerInterface;
 use StateMachine\Listener\HistoryListenerInterface;
 use StateMachine\State\State;
 use StateMachine\State\StateInterface;
@@ -27,8 +29,11 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     /** @var StateAccessorInterface */
     private $stateAccessor;
 
-    /** @var  HistoryListenerInterface */
-    private $historyListener;
+    /** @var  HistoryManagerInterface */
+    private $historyManager;
+
+    /** @var  HistoryCollection */
+    private $historyCollection;
 
     /** @var StateInterface */
     private $currentState;
@@ -48,9 +53,6 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     /** @var EventDispatcher */
     private $eventDispatcher;
 
-    /** @var TransitionInterface[] */
-    private $historyCollection;
-
     /** @var array */
     private $messages = [];
 
@@ -64,28 +66,29 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     private $historyClass;
 
     /**
-     * @param StatefulInterface        $object
-     * @param StateAccessorInterface   $stateAccessor
-     * @param HistoryListenerInterface $historyListener
-     * @param string                   $transitionClass
-     * @param array                    $transitionOptions
-     * @param string                   $historyClass
-     * @param EventDispatcher          $eventDispatcher
+     * @param StatefulInterface       $object
+     * @param StateAccessorInterface  $stateAccessor
+     * @param string                  $transitionClass
+     * @param array                   $transitionOptions
+     * @param string                  $historyClass
+     * @param HistoryManagerInterface $historyManager
+     * @param EventDispatcher         $eventDispatcher
      */
     public function __construct(
         StatefulInterface $object,
         StateAccessorInterface $stateAccessor = null,
-        HistoryListenerInterface $historyListener = null,
         $transitionClass = null,
         $transitionOptions = [],
         $historyClass = null,
+        HistoryManagerInterface $historyManager = null,
         EventDispatcher $eventDispatcher = null
     ) {
         $this->stateAccessor = $stateAccessor ?: new StateAccessor();
-        $this->historyListener = $historyListener;
         $this->transitionClass = $transitionClass ?: 'StateMachine\Transition\Transition';
         $this->transitionOptions = $transitionOptions;
         $this->historyClass = $historyClass ?: 'StateMachine\History\History';
+        $this->historyManager = $historyManager ?: new HistoryManager();
+        $this->historyCollection = new HistoryCollection();
         $this->object = $object;
         $this->booted = false;
         $this->object->setStateMachine($this);
@@ -93,7 +96,6 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         $this->transitions = [];
         $this->messages = [];
         $this->eventDispatcher = $eventDispatcher ?: new EventDispatcher();
-        $this->historyCollection = new HistoryCollection();
     }
 
     /**
@@ -143,14 +145,6 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
 
         // prevent booting twice
         $this->booted = true;
-
-        // register history listener
-        if ($this->historyListener instanceof HistoryListenerInterface) {
-            $this->eventDispatcher->addListener(
-                Events::EVENT_HISTORY_CHANGE,
-                [$this->historyListener, 'onHistoryChange']
-            );
-        }
     }
 
     /**
@@ -614,9 +608,6 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         $stateChangeEvent->setObjectIdentifier($transitionEvent->getObject()->getId());
         $stateChangeEvent->setOptions($transitionEvent->getOptions());
 
-        //add it to history
-        $this->historyCollection->add($stateChangeEvent);
-
-        $this->eventDispatcher->dispatch(Events::EVENT_HISTORY_CHANGE, $stateChangeEvent);
+        $this->historyManager->add($this, $stateChangeEvent);
     }
 }

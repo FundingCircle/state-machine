@@ -21,4 +21,9 @@ interface StateMachineHistoryInterface
      * @return string
      */
     public function getHistoryClass();
+
+    /**
+     * @return StatefulInterface
+     */
+    public function getObject();
 }
