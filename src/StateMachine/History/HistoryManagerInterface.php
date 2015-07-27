@@ -3,7 +3,6 @@
 namespace StateMachine\History;
 
 use StateMachine\StateMachine\StatefulInterface;
-use StateMachine\StateMachine\StateMachineHistoryInterface;
 
 interface HistoryManagerInterface
 {
@@ -19,8 +18,8 @@ interface HistoryManagerInterface
     /**
      * Add one more record to the history
      *
-     * @param StateMachineHistoryInterface $stateMachine
-     * @param History                      $history
+     * @param StatefulInterface $object
+     * @param History           $history
      */
-    public function add(StateMachineHistoryInterface $stateMachine, History $history);
+    public function add(StatefulInterface $object, History $history);
 }

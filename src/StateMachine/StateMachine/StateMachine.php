@@ -608,6 +608,6 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         $stateChangeEvent->setObjectIdentifier($transitionEvent->getObject()->getId());
         $stateChangeEvent->setOptions($transitionEvent->getOptions());
 
-        $this->historyManager->add($this, $stateChangeEvent);
+        $this->historyManager->add($this->object, $stateChangeEvent);
     }
 }

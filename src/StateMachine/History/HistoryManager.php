@@ -21,8 +21,8 @@ class HistoryManager implements HistoryManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function add(StateMachineHistoryInterface $stateMachine, History $history)
+    public function add(StatefulInterface $object, History $history)
     {
-        $stateMachine->getHistory()->add($history);
+        $object->getStateMachine()->getHistory()->add($history);
     }
 }

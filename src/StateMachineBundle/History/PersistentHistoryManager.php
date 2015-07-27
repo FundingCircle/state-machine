@@ -51,15 +51,13 @@ class PersistentHistoryManager implements HistoryManagerInterface
         }
     }
 
-
     /**
      * {@inheritdoc}
      */
-    public function add(StateMachineHistoryInterface $stateMachine, History $stateChange)
+    public function add(StatefulInterface $object, History $stateChange)
     {
         $options = $stateChange->getOptions();
-
-        $om = $this->registry->getManager(get_class($stateMachine->getObject()));
+        $om = $this->registry->getManager(get_class($object));
 
         if ($stateChange instanceof BlameableStateChangeInterface) {
             $user = $this->tokenStorage->getToken()->getUser();
@@ -75,6 +73,8 @@ class PersistentHistoryManager implements HistoryManagerInterface
         if (isset($options['flush']) && $options['flush'] == true) {
             $om->flush($stateChange);
         }
+
+        $object->getStateMachine()->getHistory()->add($stateChange);
 
         return $stateChange;
     }
