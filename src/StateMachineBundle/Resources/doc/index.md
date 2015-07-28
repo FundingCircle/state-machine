@@ -5,11 +5,11 @@
 ## Scope
 - SF configuration support for yml files
 - Doctrine integrations
-  - Wrapping transition into one transaction
+  - Wrapping transition into one database transaction
   - Persistent history
 - User integration, blameable behavior
-- Renderer
-  - GraphicZ integration
+- Twig extension with useful filters
+- Rendering controller
 
 ## Installation
 
@@ -260,7 +260,7 @@ Now with every state change the user_id will be recorded
 ## Rendering
 
 ### Display one statemachine
-In order to render the Graph for specific object in twig
+In order to render the Graph for specific stateful object object in twig
 use the below filter directly in template where you want to display the graph
 
 `{{ object|renderGraph }}`
@@ -279,13 +279,15 @@ _state_machine:
 
 in order to override template
 
-- Option#1
+- #### Option 1
 
 by changing
+``` yaml
 state_machines:
     template_layout: StateMachineBundle::layout.html.twig
+```
 
-- Option#2
+- #### Option 2
 
 Override the templates in `app/Resources/Zencap/StateMachineBundle/views/layout.html.twig` and `app/Resources/Zencap/StateMachineBundle/views/state_machines.html.twig`
 
@@ -324,3 +326,9 @@ state_machine:
 
 ```
 
+
+##TODO
+
+- Add versionable statemachine possible in StateMachine factory.
+- Configuration rendering properties for GraphicZ.
+- Add one twig filter to generate buttons for given object with configurable template.
