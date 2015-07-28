@@ -14,7 +14,7 @@ trait StatefulTrait
      */
     public function getStateMachine()
     {
-        if (!$this->stateMachine->isBooted()) {
+        if (null != $this->stateMachine && !$this->stateMachine->isBooted()) {
             $this->stateMachine->boot();
         }
 
