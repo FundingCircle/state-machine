@@ -82,15 +82,13 @@ state_machine:
               failed: ~
               succeeded: ~
             transitions:
-              - { from: [new], to: [ exported ], event: "export" }
-              - { from: [exported], to: [ bank_processing ], event: "transfer to bank"}
-              - { from: [bank_processing], to: [ succeeded ], event: "transaction confirm"}
-              - { from: [succeeded, bank_processing], to: [ failed ], event: "fail" }
+              - { from: [new] ,to: [ exported ], event: "export" }
+              - { from: [exported] ,to: [ bank_processing ], event: "transfer to bank"}
+              - { from: [bank_processing] ,to: [ succeeded ], event: "transaction confirm"}
+              - { from: [succeeded, bank_processing] ,to: [ failed ], event: "fail" }
             guards:
-              #service callback example
-              - { transition: "new->exported", callback: app.test_callback ,method: onGuardSuccess }
-              #class callback example (method should be static)
-              - { transition: "new->exported", callback: StateMachineBundle\Tests\Listeners\MockListener, method: simpleCallback }
+              - { from: "new", to: "exported" , callback: app.test_callback, method: onGuardSuccess }
+              - { from: "new", to: "exported", callback: StateMachineBundle\Tests\Listeners\MockListener, method: simpleCallback }
             pre_transitions:
               #...
             post_transitions:
@@ -317,8 +315,8 @@ state_machine:
             states: [] #required
             transitions: [] #required { from: ~, to: ~, event: ~}
             guards:[] #optional  #{ transition: ~ ,callback: ~, method: ~}
-            pre_transitions:[] #optional { transition: ~ ,callback: ~, method: ~}
-            post_transitions:[] #optional { transition: ~ ,callback: ~, method: ~}
+            pre_transitions:[] #optional { from: ~, to: ~ ,callback: ~, method: ~}
+            post_transitions:[] #optional { from: ~ , to: ~, callback: ~, method: ~}
 
 
 ```

@@ -8,6 +8,7 @@ use StateMachine\History\HistoryManagerInterface;
 use StateMachine\StateMachine\StatefulInterface;
 use StateMachine\StateMachine\StateMachine;
 use StateMachine\EventDispatcher\EventDispatcher;
+use StateMachine\StateMachine\StateMachineInterface;
 
 /**
  * This factory is responsible of registering statemachine definition
@@ -104,22 +105,25 @@ class StateMachineFactory
         //adding guards
         foreach ($definition['guards'] as $guard) {
             $stateMachine->addGuard(
-                $guard['transition'],
-                [$guard['callback'], $guard['method']]
+                [$guard['callback'], $guard['method']],
+                $guard['from'],
+                $guard['to']
             );
         }
         //adding pre-transitions
         foreach ($definition['pre_transitions'] as $preTransition) {
             $stateMachine->addPreTransition(
-                $preTransition['transition'],
-                [$preTransition['callback'], $preTransition['method']]
+                [$preTransition['callback'], $preTransition['method']],
+                $preTransition['from'],
+                $preTransition['to']
             );
         }
         //adding post-transitions
         foreach ($definition['pre_transitions'] as $postTransition) {
             $stateMachine->addPostTransition(
-                $postTransition['transition'],
-                [$postTransition['callback'], $postTransition['method']]
+                [$postTransition['callback'], $postTransition['method']],
+                $postTransition['from'],
+                $postTransition['to']
             );
         }
 
