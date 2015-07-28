@@ -35,10 +35,11 @@ class HistoryTest extends \PHPUnit_Framework_TestCase
     {
         $stateMachine = StateMachineFixtures::getOrderStateMachine();
         $stateMachine->addGuard(
-            'pending->checking_out',
             function (TransitionEvent $transitionEvent) {
                 $transitionEvent->rejectTransition($this);
-            }
+            },
+            'pending',
+            'checking_out'
         );
         $stateMachine->boot();
 
@@ -64,10 +65,11 @@ class HistoryTest extends \PHPUnit_Framework_TestCase
         $this->setExpectedException('StateMachine\Exception\StateMachineException');
         $stateMachine = StateMachineFixtures::getOrderStateMachine();
         $stateMachine->addGuard(
-            'pending->checking_out',
             function (TransitionEvent $transitionEvent) {
                 return false;
-            }
+            },
+            'pending',
+            'checking_out'
         );
         $stateMachine->boot();
 

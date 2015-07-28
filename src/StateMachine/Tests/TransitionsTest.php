@@ -12,10 +12,11 @@ class TransitionsTest extends \PHPUnit_Framework_TestCase
         $this->setExpectedException('StateMachine\Exception\StateMachineException');
         $stateMachine = StateMachineFixtures::getBidStateMachine();
         $stateMachine->addPreTransition(
-            'non_existing->non_existing',
             function () {
 
-            }
+            },
+            'non_existing',
+            'non_existing'
         );
     }
 
@@ -23,10 +24,11 @@ class TransitionsTest extends \PHPUnit_Framework_TestCase
     {
         $stateMachine = StateMachineFixtures::getBidStateMachine();
         $stateMachine->addPreTransition(
-            'new->committed',
             function (TransitionEvent $transitionEvent) {
                 return false;
-            }
+            },
+            'new',
+            'committed'
         );
 
         $stateMachine->boot();
@@ -38,10 +40,11 @@ class TransitionsTest extends \PHPUnit_Framework_TestCase
     {
         $stateMachine = StateMachineFixtures::getBidStateMachine();
         $stateMachine->addPreTransition(
-            'new->committed',
             function (TransitionEvent $transitionEvent) {
                 return true;
-            }
+            },
+            'new',
+            'committed'
         );
 
         $stateMachine->boot();
@@ -55,10 +58,11 @@ class TransitionsTest extends \PHPUnit_Framework_TestCase
         $this->setExpectedException('StateMachine\Exception\StateMachineException');
         $stateMachine = StateMachineFixtures::getBidStateMachine();
         $stateMachine->addPostTransition(
-            'non_existing->non_existing',
             function () {
 
-            }
+            },
+            'non_existing',
+            'non_existing'
         );
     }
 
@@ -66,10 +70,11 @@ class TransitionsTest extends \PHPUnit_Framework_TestCase
     {
         $stateMachine = StateMachineFixtures::getBidStateMachine();
         $stateMachine->addPostTransition(
-            'new->committed',
             function (TransitionEvent $transitionEvent) {
                 $transitionEvent->rejectTransition($this);
-            }
+            },
+            'new',
+            'committed'
         );
 
         $stateMachine->boot();
@@ -81,10 +86,11 @@ class TransitionsTest extends \PHPUnit_Framework_TestCase
     {
         $stateMachine = StateMachineFixtures::getBidStateMachine();
         $stateMachine->addPostTransition(
-            'new->committed',
             function (TransitionEvent $transitionEvent) {
                 //do nothing
-            }
+            },
+            'new',
+            'committed'
         );
 
         $stateMachine->boot();

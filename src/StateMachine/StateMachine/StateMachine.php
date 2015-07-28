@@ -188,7 +188,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     }
 
     /**
-     * @return EventDispatcher
+     * {@inheritdoc}
      */
     public function getEventDispatcher()
     {
@@ -204,21 +204,8 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
             throw new StateMachineException('Cannot add more transitions to booted StateMachine');
         }
 
-        if (null == $from) {
-            $fromStates = array_keys($this->states);
-        } elseif (is_array($from)) {
-            $fromStates = $from;
-        } else {
-            $fromStates = [$from];
-        }
-
-        if (null == $to) {
-            $toStates = array_keys($this->states);
-        } elseif (is_array($to)) {
-            $toStates = $to;
-        } else {
-            $toStates = [$to];
-        }
+        $fromStates = $this->resolveStates($from);
+        $toStates = $this->resolveStates($to);
 
         return $this->createMultiTransition($fromStates, $toStates, $eventName);
     }
@@ -246,46 +233,56 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     /**
      * {@inheritdoc}
      */
-    public function addGuard($transition, $callable)
+    public function addGuard($callable, $from = null, $to = null)
     {
         if ($this->booted) {
             throw new StateMachineException('Cannot add more guards to booted StateMachine');
         }
-
-        $this->validateTransition($transition);
-        $callableClass = ($callable instanceof \Closure) ? 'closure' : get_class($callable[0]);
-        $this->transitions[$transition]->addGuard($callableClass);
-        $this->eventDispatcher->addListener($transition.'_'.Events::EVENT_ON_GUARD, $callable);
+        foreach ($this->getTransitionsByStates($from, $to) as $transition) {
+            $callableClass = ($callable instanceof \Closure) ? 'closure' : get_class($callable[0]);
+            $transition->addGuard($callableClass);
+            $this->eventDispatcher->addListener($transition->getName().'_'.Events::EVENT_ON_GUARD, $callable);
+        }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function addPreTransition($transition, $callable, $priority = 0)
+    public function addPreTransition($callable, $from = null, $to = null, $priority = 0)
     {
         if ($this->booted) {
             throw new StateMachineException('Cannot add pre-transition to booted StateMachine');
         }
 
-        $this->validateTransition($transition);
-        $callableClass = ($callable instanceof \Closure) ? 'closure' : get_class($callable[0]);
-        $this->transitions[$transition]->addPreTransition($callableClass);
-        $this->eventDispatcher->addListener($transition.'_'.Events::EVENT_PRE_TRANSITION, $callable);
+        foreach ($this->getTransitionsByStates($from, $to) as $transition) {
+            $callableClass = ($callable instanceof \Closure) ? 'closure' : get_class($callable[0]);
+            $transition->addPreTransition($callableClass);
+            $this->eventDispatcher->addListener(
+                $transition->getName().'_'.Events::EVENT_PRE_TRANSITION,
+                $callable,
+                $priority
+            );
+        }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function addPostTransition($transition, $callable, $priority = 0)
+    public function addPostTransition($callable, $from = null, $to = null, $priority = 0)
     {
         if ($this->booted) {
             throw new StateMachineException('Cannot add post-transition to booted StateMachine');
         }
 
-        $this->validateTransition($transition);
-        $callableClass = ($callable instanceof \Closure) ? 'closure' : get_class($callable[0]);
-        $this->transitions[$transition]->addPostTransition($callableClass);
-        $this->eventDispatcher->addListener($transition.'_'.Events::EVENT_POST_TRANSITION, $callable, $priority);
+        foreach ($this->getTransitionsByStates($from, $to) as $transition) {
+            $callableClass = ($callable instanceof \Closure) ? 'closure' : get_class($callable[0]);
+            $transition->addPreTransition($callableClass);
+            $this->eventDispatcher->addListener(
+                $transition->getName().'_'.Events::EVENT_POST_TRANSITION,
+                $callable,
+                $priority
+            );
+        }
     }
 
     /**
@@ -513,31 +510,13 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     }
 
     /**
-     * @param string $transitionName
-     *
-     * @throws StateMachineException
-     */
-    private function validateTransition($transitionName)
-    {
-        if (!isset($this->transitions[$transitionName])) {
-            throw new StateMachineException(
-                sprintf(
-                    'Transition (%s) is not found, allowed transitions [%s]',
-                    $transitionName,
-                    implode(',', array_keys($this->transitions))
-                )
-            );
-        }
-    }
-
-    /**
      * @param string $state
      *
      * @throws StateMachineException
      */
     private function validateState($state)
     {
-        if (isset($state) && !isset($this->states[$state])) {
+        if (isset($state) && !in_array($state, $this->states)) {
             throw new StateMachineException(
                 sprintf(
                     'State with name: %s is not found, states available are: %s',
@@ -617,5 +596,59 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         $stateChangeEvent->setOptions($transitionEvent->getOptions());
 
         $this->historyManager->add($this->object, $stateChangeEvent);
+    }
+
+    /**
+     * Returns all transitions between two states, null refers to all states
+     *
+     * @param null $from , can be null, array, value
+     * @param null $to , can be null, array, value
+     *
+     * @return TransitionInterface[]
+     */
+    private function getTransitionsByStates($from = null, $to = null)
+    {
+        $matchedTransitions = [];
+        $fromStates = $this->resolveStates($from);
+        $toStates = $this->resolveStates($to);
+
+        foreach ($this->transitions as $transition) {
+            foreach ($fromStates as $fromState) {
+                foreach ($toStates as $toState) {
+                    $this->validateState($toState);
+                    $this->validateState($fromState);
+                    if ($transition->getFromState()->getName() == $fromState &&
+                        $transition->getToState()->getName() == $toState
+                    ) {
+                        $matchedTransitions[] = $transition;
+                    }
+                }
+            }
+        }
+
+        return $matchedTransitions;
+    }
+
+    /**
+     * Resolves state to array
+     * if null => all states
+     * if one state => return array with 1 item
+     * if array of states => return as it's
+     *
+     * @param mixed $state
+     *
+     * @return array
+     */
+    private function resolveStates($state)
+    {
+        if (null == $state) {
+            $states = array_keys($this->states);
+        } elseif (is_array($state)) {
+            $states = $state;
+        } else {
+            $states = [$state];
+        }
+
+        return $states;
     }
 }

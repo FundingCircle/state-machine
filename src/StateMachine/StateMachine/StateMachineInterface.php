@@ -98,22 +98,30 @@ interface StateMachineInterface
     public function getAllowedEvents();
 
     /**
-     * @param string   $transition
      * @param callable $callable
+     * @param mixed    $from
+     * @param mixed    $to
+     *
+     * @return mixed
      */
-    public function addGuard($transition, $callable);
+    public function addGuard($callable, $from = null, $to = null);
 
     /**
-     * @param string   $transition
      * @param callable $callable
-     * @param string   $priority
+     * @param mixed    $from
+     * @param mixed    $to
+     * @param int      $priority
+     *
+     * @return mixed
      */
-    public function addPreTransition($transition, $callable, $priority);
+    public function addPreTransition($callable, $from, $to, $priority);
 
     /**
-     * @param string   $transition
      * @param callable $callable
-     * @param string   $priority
+     * @param mixed    $from
+     * @param int      $priority
+     *
+     * @return mixed
      */
-    public function addPostTransition($transition, $callable, $priority);
+    public function addPostTransition($callable, $from, $to, $priority);
 }

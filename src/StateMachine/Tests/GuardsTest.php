@@ -7,26 +7,15 @@ use StateMachine\Tests\Fixtures\StateMachineFixtures;
 
 class GuardsTest extends \PHPUnit_Framework_TestCase
 {
-    public function testGuardNonExistingTransition()
-    {
-        $this->setExpectedException("StateMachine\Exception\StateMachineException");
-        $stateMachine = StateMachineFixtures::getOrderStateMachine();
-        $stateMachine->addGuard(
-            'pending->refunded',
-            function () {
-            }
-        );
-        $stateMachine->boot();
-    }
-
     public function testGuardExistingTransitionWithTrueReturn()
     {
         $stateMachine = StateMachineFixtures::getOrderStateMachine();
         $stateMachine->addGuard(
-            'pending->checking_out',
             function () {
                 return true;
-            }
+            },
+            'pending',
+            'checking_out'
         );
         $stateMachine->boot();
         $return = $stateMachine->transitionTo('checking_out');
@@ -38,12 +27,13 @@ class GuardsTest extends \PHPUnit_Framework_TestCase
     {
         $stateMachine = StateMachineFixtures::getOrderStateMachine();
         $stateMachine->addGuard(
-            'pending->checking_out',
             function (TransitionEvent $transitionEvent) {
                 $transitionEvent->addMessage('Transition is rejected by guard');
 
                 return false;
-            }
+            },
+            'pending',
+            'checking_out'
         );
         $stateMachine->boot();
         $return = $stateMachine->transitionTo('checking_out');
@@ -61,12 +51,13 @@ class GuardsTest extends \PHPUnit_Framework_TestCase
         $stateMachine2 = StateMachineFixtures::getOrderStateMachine();
 
         $stateMachine1->addGuard(
-            'pending->checking_out',
             function (TransitionEvent $transitionEvent) {
                 $transitionEvent->addMessage('Transition is rejected by guard');
 
                 return false;
-            }
+            },
+            'pending',
+            'checking_out'
         );
         $stateMachine1->boot();
         $stateMachine2->boot();
