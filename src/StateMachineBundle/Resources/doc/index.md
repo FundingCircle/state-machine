@@ -82,12 +82,12 @@ state_machine:
               failed: ~
               succeeded: ~
             transitions:
-              - { from: [new] ,to: [ exported ], event: "export" }
-              - { from: [exported] ,to: [ bank_processing ], event: "transfer to bank"}
-              - { from: [bank_processing] ,to: [ succeeded ], event: "transaction confirm"}
-              - { from: [succeeded, bank_processing] ,to: [ failed ], event: "fail" }
+              - { from: [new], to: [ exported ], event: "export" }
+              - { from: [exported], to: [ bank_processing ], event: "transfer to bank"}
+              - { from: [bank_processing], to: [ succeeded ], event: "transaction confirm"}
+              - { from: [succeeded, bank_processing], to: [ failed ], event: "fail" }
             guards:
-              - { from: "new", to: "exported" , callback: app.test_callback, method: onGuardSuccess }
+              - { from: "new", to: "exported", callback: app.test_callback, method: onGuardSuccess }
               - { from: "new", to: "exported", callback: StateMachineBundle\Tests\Listeners\MockListener, method: simpleCallback }
             pre_transitions:
               #...
@@ -259,14 +259,17 @@ Now with every state change the user_id will be recorded
 
 ## Rendering
 
+### Display one statemachine
 In order to render the Graph for specific object in twig
 use the below filter directly in template where you want to display the graph
 
 `{{ object|renderGraph }}`
 
-## Display all statemachine definitions
+this will automatically highlight the current state.
 
-in `app/config/routing.yml` add the following
+### Display all statemachine definitions
+
+in `app/config/routing.yml` add the following:
 
 ``` yaml
 _state_machine:
@@ -276,13 +279,13 @@ _state_machine:
 
 in order to override template
 
-1 - Option#1
+- Option#1
 
 by changing
 state_machines:
     template_layout: StateMachineBundle::layout.html.twig
 
-2 - Option#2
+- Option#2
 
 Override the templates in `app/Resources/Zencap/StateMachineBundle/views/layout.html.twig` and `app/Resources/Zencap/StateMachineBundle/views/state_machines.html.twig`
 
