@@ -25,6 +25,8 @@ class StateMachineExtension extends Extension
 
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
+
+        $container->setParameter("statemachine.template_layout", $config['template_layout']);
         $stateMachineFactory = $container->getDefinition('statemachine.factory');
 
         $historyManager = $container->getDefinition($config['history_manager']);

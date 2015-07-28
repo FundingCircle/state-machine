@@ -106,7 +106,7 @@ The stateful entity should implement
 ``` php
 namespace AppBundle\Entity;
 
-use StateMachine\State\StatefulInterface;
+use StateMachine\StateMachine\StatefulInterface;
 use StateMachine\Traits\StatefulTrait;
 
 /**
@@ -261,10 +261,33 @@ Now with every state change the user_id will be recorded
 
 ## Rendering
 
-In order to render the Graph in twig
+In order to render the Graph for specific object in twig
 use the below filter directly in template where you want to display the graph
 
 `{{ object|renderGraph }}`
+
+## Display all statemachine definitions
+
+in `app/config/routing.yml` add the following
+
+``` yaml
+_state_machine:
+    prefix: /statemachines  #change to what you need
+    resource: "@StateMachineBundle/Resources/config/routing.yml"
+```
+
+in order to override template
+
+1 - Option#1
+
+by changing
+state_machines:
+    template_layout: StateMachineBundle::layout.html.twig
+
+2 - Option#2
+
+Override the templates in `app/Resources/Zencap/StateMachineBundle/views/layout.html.twig` and `app/Resources/Zencap/StateMachineBundle/views/state_machines.html.twig`
+
 
 ## Manual flushing
 
@@ -283,6 +306,7 @@ state_machine:
     transition_class: StateMachine\Transition\Transition
     state_accessor: statemachine.state_accessor
     history_manager: statemachine.history_manager
+    template_layout: StateMachineBundle::layout.html.twig
     db_driver: orm
     state_machines:
         state_machine_name:  #required

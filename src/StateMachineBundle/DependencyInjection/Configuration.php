@@ -37,6 +37,7 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('transition_class')->defaultValue('StateMachine\Transition\Transition')->end()
                 ->scalarNode('state_accessor')->defaultValue('statemachine.state_accessor')->end()
                 ->scalarNode('history_manager')->defaultValue('statemachine.history_manager')->end()
+                ->scalarNode('template_layout')->defaultValue('StateMachineBundle::layout.html.twig')->end()
                 ->scalarNode('db_driver')->defaultValue('orm')->end()
             ->end()
         ;

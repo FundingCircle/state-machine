@@ -46,6 +46,14 @@ class StateMachineFactory
     }
 
     /**
+     * @return array
+     */
+    public function getAll()
+    {
+        return $this->stateMachineDefinitions;
+    }
+
+    /**
      * Create and boot statemachine for given stateful object.
      *
      * @param StatefulInterface $statefulObject

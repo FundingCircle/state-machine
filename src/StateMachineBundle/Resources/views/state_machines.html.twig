@@ -1,0 +1,9 @@
+{% extends base_template %}
+{% block state_machines %}
+    {% for class,graph in graphs %}
+        <h3>{{ class }}</h3>
+        <div>
+            {{ graph |raw }}
+        </div>
+    {% endfor %}
+{% endblock %}
