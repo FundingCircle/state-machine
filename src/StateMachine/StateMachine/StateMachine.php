@@ -599,10 +599,10 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     }
 
     /**
-     * Returns all transitions between two states, null refers to all states
+     * Returns all transitions between two states, null refers to all states.
      *
      * @param null $from , can be null, array, value
-     * @param null $to , can be null, array, value
+     * @param null $to   , can be null, array, value
      *
      * @return TransitionInterface[]
      */
@@ -633,7 +633,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
      * Resolves state to array
      * if null => all states
      * if one state => return array with 1 item
-     * if array of states => return as it's
+     * if array of states => return as it's.
      *
      * @param mixed $state
      *

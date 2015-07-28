@@ -8,7 +8,6 @@ use StateMachine\History\HistoryManagerInterface;
 use StateMachine\StateMachine\StatefulInterface;
 use StateMachine\StateMachine\StateMachine;
 use StateMachine\EventDispatcher\EventDispatcher;
-use StateMachine\StateMachine\StateMachineInterface;
 
 /**
  * This factory is responsible of registering statemachine definition

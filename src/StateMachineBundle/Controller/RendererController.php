@@ -24,11 +24,11 @@ class RendererController extends Controller
         }
 
         return $this->render(
-            "StateMachineBundle::state_machines.html.twig",
+            'StateMachineBundle::state_machines.html.twig',
             [
-                'graphs'        => $graphs,
-                'definitions'   => $definitions,
-                'base_template' => $this->getParameter("statemachine.template_layout")
+                'graphs' => $graphs,
+                'definitions' => $definitions,
+                'base_template' => $this->getParameter('statemachine.template_layout'),
             ]
         );
     }
