@@ -38,7 +38,7 @@ class StateMachineLoaderSubscriber implements EventSubscriber
     }
 
     /**
-     * Check if loaded entity is StateFul and attach the corresponded statemachine to it.
+     * Check if loaded entity is Stateful and attach the corresponded statemachine to it.
      *
      * @param LifecycleEventArgs $eventArgs
      *
@@ -53,9 +53,6 @@ class StateMachineLoaderSubscriber implements EventSubscriber
             $stateMachine->getEventDispatcher()->addSubscriber(
                 new PersistentSubscriber($eventArgs->getEntityManager())
             );
-            //@TODO load all history here
-
-            $stateMachine->boot();
             $entity->setStateMachine($stateMachine);
         }
     }

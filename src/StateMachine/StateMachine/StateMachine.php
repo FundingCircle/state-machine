@@ -150,6 +150,14 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     /**
      * {@inheritdoc}
      */
+    public function isBooted()
+    {
+        return $this->booted;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getStates()
     {
         return $this->states;

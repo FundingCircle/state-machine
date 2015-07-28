@@ -21,6 +21,9 @@ interface StateMachineInterface
      */
     public function boot();
 
+    /** @return bool */
+    public function isBooted();
+
     /**
      * @return StatefulInterface
      */
