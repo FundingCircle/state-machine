@@ -116,8 +116,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('error->cancelled', $transitions);
         $this->assertArrayHasKey('committed->cancelled', $transitions);
         $this->assertArrayHasKey('paid->cancelled', $transitions);
-        //not to have transition to self
-        $this->assertArrayNotHasKey('cancelled->cancelled', $transitions);
+        $this->assertArrayHasKey('cancelled->cancelled', $transitions);
         $stateMachine->boot();
         $this->assertEquals(2, count($stateMachine->getCurrentState()->getTransitionObjects()));
     }
@@ -132,8 +131,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('paid->originating', $transitions);
         $this->assertArrayHasKey('paid->committed', $transitions);
         $this->assertArrayHasKey('paid->error', $transitions);
-        //not to have transition to self
-        $this->assertArrayNotHasKey('paid->paid', $transitions);
+        $this->assertArrayHasKey('paid->paid', $transitions);
     }
 
     public function testFromManyTransitions()
