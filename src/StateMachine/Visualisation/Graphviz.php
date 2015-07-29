@@ -4,7 +4,6 @@ namespace StateMachine\Visualisation;
 
 use StateMachine\StateMachine\StateMachineInterface;
 use StateMachine\State\StateInterface;
-use Alom\Graphviz\Digraph;
 use StateMachine\Transition\TransitionInterface;
 
 /**
@@ -88,8 +87,8 @@ class Graphviz implements VisualisationInterface
     {
         /* @var $state StateInterface */
         $data = array(
-            'shape' => $state->getType() != StateInterface::TYPE_NORMAL ? 'doublecircle' : 'circle',
-            'label' => $this->getNodeLabel($state),
+            'shape' => $state->getType() != StateInterface::TYPE_NORMAL ? 'box' : 'box',
+            'label' => $this->getNodeLabel($state)
         );
         if ($stateMachine->getCurrentState() == $state && $this->configuration->markCurrentState()) {
             $data['fillcolor'] = $this->configuration->markCurrentState();
@@ -127,8 +126,13 @@ class Graphviz implements VisualisationInterface
             foreach ($transitions as $trans) {
                 /* @var $trans TransitionInterface */
                 $this->graph->beginEdge(
-                    array($state->getName(), $trans->getToState()->getName()),
-                    array('label' => $trans->getEventName())
+                    [
+                        $state->getName(),
+                        $trans->getToState()->getName()
+                    ],
+                    [
+                        'label' => $trans->getEventName()
+                    ]
                 )
                     ->end();
             }
