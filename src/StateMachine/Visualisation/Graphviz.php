@@ -131,7 +131,7 @@ class Graphviz implements VisualisationInterface
                         $trans->getToState()->getName()
                     ],
                     [
-                        'label' => $trans->getEventName()
+                        'label' => $trans->getEventName() ?: $trans->getName()
                     ]
                 )
                     ->end();
