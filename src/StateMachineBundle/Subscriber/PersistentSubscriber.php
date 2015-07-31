@@ -3,6 +3,7 @@
 namespace StateMachineBundle\Subscriber;
 
 use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\ORM\EntityManager;
 use StateMachine\Event\Events;
 use StateMachine\Event\TransitionEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -13,11 +14,24 @@ class PersistentSubscriber implements EventSubscriberInterface
     private $objectManager;
 
     /**
-     * @param ObjectManager $objectManager
+     * @param ObjectManager|EntityManager $objectManager
      */
     public function __construct(ObjectManager $objectManager)
     {
         $this->objectManager = $objectManager;
+    }
+
+    /**
+     * @param TransitionEvent $transitionEvent
+     */
+    public function onPreTransaction(TransitionEvent $transitionEvent)
+    {
+        $options = $transitionEvent->getOptions();
+        if ($options['transaction'] == true
+            && $this->objectManager instanceof EntityManager
+        ) {
+            $this->objectManager->beginTransaction();
+        }
     }
 
     /**
@@ -28,9 +42,12 @@ class PersistentSubscriber implements EventSubscriberInterface
         $object = $transitionEvent->getObject();
         $options = $transitionEvent->getOptions();
         $this->objectManager->persist($object);
+        $this->objectManager->flush($object);
 
-        if (isset($options['flush']) && $options['flush'] == true) {
-            $this->objectManager->flush($object);
+        if ($options['transaction'] == true
+            && $this->objectManager instanceof EntityManager
+        ) {
+            $this->objectManager->commit();
         }
     }
 
@@ -40,7 +57,8 @@ class PersistentSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            Events::EVENT_POST_TRANSITION => ['onPostTransaction', 255],
+            Events::EVENT_POST_TRANSITION => ['onPostTransaction'],
+            Events::EVENT_PRE_TRANSITION  => ['onPreTransaction'],
         ];
     }
 }

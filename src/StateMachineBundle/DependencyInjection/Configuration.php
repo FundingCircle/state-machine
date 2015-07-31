@@ -15,7 +15,7 @@ class Configuration implements ConfigurationInterface
 {
     private static $stateTypes = ['initial', 'normal', 'final'];
 
-    private static $defaultOptions = ['flush' => true];
+    private static $defaultOptions = ['transaction' => true];
 
     /**
      * {@inheritdoc}
