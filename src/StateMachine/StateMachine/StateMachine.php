@@ -379,7 +379,15 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
 
             return false;
         }
-        //Execute pre transitions
+
+        //Execute pre transition general @TODO improve this implementation
+        $this->eventDispatcher->dispatch(
+            Events::EVENT_PRE_TRANSITION,
+            $transitionEvent,
+            $this->messages
+        );
+
+        //Execute transition pre-transitions callbacks
         $response = $this->eventDispatcher->dispatch(
             $transitionName.'_'.Events::EVENT_PRE_TRANSITION,
             $transitionEvent,
@@ -388,6 +396,11 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
 
         if (!$response) {
             $this->updateTransition($transitionEvent);
+            $this->eventDispatcher->dispatch(
+                Events::EVENT_FAIL_TRANSITION,
+                $transitionEvent,
+                $this->messages
+            );
 
             return false;
         }
@@ -396,7 +409,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         $this->currentState = $this->states[$state];
         $this->stateAccessor->setState($this->object, $state);
 
-        //Execute post transitions
+        //Execute transition post-transitions callbacks
         $this->eventDispatcher->dispatch(
             $transitionName.'_'.Events::EVENT_POST_TRANSITION,
             $transitionEvent,

@@ -8,6 +8,8 @@ use StateMachine\Event\Events;
 use StateMachine\Event\TransitionEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ */
 class PersistentSubscriber implements EventSubscriberInterface
 {
     /** @var ObjectManager */
@@ -24,7 +26,7 @@ class PersistentSubscriber implements EventSubscriberInterface
     /**
      * @param TransitionEvent $transitionEvent
      */
-    public function onPreTransaction(TransitionEvent $transitionEvent)
+    public function onPreTransition(TransitionEvent $transitionEvent)
     {
         $options = $transitionEvent->getOptions();
         if ($options['transaction'] == true
@@ -37,7 +39,7 @@ class PersistentSubscriber implements EventSubscriberInterface
     /**
      * @param TransitionEvent $transitionEvent
      */
-    public function onPostTransaction(TransitionEvent $transitionEvent)
+    public function onPostTransition(TransitionEvent $transitionEvent)
     {
         $object = $transitionEvent->getObject();
         $options = $transitionEvent->getOptions();
@@ -52,13 +54,27 @@ class PersistentSubscriber implements EventSubscriberInterface
     }
 
     /**
+     * @param TransitionEvent $transitionEvent
+     */
+    public function onFailTransition(TransitionEvent $transitionEvent)
+    {
+        $options = $transitionEvent->getOptions();
+        if ($options['transaction'] == true
+            && $this->objectManager instanceof EntityManager
+        ) {
+            $this->objectManager->rollback();
+        }
+    }
+
+    /**
      * {@inheritdoc}
      */
     public static function getSubscribedEvents()
     {
         return [
-            Events::EVENT_POST_TRANSITION => ['onPostTransaction'],
-            Events::EVENT_PRE_TRANSITION  => ['onPreTransaction'],
+            Events::EVENT_PRE_TRANSITION  => 'onPreTransition',
+            Events::EVENT_POST_TRANSITION => 'onPostTransition',
+            Events::EVENT_FAIL_TRANSITION => 'onFailTransition',
         ];
     }
 }
