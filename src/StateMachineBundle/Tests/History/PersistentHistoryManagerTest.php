@@ -128,10 +128,6 @@ class PersistentHistoryManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testHistoryChangeWIthBlameableTransitionWithNoUser()
     {
-        $this->setExpectedException(
-            "StateMachine\Exception\StateMachineException",
-            "Unable to write statemachine history, because there's no logged in user"
-        );
         $objectManagerMock = $this->getMockBuilder('Doctrine\Common\Persistence\ObjectManager')
             ->getMock();
 
@@ -143,8 +139,21 @@ class PersistentHistoryManagerTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $stateMachineMock = $this->getMock(
+            'StateMachine\StateMachine\StateMachineHistoryInterface',
+            ['getHistory', 'getLastStateChange', 'getHistoryClass', 'getObject']
+        );
+
+        $stateMachineMock->expects($this->once())
+            ->method('getHistory')->willReturn(new HistoryCollection());
+
+        $objectMock->expects($this->once())
+            ->method('getStateMachine')
+            ->willReturn($stateMachineMock);
+
         $historyManager = $this->getHistoryManager($this->getRegistryMock($objectManagerMock), $tokenStorageMock);
         $historyManager->add($objectMock, $blameableStateChange);
+        $this->assertNull($blameableStateChange->getUser());
     }
 
     private function getRegistryMock($objectManagerMock)
@@ -152,7 +161,7 @@ class PersistentHistoryManagerTest extends \PHPUnit_Framework_TestCase
         $registryMock = $this->getMockBuilder("Symfony\Bridge\Doctrine\RegistryInterface")
             ->getMock();
 
-        $registryMock->expects($this->any())->method('getManager')
+        $registryMock->expects($this->any())->method('getManagerForClass')
             ->willReturn($objectManagerMock);
 
         return $registryMock;

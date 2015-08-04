@@ -34,6 +34,8 @@ class PersistentSubscriber implements EventSubscriberInterface
         ) {
             $this->objectManager->beginTransaction();
         }
+
+        return true;
     }
 
     /**
@@ -51,6 +53,8 @@ class PersistentSubscriber implements EventSubscriberInterface
         ) {
             $this->objectManager->commit();
         }
+
+        return true;
     }
 
     /**
@@ -72,7 +76,7 @@ class PersistentSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            Events::EVENT_PRE_TRANSITION  => 'onPreTransition',
+            Events::EVENT_PRE_TRANSITION => 'onPreTransition',
             Events::EVENT_POST_TRANSITION => 'onPostTransition',
             Events::EVENT_FAIL_TRANSITION => 'onFailTransition',
         ];

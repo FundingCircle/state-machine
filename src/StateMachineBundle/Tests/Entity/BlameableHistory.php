@@ -13,7 +13,7 @@ class BlameableHistory extends History implements BlameableStateChangeInterface
     /**
      * @param UserInterface $user
      */
-    public function setUser(UserInterface $user)
+    public function setUser(UserInterface $user = null)
     {
         $this->user = $user;
     }

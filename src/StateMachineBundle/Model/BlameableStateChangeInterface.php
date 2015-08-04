@@ -9,7 +9,7 @@ interface BlameableStateChangeInterface
     /**
      * @param UserInterface $user
      */
-    public function setUser(UserInterface $user);
+    public function setUser(UserInterface $user = null);
 
     /**
      * @return UserInterface

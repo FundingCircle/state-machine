@@ -10,7 +10,7 @@ class PersistentSubscriberTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertEquals(
             [
-                'statemachine.events.pre_transition'  => 'onPreTransition',
+                'statemachine.events.pre_transition' => 'onPreTransition',
                 'statemachine.events.post_transition' => 'onPostTransition',
                 'statemachine.events.fail_transition' => 'onFailTransition',
             ],
@@ -25,7 +25,7 @@ class PersistentSubscriberTest extends \PHPUnit_Framework_TestCase
             ->getMock();
 
         $objectManagerMock->expects($this->once())
-            ->method("beginTransaction");
+            ->method('beginTransaction');
 
         $subscriber = new PersistentSubscriber($objectManagerMock);
         $transitionEventMock = $this->getTransitionEventMock(['transaction' => true]);
@@ -39,7 +39,7 @@ class PersistentSubscriberTest extends \PHPUnit_Framework_TestCase
             ->getMock();
 
         $objectManagerMock->expects($this->never())
-            ->method("beginTransaction");
+            ->method('beginTransaction');
 
         $subscriber = new PersistentSubscriber($objectManagerMock);
         $transitionEventMock = $this->getTransitionEventMock(['transaction' => true]);
@@ -53,7 +53,7 @@ class PersistentSubscriberTest extends \PHPUnit_Framework_TestCase
             ->getMock();
 
         $objectManagerMock->expects($this->never())
-            ->method("rollBack");
+            ->method('rollBack');
 
         $subscriber = new PersistentSubscriber($objectManagerMock);
         $transitionEventMock = $this->getTransitionEventMock(['transaction' => true]);
@@ -67,7 +67,7 @@ class PersistentSubscriberTest extends \PHPUnit_Framework_TestCase
             ->getMock();
 
         $objectManagerMock->expects($this->once())
-            ->method("rollBack");
+            ->method('rollBack');
 
         $subscriber = new PersistentSubscriber($objectManagerMock);
         $transitionEventMock = $this->getTransitionEventMock(['transaction' => true]);
@@ -86,7 +86,7 @@ class PersistentSubscriberTest extends \PHPUnit_Framework_TestCase
             ->method('flush');
 
         $objectManagerMock->expects($this->once())
-            ->method("commit");
+            ->method('commit');
 
         $subscriber = new PersistentSubscriber($objectManagerMock);
         $transitionEventMock = $this->getTransitionEventMock(['transaction' => true]);
@@ -105,7 +105,7 @@ class PersistentSubscriberTest extends \PHPUnit_Framework_TestCase
             ->method('flush');
 
         $objectManagerMock->expects($this->never())
-            ->method("commit");
+            ->method('commit');
 
         $subscriber = new PersistentSubscriber($objectManagerMock);
         $transitionEventMock = $this->getTransitionEventMock(['transaction' => false]);

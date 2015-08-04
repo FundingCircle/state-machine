@@ -2,7 +2,6 @@
 
 namespace StateMachineBundle\History;
 
-use StateMachine\Exception\StateMachineException;
 use StateMachine\History\History;
 use StateMachine\History\HistoryManagerInterface;
 use StateMachine\StateMachine\StatefulInterface;
@@ -36,7 +35,7 @@ class PersistentHistoryManager implements HistoryManagerInterface
     {
         $stateMachine = $statefulObject->getStateMachine();
         if ($stateMachine instanceof StateMachineHistoryInterface) {
-            $om = $this->registry->getManager(get_class($statefulObject));
+            $om = $this->registry->getManagerForClass(get_class($statefulObject));
             $stateChanges = $om->getRepository($stateMachine->getHistoryClass())->findBy(
                 [
                     'objectIdentifier' => $stateMachine->getObject()->getId(),
@@ -55,18 +54,13 @@ class PersistentHistoryManager implements HistoryManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function add(StatefulInterface $object, History $stateChange)
+    public function add(StatefulInterface $statefulObject, History $stateChange)
     {
         $options = $stateChange->getOptions();
-        $om = $this->registry->getManager(get_class($object));
+        $om = $this->registry->getManagerForClass(get_class($statefulObject));
 
         if ($stateChange instanceof BlameableStateChangeInterface) {
-            $user = $this->tokenStorage->getToken()->getUser();
-            if (!$user instanceof UserInterface) {
-                throw new StateMachineException(
-                    "Unable to write statemachine history, because there's no logged in user"
-                );
-            }
+            $user = $this->getUser();
             $stateChange->setUser($user);
         }
 
@@ -75,8 +69,25 @@ class PersistentHistoryManager implements HistoryManagerInterface
             $om->flush($stateChange);
         }
 
-        $object->getStateMachine()->getHistory()->add($stateChange);
+        $statefulObject->getStateMachine()->getHistory()->add($stateChange);
 
         return $stateChange;
+    }
+
+    /**
+     * @return null|UserInterface
+     */
+    private function getUser()
+    {
+        if (null === $token = $this->tokenStorage->getToken()) {
+            return;
+        }
+
+        if (!is_object($user = $token->getUser())) {
+            // e.g. anonymous authentication
+            return;
+        }
+
+        return $user;
     }
 }
