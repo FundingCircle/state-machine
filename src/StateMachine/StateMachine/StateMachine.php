@@ -613,7 +613,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
      * Returns all transitions between two states, null refers to all states.
      *
      * @param null $from , can be null, array, value
-     * @param null $to , can be null, array, value
+     * @param null $to   , can be null, array, value
      *
      * @return TransitionInterface[]
      */
