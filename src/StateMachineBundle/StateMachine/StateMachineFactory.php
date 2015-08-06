@@ -2,6 +2,7 @@
 
 namespace StateMachineBundle\StateMachine;
 
+use Doctrine\Common\Persistence\Proxy;
 use StateMachine\Accessor\StateAccessor;
 use StateMachine\Exception\StateMachineException;
 use StateMachine\History\HistoryManagerInterface;
@@ -65,7 +66,7 @@ class StateMachineFactory
     public function get(StatefulInterface $statefulObject)
     {
         //@TODO cache booted statemachines
-        $class = get_class($statefulObject);
+        $class = $this->getClass($statefulObject);
         if (!isset($this->stateMachineDefinitions[$class])) {
             throw new StateMachineException(
                 sprintf(
@@ -127,5 +128,19 @@ class StateMachineFactory
         }
 
         return $stateMachine;
+    }
+
+    /**
+     * Get the class of an Doctrine entity
+     *
+     * @param StatefulInterface $statefulObject
+     *
+     * @return string
+     */
+    private function getClass(StatefulInterface $statefulObject)
+    {
+        return ($statefulObject instanceof Proxy)
+            ? get_parent_class($statefulObject)
+            : get_class($statefulObject);
     }
 }
