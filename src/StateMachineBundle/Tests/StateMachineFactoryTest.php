@@ -3,6 +3,7 @@
 namespace StateMachineBundle\Tests;
 
 use StateMachineBundle\StateMachine\StateMachineFactory;
+use StateMachineBundle\Tests\Entity\ChildOrder;
 use StateMachineBundle\Tests\Entity\Order;
 
 class StateMachineFactoryTest extends \PHPUnit_Framework_TestCase
@@ -80,6 +81,48 @@ class StateMachineFactoryTest extends \PHPUnit_Framework_TestCase
         $factory = $this->getFactory();
         $factory->register($definition);
         $stateMachine = $factory->get(new Order(1));
+        $stateMachine->boot();
+        $this->assertEquals('new', $stateMachine->getCurrentState()->getName());
+    }
+
+    public function testClassWithStatefulParent()
+    {
+        $definition = [
+            'object' => [
+                'class' => "StateMachineBundle\Tests\Entity\Order",
+                'property' => 'state',
+            ],
+            'history_class' => "StateMachineBundle\Tests\Entity\History",
+            'options' => ['flush' => true],
+            'states' => [
+                'new' => [
+                    'type' => 'initial',
+                ],
+                'cancelled' => [
+                    'type' => 'normal',
+                ],
+                'originating' => [
+                    'type' => 'normal',
+                ],
+                'committed' => [
+                    'type' => 'normal',
+                ],
+                'error' => [
+                    'type' => 'normal',
+                ],
+                'paid' => [
+                    'type' => 'final',
+                ],
+            ],
+            'transitions' => [],
+            'guards' => [],
+            'pre_transitions' => [],
+            'post_transitions' => [],
+        ];
+
+        $factory = $this->getFactory();
+        $factory->register($definition);
+        $stateMachine = $factory->get(new ChildOrder(1));
         $stateMachine->boot();
         $this->assertEquals('new', $stateMachine->getCurrentState()->getName());
     }

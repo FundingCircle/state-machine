@@ -26,6 +26,9 @@ class StateMachineFactory
     /** @var  array */
     private $stateMachineDefinitions;
 
+    /** @var  array */
+    private $stateFullClasses;
+
     /**
      * @param HistoryManagerInterface $historyManager
      * @param null                    $transitionClass
@@ -34,6 +37,7 @@ class StateMachineFactory
     {
         $this->historyManager = $historyManager;
         $this->transitionClass = $transitionClass;
+        $this->stateFullClasses = [];
     }
 
     /**
@@ -44,6 +48,7 @@ class StateMachineFactory
     public function register(array $definition)
     {
         $this->stateMachineDefinitions[$definition['object']['class']] = $definition;
+        $this->stateFullClasses[] = $definition['object']['class'];
     }
 
     /**
@@ -71,7 +76,7 @@ class StateMachineFactory
             throw new StateMachineException(
                 sprintf(
                     'Definition for class :%s is not found, have you forgot to define statemachine in config.yml',
-                    $class
+                    get_class($statefulObject)
                 )
             );
         }
@@ -131,7 +136,7 @@ class StateMachineFactory
     }
 
     /**
-     * Get the class of an Doctrine entity
+     * Get the class of an Doctrine entity.
      *
      * @param StatefulInterface $statefulObject
      *
@@ -139,8 +144,20 @@ class StateMachineFactory
      */
     private function getClass(StatefulInterface $statefulObject)
     {
-        return ($statefulObject instanceof Proxy)
+        //if proxy class get the original class
+        $class = ($statefulObject instanceof Proxy)
             ? get_parent_class($statefulObject)
             : get_class($statefulObject);
+
+        //if class is found in the registered list
+        if (isset($this->stateMachineDefinitions[$class])) {
+            return $class;
+        } else { //incase of a child class
+            foreach ($this->stateFullClasses as $stateFullClass) {
+                if (is_subclass_of($class, $stateFullClass)) {
+                    return $stateFullClass;
+                }
+            }
+        }
     }
 }
