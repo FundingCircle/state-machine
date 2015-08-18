@@ -34,7 +34,7 @@ class StateMachineExtension extends Extension
         $stateMachineFactory->replaceArgument(0, $historyManager);
         $stateMachineFactory->replaceArgument(1, $config['transition_class']);
 
-        foreach ($config['state_machines'] as $stateMachine) {
+        foreach ($config['state_machines'] as $name => $stateMachine) {
             foreach ($stateMachine['guards'] as &$guard) {
                 $guard['callback'] = $this->resolveCallback($guard);
             }
@@ -45,6 +45,7 @@ class StateMachineExtension extends Extension
                 $postTransition['callback'] = $this->resolveCallback($postTransition);
             }
 
+            $stateMachine['id'] = $name;
             $stateMachineFactory->addMethodCall('register', [$stateMachine]);
         }
     }

@@ -57,6 +57,7 @@ class Configuration implements ConfigurationInterface
                                 ->end()
                             ->end()
                             ->scalarNode('history_class')->cannotBeEmpty()->isRequired()->end()
+                            ->scalarNode('description')->defaultValue('')->end()
                             ->arrayNode('options')
                                 ->prototype('scalar')->end()
                                 ->defaultValue(self::$defaultOptions)
