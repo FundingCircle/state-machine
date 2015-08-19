@@ -17,7 +17,96 @@ class StateMachineFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testGetStateMachine()
     {
+        $definition = $this->getDefinition();
+
+        $factory = $this->getFactory();
+        $factory->register($definition);
+        $stateMachine = $factory->get(new Order(1));
+        $stateMachine->boot();
+        $this->assertEquals('new', $stateMachine->getCurrentState()->getName());
+    }
+
+    public function testClassWithStatefulParent()
+    {
         $definition = [
+            'object' => [
+                'class' => "StateMachineBundle\Tests\Entity\Order",
+                'property' => 'state',
+            ],
+            'history_class' => "StateMachineBundle\Tests\Entity\History",
+            'options' => ['flush' => true],
+            'states' => [
+                'new' => [
+                    'type' => 'initial',
+                ],
+                'cancelled' => [
+                    'type' => 'normal',
+                ],
+                'originating' => [
+                    'type' => 'normal',
+                ],
+                'committed' => [
+                    'type' => 'normal',
+                ],
+                'error' => [
+                    'type' => 'normal',
+                ],
+                'paid' => [
+                    'type' => 'final',
+                ],
+            ],
+            'transitions' => [],
+            'guards' => [],
+            'pre_transitions' => [],
+            'post_transitions' => [],
+        ];
+
+        $factory = $this->getFactory();
+        $factory->register($definition);
+        $stateMachine = $factory->get(new ChildOrder(1));
+        $stateMachine->boot();
+        $this->assertEquals('new', $stateMachine->getCurrentState()->getName());
+    }
+
+    public function testGetAllDefinitions()
+    {
+        $definition = $this->getDefinition();
+        $factory = $this->getFactory();
+        $factory->register($definition);
+        $definitions = $factory->getDefinitions();
+        $this->assertEquals($definition, reset($definitions));
+    }
+
+    public function testGetOneDefinition()
+    {
+        $definition = $this->getDefinition();
+        $factory = $this->getFactory();
+        $factory->register($definition);
+        $definition = $factory->getDefinition('order_statemachine');
+        $this->assertEquals('order_statemachine', $definition['id']);
+    }
+
+    public function testGetOneNotFoundDefinition()
+    {
+        $this->setExpectedException("StateMachine\Exception\StateMachineException");
+        $definition = $this->getDefinition();
+        $factory = $this->getFactory();
+        $factory->register($definition);
+        $factory->getDefinition('not_found_statemachine');
+    }
+
+    private function getFactory()
+    {
+        $historyManagerMock = $this->getMockBuilder('StateMachine\History\HistoryManagerInterface')
+            ->getMock();
+
+        return new StateMachineFactory($historyManagerMock);
+    }
+
+    private function getDefinition()
+    {
+        return [
+            'id' => 'order_statemachine',
             'object' => [
                 'class' => "StateMachineBundle\Tests\Entity\Order",
                 'property' => 'state',
@@ -77,61 +166,5 @@ class StateMachineFactoryTest extends \PHPUnit_Framework_TestCase
                 ],
             ],
         ];
-
-        $factory = $this->getFactory();
-        $factory->register($definition);
-        $stateMachine = $factory->get(new Order(1));
-        $stateMachine->boot();
-        $this->assertEquals('new', $stateMachine->getCurrentState()->getName());
-    }
-
-    public function testClassWithStatefulParent()
-    {
-        $definition = [
-            'object' => [
-                'class' => "StateMachineBundle\Tests\Entity\Order",
-                'property' => 'state',
-            ],
-            'history_class' => "StateMachineBundle\Tests\Entity\History",
-            'options' => ['flush' => true],
-            'states' => [
-                'new' => [
-                    'type' => 'initial',
-                ],
-                'cancelled' => [
-                    'type' => 'normal',
-                ],
-                'originating' => [
-                    'type' => 'normal',
-                ],
-                'committed' => [
-                    'type' => 'normal',
-                ],
-                'error' => [
-                    'type' => 'normal',
-                ],
-                'paid' => [
-                    'type' => 'final',
-                ],
-            ],
-            'transitions' => [],
-            'guards' => [],
-            'pre_transitions' => [],
-            'post_transitions' => [],
-        ];
-
-        $factory = $this->getFactory();
-        $factory->register($definition);
-        $stateMachine = $factory->get(new ChildOrder(1));
-        $stateMachine->boot();
-        $this->assertEquals('new', $stateMachine->getCurrentState()->getName());
-    }
-
-    private function getFactory()
-    {
-        $historyManagerMock = $this->getMockBuilder('StateMachine\History\HistoryManagerInterface')
-            ->getMock();
-
-        return new StateMachineFactory($historyManagerMock);
     }
 }

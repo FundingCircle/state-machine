@@ -52,11 +52,33 @@ class StateMachineFactory
     }
 
     /**
+     * Get all state machines defintions.
+     *
      * @return array
      */
-    public function getAll()
+    public function getDefinitions()
     {
         return $this->stateMachineDefinitions;
+    }
+
+    /**
+     * Get one definition by id.
+     *
+     * @param $id
+     *
+     * @return mixed
+     *
+     * @throws StateMachineException
+     */
+    public function getDefinition($id)
+    {
+        foreach ($this->stateMachineDefinitions as $definition) {
+            if ($definition['id'] == $id) {
+                return $definition;
+            }
+        }
+
+        throw new StateMachineException(sprintf("can't find definition %s", $id));
     }
 
     /**
