@@ -30,4 +30,14 @@ class MockListener
     {
         return true;
     }
+
+    public function callbackMethod_pre(TransitionEvent $transitionEvent)
+    {
+        return true;
+    }
+
+    public function callbackMethod_post(TransitionEvent $transitionEvent)
+    {
+        return true;
+    }
 }

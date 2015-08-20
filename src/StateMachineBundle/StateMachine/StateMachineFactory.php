@@ -152,9 +152,9 @@ class StateMachineFactory
             );
         }
         //adding post-transitions
-        foreach ($definition['pre_transitions'] as $postTransition) {
-            if (!isset($preTransition['callback'])) {
-                $preTransition['callback'] = $class;
+        foreach ($definition['post_transitions'] as $postTransition) {
+            if (!isset($postTransition['callback'])) {
+                $postTransition['callback'] = $class;
             }
             $stateMachine->addPostTransition(
                 [$postTransition['callback'], $postTransition['method']],

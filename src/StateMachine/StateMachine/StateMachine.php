@@ -279,7 +279,8 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
 
         foreach ($this->getTransitionsByStates($from, $to) as $transition) {
             $callableClass = ($callable instanceof \Closure) ? 'closure' : get_class($callable[0]);
-            $transition->addPreTransition($callableClass);
+
+            $transition->addPostTransition($callableClass);
             $this->eventDispatcher->addListener(
                 $transition->getName().'_'.Events::EVENT_POST_TRANSITION,
                 $callable,

@@ -25,6 +25,8 @@ class StateMachineFactoryTest extends \PHPUnit_Framework_TestCase
         $stateMachine = $factory->get(new Order(1));
         $stateMachine->boot();
         $this->assertEquals('new', $stateMachine->getCurrentState()->getName());
+        $this->assertEquals(1, count($stateMachine->getTransitions()['new->cancelled']->getPostTransitions()));
+        $this->assertEquals(1, count($stateMachine->getTransitions()['new->cancelled']->getPreTransitions()));
     }
 
     public function testClassWithStatefulParent()
@@ -158,7 +160,7 @@ class StateMachineFactoryTest extends \PHPUnit_Framework_TestCase
             'pre_transitions' => [
                 0 => [
                     'callback' => $this->getMock('StateMachineBundle\Tests\Listeners\MockListener'),
-                    'method' => 'callbackMethod',
+                    'method' => 'callbackMethod_pre',
                     'from' => 'new',
                     'to' => 'cancelled',
                 ],
@@ -166,7 +168,7 @@ class StateMachineFactoryTest extends \PHPUnit_Framework_TestCase
             'post_transitions' => [
                 0 => [
                     'callback' => $this->getMock('StateMachineBundle\Tests\Listeners\MockListener'),
-                    'method' => 'callbackMethod',
+                    'method' => 'callbackMethod_post',
                     'from' => 'new',
                     'to' => 'cancelled',
                 ],
