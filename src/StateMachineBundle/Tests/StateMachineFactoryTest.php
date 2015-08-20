@@ -2,6 +2,7 @@
 
 namespace StateMachineBundle\Tests;
 
+use StateMachine\History\HistoryCollection;
 use StateMachineBundle\StateMachine\StateMachineFactory;
 use StateMachineBundle\Tests\Entity\ChildOrder;
 use StateMachineBundle\Tests\Entity\Order;
@@ -98,7 +99,12 @@ class StateMachineFactoryTest extends \PHPUnit_Framework_TestCase
     private function getFactory()
     {
         $historyManagerMock = $this->getMockBuilder('StateMachine\History\HistoryManagerInterface')
+            ->setMethods(['load','add'])
             ->getMock();
+
+        $historyManagerMock->expects($this->any())
+            ->method('load')
+            ->willReturn(new HistoryCollection());
 
         return new StateMachineFactory($historyManagerMock);
     }

@@ -131,6 +131,9 @@ class StateMachineFactory
 
         //adding guards
         foreach ($definition['guards'] as $guard) {
+            if (!isset($preTransition['callback'])) {
+                $preTransition['callback'] = $class;
+            }
             $stateMachine->addGuard(
                 [$guard['callback'], $guard['method']],
                 $guard['from'],
@@ -139,6 +142,9 @@ class StateMachineFactory
         }
         //adding pre-transitions
         foreach ($definition['pre_transitions'] as $preTransition) {
+            if (!isset($preTransition['callback'])) {
+                $preTransition['callback'] = $class;
+            }
             $stateMachine->addPreTransition(
                 [$preTransition['callback'], $preTransition['method']],
                 $preTransition['from'],
@@ -147,6 +153,9 @@ class StateMachineFactory
         }
         //adding post-transitions
         foreach ($definition['pre_transitions'] as $postTransition) {
+            if (!isset($preTransition['callback'])) {
+                $preTransition['callback'] = $class;
+            }
             $stateMachine->addPostTransition(
                 [$postTransition['callback'], $postTransition['method']],
                 $postTransition['from'],

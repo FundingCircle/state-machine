@@ -10,12 +10,9 @@ class HistoryManager implements HistoryManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function load(StatefulInterface $statefulObject)
+    public function load(StatefulInterface $statefulObject, StateMachineHistoryInterface $stateMachine)
     {
-        $stateMachine = $statefulObject->getStateMachine();
-        if ($stateMachine instanceof StateMachineHistoryInterface) {
-            return $stateMachine->getHistory();
-        }
+        return $stateMachine->getHistory();
     }
 
     /**

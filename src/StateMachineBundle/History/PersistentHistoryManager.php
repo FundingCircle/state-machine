@@ -3,6 +3,7 @@
 namespace StateMachineBundle\History;
 
 use StateMachine\History\History;
+use StateMachine\History\HistoryCollection;
 use StateMachine\History\HistoryManagerInterface;
 use StateMachine\StateMachine\StatefulInterface;
 use StateMachine\StateMachine\StateMachineHistoryInterface;
@@ -31,24 +32,19 @@ class PersistentHistoryManager implements HistoryManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function load(StatefulInterface $statefulObject)
+    public function load(StatefulInterface $statefulObject, StateMachineHistoryInterface $stateMachine)
     {
-        $stateMachine = $statefulObject->getStateMachine();
-        if ($stateMachine instanceof StateMachineHistoryInterface) {
-            $om = $this->registry->getManagerForClass(get_class($statefulObject));
-            $stateChanges = $om->getRepository($stateMachine->getHistoryClass())->findBy(
-                [
-                    'objectIdentifier' => $stateMachine->getObject()->getId(),
-                ],
-                [
-                    'createdAt' => 'desc',
-                ]
-            );
+        $om = $this->registry->getManagerForClass(get_class($statefulObject));
+        $stateChanges = $om->getRepository($stateMachine->getHistoryClass())->findBy(
+            [
+                'objectIdentifier' => $stateMachine->getObject()->getId(),
+            ],
+            [
+                'createdAt' => 'desc',
+            ]
+        );
 
-            foreach ($stateChanges as $stateChange) {
-                $stateMachine->getHistory()->add($stateChange);
-            }
-        }
+        return new HistoryCollection($stateChanges);
     }
 
     /**

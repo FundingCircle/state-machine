@@ -107,6 +107,9 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
             throw new StateMachineException('Statemachine is already booted');
         }
 
+        //load history
+        $this->historyCollection = $this->historyManager->load($this->object, $this);
+
         $state = null;
         $objectState = $this->stateAccessor->getState($this->object);
         //gets state from history
@@ -613,7 +616,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
      * Returns all transitions between two states, null refers to all states.
      *
      * @param null $from , can be null, array, value
-     * @param null $to   , can be null, array, value
+     * @param null $to , can be null, array, value
      *
      * @return TransitionInterface[]
      */

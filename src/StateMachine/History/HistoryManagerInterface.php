@@ -3,17 +3,19 @@
 namespace StateMachine\History;
 
 use StateMachine\StateMachine\StatefulInterface;
+use StateMachine\StateMachine\StateMachineHistoryInterface;
 
 interface HistoryManagerInterface
 {
     /**
      * Load history for given stateful object.
      *
-     * @param StatefulInterface $statefulObject
+     * @param StatefulInterface            $statefulObject
+     * @param StateMachineHistoryInterface $stateMachine
      *
      * @return HistoryCollection
      */
-    public function load(StatefulInterface $statefulObject);
+    public function load(StatefulInterface $statefulObject, StateMachineHistoryInterface $stateMachine);
 
     /**
      * Add one more record to the history.
