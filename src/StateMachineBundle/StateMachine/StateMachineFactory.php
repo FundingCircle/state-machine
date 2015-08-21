@@ -66,7 +66,7 @@ class StateMachineFactory
      *
      * @param $id
      *
-     * @return mixed
+     * @return array
      *
      * @throws StateMachineException
      */
@@ -113,7 +113,8 @@ class StateMachineFactory
             $definition['options'],
             $definition['history_class'],
             $this->historyManager,
-            $eventDispatcher
+            $eventDispatcher,
+            $definition['id']
         );
 
         //adding states
@@ -131,8 +132,8 @@ class StateMachineFactory
 
         //adding guards
         foreach ($definition['guards'] as $guard) {
-            if (!isset($preTransition['callback'])) {
-                $preTransition['callback'] = $class;
+            if (!isset($guard['callback'])) {
+                $guard['callback'] = $class;
             }
             $stateMachine->addGuard(
                 [$guard['callback'], $guard['method']],

@@ -27,6 +27,7 @@ class StateMachineFactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('new', $stateMachine->getCurrentState()->getName());
         $this->assertEquals(1, count($stateMachine->getTransitions()['new->cancelled']->getPostTransitions()));
         $this->assertEquals(1, count($stateMachine->getTransitions()['new->cancelled']->getPreTransitions()));
+        $this->assertEquals('order_statemachine', $stateMachine->getName());
     }
 
     public function testClassWithStatefulParent()
@@ -36,6 +37,7 @@ class StateMachineFactoryTest extends \PHPUnit_Framework_TestCase
                 'class' => "StateMachineBundle\Tests\Entity\Order",
                 'property' => 'state',
             ],
+            'id' => 'order_statemachine',
             'history_class' => "StateMachineBundle\Tests\Entity\History",
             'options' => ['flush' => true],
             'states' => [
@@ -101,7 +103,7 @@ class StateMachineFactoryTest extends \PHPUnit_Framework_TestCase
     private function getFactory()
     {
         $historyManagerMock = $this->getMockBuilder('StateMachine\History\HistoryManagerInterface')
-            ->setMethods(['load','add'])
+            ->setMethods(['load', 'add'])
             ->getMock();
 
         $historyManagerMock->expects($this->any())

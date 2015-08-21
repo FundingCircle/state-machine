@@ -40,6 +40,13 @@ interface StateMachineInterface
     public function getEventDispatcher();
 
     /**
+     * Identify unique name for stateMachine.
+     *
+     * @return mixed
+     */
+    public function getName();
+
+    /**
      * Define a new transition to the statemachine.
      *
      * @param mixed  $from

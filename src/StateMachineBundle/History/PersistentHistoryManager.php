@@ -2,6 +2,7 @@
 
 namespace StateMachineBundle\History;
 
+use Doctrine\ORM\EntityManager;
 use StateMachine\History\History;
 use StateMachine\History\HistoryCollection;
 use StateMachine\History\HistoryManagerInterface;
@@ -40,7 +41,7 @@ class PersistentHistoryManager implements HistoryManagerInterface
                 'objectIdentifier' => $stateMachine->getObject()->getId(),
             ],
             [
-                'createdAt' => 'desc',
+                'createdAt' => 'asc',
             ]
         );
 
@@ -61,8 +62,10 @@ class PersistentHistoryManager implements HistoryManagerInterface
         }
 
         $om->persist($stateChange);
-        if (isset($options['flush']) && $options['flush'] == true) {
-            $om->flush($stateChange);
+        if (isset($options['transaction']) && $options['transaction'] == true) {
+            if ($om instanceof EntityManager) {
+                $om->flush($stateChange);
+            }
         }
 
         $statefulObject->getStateMachine()->getHistory()->add($stateChange);

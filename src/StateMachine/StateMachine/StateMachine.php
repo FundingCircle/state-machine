@@ -53,6 +53,9 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     /** @var EventDispatcher */
     private $eventDispatcher;
 
+    /** @var  string */
+    private $name;
+
     /** @var array */
     private $messages = [];
 
@@ -73,6 +76,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
      * @param string                  $historyClass
      * @param HistoryManagerInterface $historyManager
      * @param EventDispatcher         $eventDispatcher
+     * @param string                  $name
      */
     public function __construct(
         StatefulInterface $object,
@@ -81,7 +85,8 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         $transitionOptions = [],
         $historyClass = null,
         HistoryManagerInterface $historyManager = null,
-        EventDispatcher $eventDispatcher = null
+        EventDispatcher $eventDispatcher = null,
+        $name = null
     ) {
         $this->stateAccessor = $stateAccessor ?: new StateAccessor();
         $this->transitionClass = $transitionClass ?: 'StateMachine\Transition\Transition';
@@ -96,6 +101,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         $this->transitions = [];
         $this->messages = [];
         $this->eventDispatcher = $eventDispatcher ?: new EventDispatcher();
+        $this->name = $name ?: get_class($object);
     }
 
     /**
@@ -196,6 +202,11 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     public function getEventDispatcher()
     {
         return $this->eventDispatcher;
+    }
+
+    public function getName()
+    {
+        return $this->name;
     }
 
     /**
@@ -617,7 +628,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
      * Returns all transitions between two states, null refers to all states.
      *
      * @param null $from , can be null, array, value
-     * @param null $to , can be null, array, value
+     * @param null $to   , can be null, array, value
      *
      * @return TransitionInterface[]
      */
@@ -650,7 +661,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
      * if one state => return array with 1 item
      * if array of states => return as it's.
      *
-     * @param mixed $state
+     * @param string $state
      *
      * @return array
      */

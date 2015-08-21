@@ -25,6 +25,8 @@ class PersistentSubscriber implements EventSubscriberInterface
 
     /**
      * @param TransitionEvent $transitionEvent
+     *
+     * @return bool
      */
     public function onPreTransition(TransitionEvent $transitionEvent)
     {
@@ -40,6 +42,8 @@ class PersistentSubscriber implements EventSubscriberInterface
 
     /**
      * @param TransitionEvent $transitionEvent
+     *
+     * @return bool
      */
     public function onPostTransition(TransitionEvent $transitionEvent)
     {
