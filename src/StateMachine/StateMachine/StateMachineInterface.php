@@ -81,6 +81,15 @@ interface StateMachineInterface
     public function canTransitionTo($state, $withGuards);
 
     /**
+     * Checks if current stateful object has reached this state or not
+     *
+     * @param string $state
+     *
+     * @return bool
+     */
+    public function hasReached($state);
+
+    /**
      * Transit the object to given state.
      *
      * @param string $state

@@ -175,6 +175,9 @@ $em->persist($bankTransaction);
 $bankTransaction->getStateMachine()->canTransitionTo("exported"));
 //move to certain state
 $bankTransaction->getStateMachine()->transitionTo("exported"));
+//check if reached certain state
+$bankTransaction->getStateMachine()->hasReached("exported")); //returns true
+$bankTransaction->getStateMachine()->hasReached("succeeded")); //returns false
 //or by trigger event
 $bankTransaction->getStateMachine()->trigger("export"));
 //returns current state

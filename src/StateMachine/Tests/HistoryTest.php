@@ -76,4 +76,24 @@ class HistoryTest extends \PHPUnit_Framework_TestCase
         $stateMachine->transitionTo('checking_out');
         $stateMachine->transitionTo('purchased');
     }
+
+    public function testHasReachedTrue()
+    {
+        $stateMachine = StateMachineFixtures::getOrderStateMachine();
+        $stateMachine->boot();
+        $stateMachine->transitionTo('checking_out');
+        $stateMachine->transitionTo('purchased');
+
+        $this->assertTrue($stateMachine->hasReached('checking_out'));
+        $this->assertTrue($stateMachine->hasReached('purchased'));
+        $this->assertFalse($stateMachine->hasReached('failed'));
+    }
+
+    public function testHasReachedNoHistory()
+    {
+        $stateMachine = StateMachineFixtures::getOrderStateMachine();
+        $stateMachine->boot();
+
+        $this->assertFalse($stateMachine->hasReached('checking_out'));
+    }
 }
