@@ -10,7 +10,8 @@ class PersistentHistoryManagerTest extends \PHPUnit_Framework_TestCase
 {
     public function testHistoryAddWithFlushTest()
     {
-        $objectManagerMock = $this->getMockBuilder('Doctrine\Common\Persistence\ObjectManager')
+        $objectManagerMock = $this->getMockBuilder('Doctrine\ORM\EntityManager')
+            ->disableOriginalConstructor()
             ->getMock();
 
         $objectManagerMock->expects($this->once())
@@ -19,7 +20,7 @@ class PersistentHistoryManagerTest extends \PHPUnit_Framework_TestCase
         $objectManagerMock->expects($this->once())
             ->method('flush');
 
-        $stateChangeMock = $this->getStateChangeEventMock(['flush' => true]);
+        $stateChangeMock = $this->getStateChangeEventMock(['transaction' => true]);
 
         $stateMachineMock = $this->getMock(
             'StateMachine\StateMachine\StateMachineHistoryInterface',
@@ -55,7 +56,7 @@ class PersistentHistoryManagerTest extends \PHPUnit_Framework_TestCase
         $objectManagerMock->expects($this->never())
             ->method('flush');
 
-        $stateChangeMock = $this->getStateChangeEventMock(['flush' => false]);
+        $stateChangeMock = $this->getStateChangeEventMock(['transaction' => false]);
 
         $stateMachineMock = $this->getMock(
             'StateMachine\StateMachine\StateMachineHistoryInterface',
@@ -82,7 +83,8 @@ class PersistentHistoryManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testHistoryChangeWithBlameableTransition()
     {
-        $objectManagerMock = $this->getMockBuilder('Doctrine\Common\Persistence\ObjectManager')
+        $objectManagerMock = $this->getMockBuilder('Doctrine\ORM\EntityManager')
+            ->disableOriginalConstructor()
             ->getMock();
 
         $objectManagerMock->expects($this->once())
@@ -92,7 +94,7 @@ class PersistentHistoryManagerTest extends \PHPUnit_Framework_TestCase
             ->method('flush');
 
         $blameableStateChange = new BlameableHistory();
-        $blameableStateChange->setOptions(['flush' => true]);
+        $blameableStateChange->setOptions(['transaction' => true]);
 
         $userMock = $this->getMock('Symfony\Component\Security\Core\User\UserInterface');
         $tokenStorageMock = $this->getTokenStorageMock($userMock);

@@ -81,7 +81,7 @@ class Transition implements TransitionInterface
      */
     public function addPreTransition($preTransition)
     {
-        $this->preTransitions[] = $preTransition;
+        $this->preTransitions[] = $this->resolveCallable($preTransition);
     }
 
     /**
@@ -97,7 +97,7 @@ class Transition implements TransitionInterface
      */
     public function addPostTransition($postTransition)
     {
-        $this->postTransitions[] = $postTransition;
+        $this->postTransitions[] = $this->resolveCallable($postTransition);
     }
 
     /**
@@ -113,6 +113,29 @@ class Transition implements TransitionInterface
      */
     public function addGuard($guard)
     {
-        $this->guards[] = $guard;
+        $this->guards[] = $this->resolveCallable($guard);
+    }
+
+    /**
+     * Resolve callable which can be one of
+     *  - closure
+     *  - class instance and method
+     *  - class path and static method.
+     *
+     * @param $callable
+     *
+     * @return string
+     */
+    private function resolveCallable($callable)
+    {
+        if ($callable instanceof \Closure) {
+            $callableClass = 'closure';
+        } elseif (is_object($callable[0])) {
+            $callableClass = get_class($callable[0]);
+        } else {
+            $callableClass = $callable[0].'::'.$callable[1];
+        }
+
+        return $callableClass;
     }
 }

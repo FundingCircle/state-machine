@@ -126,6 +126,9 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
 
         //state exists in history and not the same as object, conflict alert
         if (null !== $state
+            && '' !== $state
+            && null !== $objectState
+            && '' !== $objectState
             && $state->getName() !== $objectState
         ) {
             throw new StateMachineException(
@@ -140,7 +143,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
             );
         }
         //no state found for the object it means it's new instance, set initial state
-        if (null === $state || '' == $state) {
+        if (null === $state || '' == $state || null === $objectState || '' == $objectState) {
             $state = $this->getInitialState();
             if (null == $state) {
                 throw new StateMachineException('No initial state is found');
@@ -269,8 +272,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         }
 
         foreach ($this->getTransitionsByStates($from, $to) as $transition) {
-            $callableClass = ($callable instanceof \Closure) ? 'closure' : get_class($callable[0]);
-            $transition->addPreTransition($callableClass);
+            $transition->addPreTransition($callable);
             $this->eventDispatcher->addListener(
                 $transition->getName().'_'.Events::EVENT_PRE_TRANSITION,
                 $callable,
