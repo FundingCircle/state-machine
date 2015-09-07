@@ -20,7 +20,7 @@ class StateMachineExtension extends \Twig_Extension
 
     public function renderGraphFilter(StatefulInterface $statefulObject)
     {
-        $config = new Configuration(false, 'red');
+        $config = new Configuration(['current_state_color' => 'red']);
         $graphviz = new Graphviz($config);
 
         return $graphviz->render($statefulObject->getStateMachine());
