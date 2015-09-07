@@ -131,7 +131,7 @@ class Transition implements TransitionInterface
         if ($callable instanceof \Closure) {
             $callableClass = 'closure';
         } elseif (is_array($callable) && is_object($callable[0])) {
-            $callableClass = get_class($callable[0]);
+            $callableClass = get_class($callable[0]).'::'.$callable[1];
         } elseif (is_array($callable)) {
             $callableClass = $callable[0].'::'.$callable[1];
         } else {
