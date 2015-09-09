@@ -50,7 +50,7 @@ class HistoryCollection implements \Countable
      */
     public function first()
     {
-        return reset($this->elements);
+        return reset($this->elements) ?: null;
     }
 
     /**
@@ -58,7 +58,7 @@ class HistoryCollection implements \Countable
      */
     public function last()
     {
-        return end($this->elements);
+        return end($this->elements) ?: null;
     }
 
     /**

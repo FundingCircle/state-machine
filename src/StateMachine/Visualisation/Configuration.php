@@ -3,7 +3,7 @@
 namespace StateMachine\Visualisation;
 
 /**
- * Configuration class for rendering state machine graphs
+ * Configuration class for rendering state machine graphs.
  */
 class Configuration
 {
@@ -22,7 +22,7 @@ class Configuration
                 'pre_transition_color' => '#3399FF',
                 'post_transition_color' => '#0033CC',
                 'full_class_name' => false,
-                'current_state_color' => 'green'
+                'current_state_color' => 'green',
             ],
             $renderProperties
         );

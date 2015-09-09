@@ -131,7 +131,7 @@ class Graphviz implements VisualisationInterface
                         $trans->getToState()->getName(),
                     ],
                     [
-                        'label' => $this->renderLabel($trans, $stateMachine)
+                        'label' => $this->renderLabel($trans, $stateMachine),
                     ]
                 )
                     ->end();
@@ -201,7 +201,6 @@ class Graphviz implements VisualisationInterface
                     .'</FONT>';
                 $additional .= '<TR><TD ALIGN="LEFT">    +'.$displayClassName.'</TD></TR>';
             }
-
         }
         foreach ($transition->getPreTransitions() as $preTransition) {
             $additional .= '<TR><TD ALIGN="LEFT">PreTransitions: </TD></TR>';
@@ -225,7 +224,7 @@ class Graphviz implements VisualisationInterface
     }
 
     /**
-     * Render the class name
+     * Render the class name.
      *
      * @param $className
      *
