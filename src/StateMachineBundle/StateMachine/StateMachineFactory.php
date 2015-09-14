@@ -9,6 +9,7 @@ use StateMachine\History\HistoryManagerInterface;
 use StateMachine\StateMachine\StatefulInterface;
 use StateMachine\StateMachine\StateMachine;
 use StateMachine\EventDispatcher\EventDispatcher;
+use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * This factory is responsible of registering statemachine definition
@@ -136,7 +137,7 @@ class StateMachineFactory
                 $guard['callback'] = $class;
             }
             $stateMachine->addGuard(
-                [$guard['callback'], $guard['method']],
+                [$this->resolveCallback($guard), $guard['method']],
                 $guard['from'],
                 $guard['to']
             );
@@ -147,7 +148,7 @@ class StateMachineFactory
                 $preTransition['callback'] = $class;
             }
             $stateMachine->addPreTransition(
-                [$preTransition['callback'], $preTransition['method']],
+                [$this->resolveCallback($preTransition), $preTransition['method']],
                 $preTransition['from'],
                 $preTransition['to']
             );
@@ -158,7 +159,7 @@ class StateMachineFactory
                 $postTransition['callback'] = $class;
             }
             $stateMachine->addPostTransition(
-                [$postTransition['callback'], $postTransition['method']],
+                [$this->resolveCallback($postTransition), $postTransition['method']],
                 $postTransition['from'],
                 $postTransition['to']
             );
@@ -190,6 +191,22 @@ class StateMachineFactory
                     return $stateFullClass;
                 }
             }
+        }
+    }
+
+    /**
+     * Detect if it's class or service.
+     *
+     * @param $callback
+     *
+     * @return Reference
+     */
+    private function resolveCallback($callback)
+    {
+        if (class_exists($callback['callback'])) {
+            return $callback['callback'];
+        } else {
+            return new Reference($callback['callback']);
         }
     }
 }

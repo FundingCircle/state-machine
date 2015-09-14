@@ -13,25 +13,16 @@ services:
         tags:
             - { name: doctrine.event_subscriber }
 
-    statemachine.subscriber.persistent:
-        class: StateMachineBundle\Subscriber\PersistentSubscriber
-        tags:
-            - { name: kernel.event_subscriber }
-        arguments:
-            - @doctrine.orm.entity_manager
-
     statemachine.history_manager:
         class: StateMachineBundle\History\PersistentHistoryManager
         arguments:
             - @doctrine
-#            - @doctrine.orm.entity_manager
             - @security.token_storage
 
     statemachine.twig.state_machine:
         class: StateMachineBundle\Twig\StateMachineExtension
         tags:
             - { name: twig.extension }
-#TODO make object manager dyanmically depends on config
 
     test_callback:
         class: StateMachineBundle\Tests\Listeners\MockListener
