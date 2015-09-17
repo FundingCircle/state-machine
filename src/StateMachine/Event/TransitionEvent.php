@@ -105,7 +105,7 @@ class TransitionEvent extends Event
      */
     public function rejectTransition($callable)
     {
-        $this->failedCallback = Transition::resolveCallable($callable);
+        $this->failedCallback = Transition::callableToString($callable);
         $this->passed = false;
         $this->stopPropagation();
     }
