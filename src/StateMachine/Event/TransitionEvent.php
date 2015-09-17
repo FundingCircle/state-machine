@@ -4,6 +4,7 @@
 // Stops event propagation when the transition fails somwhere.
 namespace StateMachine\Event;
 
+use StateMachine\Transition\Transition;
 use Symfony\Component\EventDispatcher\Event;
 use StateMachine\StateMachine\StatefulInterface;
 use StateMachine\Transition\TransitionInterface;
@@ -104,8 +105,7 @@ class TransitionEvent extends Event
      */
     public function rejectTransition($callable)
     {
-        //@TODO may be add method too
-        $this->failedCallback = get_class($callable);
+        $this->failedCallback = Transition::resolveCallable($callable);
         $this->passed = false;
         $this->stopPropagation();
     }

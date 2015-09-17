@@ -71,7 +71,7 @@ class TransitionsTest extends \PHPUnit_Framework_TestCase
         $stateMachine = StateMachineFixtures::getBidStateMachine();
         $stateMachine->addPostTransition(
             function (TransitionEvent $transitionEvent) {
-                $transitionEvent->rejectTransition($this);
+                return false;
             },
             'new',
             'committed'

@@ -36,7 +36,7 @@ class HistoryTest extends \PHPUnit_Framework_TestCase
         $stateMachine = StateMachineFixtures::getOrderStateMachine();
         $stateMachine->addGuard(
             function (TransitionEvent $transitionEvent) {
-                $transitionEvent->rejectTransition($this);
+                return false;
             },
             'pending',
             'checking_out'

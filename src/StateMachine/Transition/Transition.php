@@ -126,7 +126,7 @@ class Transition implements TransitionInterface
      *
      * @return string
      */
-    private function resolveCallable($callable)
+    public static function resolveCallable($callable)
     {
         if ($callable instanceof \Closure) {
             $callableClass = 'closure';

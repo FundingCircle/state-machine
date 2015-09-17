@@ -256,8 +256,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
             throw new StateMachineException('Cannot add more guards to booted StateMachine');
         }
         foreach ($this->getTransitionsByStates($from, $to) as $transition) {
-            $callableClass = ($callable instanceof \Closure) ? 'closure' : get_class($callable[0]);
-            $transition->addGuard($callableClass);
+            $transition->addGuard($callable);
             $this->eventDispatcher->addListener($transition->getName().'_'.Events::EVENT_ON_GUARD, $callable);
         }
     }
@@ -291,9 +290,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         }
 
         foreach ($this->getTransitionsByStates($from, $to) as $transition) {
-            $callableClass = ($callable instanceof \Closure) ? 'closure' : get_class($callable[0]);
-
-            $transition->addPostTransition($callableClass);
+            $transition->addPostTransition($callable);
             $this->eventDispatcher->addListener(
                 $transition->getName().'_'.Events::EVENT_POST_TRANSITION,
                 $callable,
