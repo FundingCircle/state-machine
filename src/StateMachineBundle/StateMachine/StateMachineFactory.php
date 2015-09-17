@@ -9,6 +9,8 @@ use StateMachine\History\HistoryManagerInterface;
 use StateMachine\StateMachine\StatefulInterface;
 use StateMachine\StateMachine\StateMachine;
 use StateMachine\EventDispatcher\EventDispatcher;
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
@@ -16,13 +18,16 @@ use Symfony\Component\DependencyInjection\Reference;
  * and create statemachines on demand,
  * This is the only place where statemachine is created and booted.
  */
-class StateMachineFactory
+class StateMachineFactory implements ContainerAwareInterface
 {
     /** @var  HistoryManagerInterface */
     private $historyManager;
 
     /** @var  string */
     private $transitionClass;
+
+    /** @var  ContainerInterface */
+    private $container;
 
     /** @var  array */
     private $stateMachineDefinitions;
@@ -39,6 +44,22 @@ class StateMachineFactory
         $this->historyManager = $historyManager;
         $this->transitionClass = $transitionClass;
         $this->stateFullClasses = [];
+    }
+
+    /**
+     * Container is injected here for purpose to avoid circular references
+     * and instead loading services in runtime requires container
+     *
+     * @param ContainerInterface|null $container A ContainerInterface instance or null
+     *
+     * @api
+     * @return self
+     */
+    public function setContainer(ContainerInterface $container = null)
+    {
+        $this->container = $container;
+
+        return $this;
     }
 
     /**
@@ -206,7 +227,7 @@ class StateMachineFactory
         if (class_exists($callback['callback'])) {
             return $callback['callback'];
         } else {
-            return new Reference($callback['callback']);
+            return $this->container->get($callback['callback']);
         }
     }
 }

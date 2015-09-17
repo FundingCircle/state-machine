@@ -6,6 +6,7 @@ use StateMachine\History\HistoryCollection;
 use StateMachineBundle\StateMachine\StateMachineFactory;
 use StateMachineBundle\Tests\Entity\ChildOrder;
 use StateMachineBundle\Tests\Entity\Order;
+use StateMachineBundle\Tests\Listeners\MockListener;
 
 class StateMachineFactoryTest extends \PHPUnit_Framework_TestCase
 {
@@ -110,7 +111,13 @@ class StateMachineFactoryTest extends \PHPUnit_Framework_TestCase
             ->method('load')
             ->willReturn(new HistoryCollection());
 
-        return new StateMachineFactory($historyManagerMock);
+        $containerMock = $this->getMock('\Symfony\Component\DependencyInjection\ContainerInterface');
+        $containerMock->method("get")
+            ->willReturn(new MockListener());
+
+        $factory= new StateMachineFactory($historyManagerMock);
+        return $factory->setContainer($containerMock);
+
     }
 
     private function getDefinition()

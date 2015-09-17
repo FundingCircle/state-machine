@@ -4,6 +4,8 @@ services:
         arguments:
             - @statemachine.history_manager
             - ~
+        calls:
+            - [setContainer,[@service_container]]
 
     statemachine.subscriber.doctrine_loader:
         class: StateMachineBundle\Subscriber\StateMachineLoaderSubscriber
