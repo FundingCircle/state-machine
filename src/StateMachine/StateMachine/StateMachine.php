@@ -345,7 +345,6 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         return false;
     }
 
-
     /**
      * {@inheritdoc}
      */
@@ -384,15 +383,26 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         }
 
         if (!$this->canTransitionTo($state)) {
-            throw new StateMachineException(
-                sprintf(
+            if (null !== $this->historyCollection->last() && !$this->historyCollection->last()->isPassed()) {
+                $failedTransition = $this->historyCollection->last();
+                $exception = sprintf(
+                    "Last transition FAILED: [%s => %s], \n Failed callback: %s, \n Messages: %s \n",
+                    $failedTransition->getFromState(),
+                    $failedTransition->getToState(),
+                    $failedTransition->getFailedCallBack(),
+                    implode(',', $failedTransition->getMessages())
+                );
+            } else {
+                $exception = sprintf(
                     "There's no transition defined from (%s) to (%s), allowed transitions to : [ %s ]
                      or previous transition failed check history for more info",
                     $this->currentState->getName(),
                     $state,
                     implode(',', $this->currentState->getTransitions())
-                )
-            );
+                );
+            }
+
+            throw new StateMachineException($exception);
         }
         $transitionName = $this->currentState->getName().TransitionInterface::EDGE_SYMBOL.$state;
         $transition = $this->transitions[$transitionName];
@@ -645,7 +655,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
      * Returns all transitions between two states, null refers to all states.
      *
      * @param null $from , can be null, array, value
-     * @param null $to , can be null, array, value
+     * @param null $to   , can be null, array, value
      *
      * @return TransitionInterface[]
      */

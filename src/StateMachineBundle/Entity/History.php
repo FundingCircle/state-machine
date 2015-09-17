@@ -11,10 +11,16 @@ abstract class History extends BaseHistory
      */
     protected $createdAt;
 
+    /**
+     * @var \DateTime
+     */
+    protected $updatedAt;
+
     public function __construct()
     {
         parent::__construct();
         $this->createdAt = new \DateTime();
+        $this->updatedAt = new \DateTime();
     }
 
     /**
@@ -26,10 +32,34 @@ abstract class History extends BaseHistory
     }
 
     /**
-     * @param \DateTime $createdAt
+     * @param $createdAt
+     *
+     * @return $this
      */
     public function setCreatedAt($createdAt)
     {
         $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getUpdatedAt()
+    {
+        return $this->updatedAt;
+    }
+
+    /**
+     * @param $updatedAt
+     *
+     * @return $this
+     */
+    public function setUpdatedAt($updatedAt)
+    {
+        $this->updatedAt = $updatedAt;
+
+        return $this;
     }
 }

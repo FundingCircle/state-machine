@@ -44,4 +44,8 @@ StateMachineBundle\Entity\History:
             column: created_at
             type: datetime
             nullable: false
+        updatedAt:
+            column: updated_at
+            type: datetime
+            nullable: false
     lifecycleCallbacks: {  }

@@ -153,7 +153,7 @@ class StateMachineFactoryTest extends \PHPUnit_Framework_TestCase
             ],
             'guards' => [
                 0 => [
-                    'callback' => $this->getMock('StateMachineBundle\Tests\Listeners\MockListener'),
+                    'callback' => 'test_callback',
                     'method' => 'callbackMethod',
                     'from' => 'new',
                     'to' => 'cancelled',
@@ -161,7 +161,7 @@ class StateMachineFactoryTest extends \PHPUnit_Framework_TestCase
             ],
             'pre_transitions' => [
                 0 => [
-                    'callback' => $this->getMock('StateMachineBundle\Tests\Listeners\MockListener'),
+                    'callback' => 'test_callback',
                     'method' => 'callbackMethod_pre',
                     'from' => 'new',
                     'to' => 'cancelled',
@@ -169,7 +169,7 @@ class StateMachineFactoryTest extends \PHPUnit_Framework_TestCase
             ],
             'post_transitions' => [
                 0 => [
-                    'callback' => $this->getMock('StateMachineBundle\Tests\Listeners\MockListener'),
+                    'callback' => 'test_callback',
                     'method' => 'callbackMethod_post',
                     'from' => 'new',
                     'to' => 'cancelled',

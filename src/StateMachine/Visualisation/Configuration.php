@@ -3,44 +3,38 @@
 namespace StateMachine\Visualisation;
 
 /**
- * Configuration value object.
- *
- * @author Daniel Pozzi <bonndan76@googlemail.com>
+ * Configuration class for rendering state machine graphs.
  */
 class Configuration
 {
+    /** @var array */
     private $renderProperties;
-    private $markCurrentState;
 
     /**
-     * Constructor.
-     *
-     * @param bool        $renderProperties flag
-     * @param string|null $markCurrentState fillcolor
+     * @param array $renderProperties
      */
-    public function __construct($renderProperties = false, $markCurrentState = null)
+    public function __construct($renderProperties = [])
     {
-        $this->renderProperties = (bool) $renderProperties;
-        $this->markCurrentState = $markCurrentState;
+        $this->renderProperties = array_merge(
+            [
+                'show_callbacks' => false,
+                'guard_color' => '#993300',
+                'pre_transition_color' => '#3399FF',
+                'post_transition_color' => '#0033CC',
+                'full_class_name' => false,
+                'current_state_color' => 'green',
+            ],
+            $renderProperties
+        );
     }
 
     /**
-     * Returns whether state properties shall be rendered or not.
+     * @param $property
      *
-     * @return bool
+     * @return mixed
      */
-    public function renderProperties()
+    public function get($property)
     {
-        return $this->renderProperties;
-    }
-
-    /**
-     * Returns in which color the current state shall be rendered (fillcolor) or null.
-     *
-     * @return string|null
-     */
-    public function markCurrentState()
-    {
-        return $this->markCurrentState;
+        return $this->renderProperties[$property];
     }
 }

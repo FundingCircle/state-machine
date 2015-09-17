@@ -90,8 +90,8 @@ class Graphviz implements VisualisationInterface
             'shape' => $state->getType() != StateInterface::TYPE_NORMAL ? 'box' : 'box',
             'label' => $this->getNodeLabel($state),
         );
-        if ($stateMachine->getCurrentState() == $state && $this->configuration->markCurrentState()) {
-            $data['fillcolor'] = $this->configuration->markCurrentState();
+        if ($stateMachine->getCurrentState() == $state && $this->configuration->get('current_state_color')) {
+            $data['fillcolor'] = $this->configuration->get('current_state_color');
             $data['style'] = 'filled';
         }
 
@@ -131,7 +131,7 @@ class Graphviz implements VisualisationInterface
                         $trans->getToState()->getName(),
                     ],
                     [
-                        'label' => $trans->getEventName() ?: $trans->getName(),
+                        'label' => $this->renderLabel($trans, $stateMachine),
                     ]
                 )
                     ->end();
@@ -175,5 +175,70 @@ class Graphviz implements VisualisationInterface
         }
 
         return '';
+    }
+
+    protected function renderLabel(TransitionInterface $trans, StateMachineInterface $stateMachine)
+    {
+        $transitionName = $trans->getEventName() ?: $trans->getName();
+
+        $nodeLabel = '<TR><TD ALIGN="LEFT"><B>'.$transitionName.'</B></TD></TR>';
+        $nodeLabel .= $this->renderAdditionalLabelInformation($trans);
+        $complete = '<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0">'.$nodeLabel.'</TABLE>>';
+
+        return $complete;
+    }
+
+    protected function renderAdditionalLabelInformation(TransitionInterface $transition)
+    {
+        $additional = '';
+        // build the markup for callbacks
+        if ($this->configuration->get('show_callbacks')) {
+            foreach ($transition->getGuards() as $guard) {
+                $additional .= '<TR><TD ALIGN="LEFT">Guards: </TD></TR>';
+                $displayClassName =
+                    '<FONT COLOR="'.$this->configuration->get('guard_color')
+                    .'">'.$this->renderClassName($guard)
+                    .'</FONT>';
+                $additional .= '<TR><TD ALIGN="LEFT">    +'.$displayClassName.'</TD></TR>';
+            }
+        }
+        foreach ($transition->getPreTransitions() as $preTransition) {
+            $additional .= '<TR><TD ALIGN="LEFT">PreTransitions: </TD></TR>';
+            $displayClassName =
+                '<FONT COLOR="'.$this->configuration->get('pre_transition_color')
+                .'">'.$this->renderClassName($preTransition)
+                .'</FONT>';
+            $additional .= '<TR><TD ALIGN="LEFT">    +'.$displayClassName.'</TD></TR>';
+        }
+
+        foreach ($transition->getPostTransitions() as $postTransition) {
+            $additional .= '<TR><TD ALIGN="LEFT">PostTransitions: </TD></TR>';
+            $displayClassName =
+                '<FONT COLOR="'.$this->configuration->get('post_transition_color')
+                .'">'.$this->renderClassName($postTransition)
+                .'</FONT>';
+            $additional .= '<TR><TD ALIGN="LEFT">    +'.$displayClassName.'</TD></TR>';
+        }
+
+        return $additional;
+    }
+
+    /**
+     * Render the class name.
+     *
+     * @param $className
+     *
+     * @return mixed|string
+     */
+    protected function renderClassName(
+        $className
+    ) {
+        $className = addslashes($className);
+        if (!$this->configuration->get('full_class_name')) {
+            $parts = explode('\\', $className);
+            $className = end($parts);
+        }
+
+        return $className;
     }
 }

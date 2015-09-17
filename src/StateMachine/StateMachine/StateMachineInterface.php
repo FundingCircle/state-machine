@@ -3,6 +3,7 @@
 namespace StateMachine\StateMachine;
 
 use StateMachine\EventDispatcher\EventDispatcher;
+use StateMachine\State\StateInterface;
 use StateMachine\Transition\TransitionInterface;
 
 interface StateMachineInterface
@@ -30,7 +31,7 @@ interface StateMachineInterface
     public function getObject();
 
     /**
-     * @return string
+     * @return StateInterface
      */
     public function getCurrentState();
 
@@ -81,7 +82,7 @@ interface StateMachineInterface
     public function canTransitionTo($state, $withGuards);
 
     /**
-     * Checks if current stateful object has reached this state or not
+     * Checks if current stateful object has reached this state or not.
      *
      * @param string $state
      *
