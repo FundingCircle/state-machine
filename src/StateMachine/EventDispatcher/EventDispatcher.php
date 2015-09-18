@@ -20,7 +20,7 @@ class EventDispatcher extends BaseEventDispatcher
 
             foreach ($this->getListeners($eventName) as $listener) {
                 $return = call_user_func($listener, $event, $eventName);
-                if (!$return) {
+                if (false === $return) {
                     $event->rejectTransition($listener);
 
                     return false;
