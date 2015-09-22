@@ -10,6 +10,7 @@ class Order implements StatefulInterface
     use StatefulTrait;
     private $state;
     private $id;
+    private $someValue;
 
     public function __construct($id)
     {
@@ -39,4 +40,21 @@ class Order implements StatefulInterface
     {
         return $this->id;
     }
+
+    /**
+     * @return string
+     */
+    public function getSomeValue()
+    {
+        return $this->someValue;
+    }
+
+    /**
+     * @param string $someValue
+     */
+    public function setSomeValue($someValue)
+    {
+        $this->someValue = $someValue;
+    }
+
 }

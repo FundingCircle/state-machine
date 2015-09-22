@@ -13,6 +13,7 @@ use StateMachine\History\HistoryManager;
 use StateMachine\History\HistoryManagerInterface;
 use StateMachine\State\State;
 use StateMachine\State\StateInterface;
+use StateMachine\Transition\Transition;
 use StateMachine\Transition\TransitionInterface;
 use StateMachine\EventDispatcher\EventDispatcher;
 
@@ -149,6 +150,9 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
                 throw new StateMachineException('No initial state is found');
             }
             $this->stateAccessor->setState($this->object, $state->getName());
+            //Dispatch init state event
+            $transitionEvent = new TransitionEvent($this->object);
+            $this->eventDispatcher->dispatch(Events::EVENT_ON_INIT, $transitionEvent);
         }
 
         // Assign the transitions to the states to be able to get allowed transitions easily
@@ -297,6 +301,20 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
                 $priority
             );
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setInitCallback($callable)
+    {
+        if ($this->booted) {
+            throw new StateMachineException('Cannot set init callback to booted StateMachine');
+        }
+        $this->eventDispatcher->addListener(
+            Events::EVENT_ON_INIT,
+            $callable
+        );
     }
 
     /**
@@ -655,7 +673,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
      * Returns all transitions between two states, null refers to all states.
      *
      * @param null $from , can be null, array, value
-     * @param null $to   , can be null, array, value
+     * @param null $to , can be null, array, value
      *
      * @return TransitionInterface[]
      */

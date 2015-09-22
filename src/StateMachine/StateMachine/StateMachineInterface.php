@@ -141,4 +141,12 @@ interface StateMachineInterface
      * @return mixed
      */
     public function addPostTransition($callable, $from, $to, $priority);
+
+    /**
+     * Sets the initial callback when init state is set
+     * @param $callable
+     *
+     * @return null
+     */
+    public function setInitCallback($callable);
 }

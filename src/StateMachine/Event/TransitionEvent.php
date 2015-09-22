@@ -34,7 +34,7 @@ class TransitionEvent extends Event
      * @param TransitionInterface $transition
      * @param array               $options
      */
-    public function __construct(StatefulInterface $object, TransitionInterface $transition, $options = [])
+    public function __construct(StatefulInterface $object, TransitionInterface $transition = null, $options = [])
     {
         $this->object = $object;
         $this->transition = $transition;

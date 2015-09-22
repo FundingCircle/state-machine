@@ -122,6 +122,8 @@ class Transition implements TransitionInterface
      *  - class instance and method
      *  - class path and static method.
      *
+     * @TODO this method should move out of this class
+     *
      * @param $callable
      *
      * @return string

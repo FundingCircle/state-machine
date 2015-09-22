@@ -3,6 +3,7 @@
 namespace StateMachine\Tests;
 
 use StateMachine\Accessor\StateAccessor;
+use StateMachine\Event\TransitionEvent;
 use StateMachine\History\History;
 use StateMachine\State\State;
 use StateMachine\State\StateInterface;
@@ -350,5 +351,42 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
         $stateMachine = StateMachineFixtures::getOrderStateMachine();
         $stateMachine->boot();
         $stateMachine->boot();
+    }
+
+    public function testInitStateCallback()
+    {
+        $object = new Order(1);
+        $stateMachine = new StateMachine(
+            $object,
+            new StateAccessor()
+        );
+        $stateMachine->addState('pending', StateInterface::TYPE_INITIAL);
+
+        $stateMachine->setInitCallback(
+            function (TransitionEvent $event) {
+                $event->getObject()->setSomeValue("some value");
+            }
+        );
+        $stateMachine->boot();
+        $this->assertEquals("some value", $object->getSomeValue());
+
+    }
+
+    public function testInitStateEmptyCallback()
+    {
+        $object = new Order(1);
+        $stateMachine = new StateMachine(
+            $object,
+            new StateAccessor()
+        );
+        $stateMachine->addState('pending', StateInterface::TYPE_INITIAL);
+
+        $stateMachine->setInitCallback(
+            function (TransitionEvent $event) {
+                //do nothing
+            }
+        );
+        $stateMachine->boot();
+        $this->assertNull($object->getSomeValue());
     }
 }
