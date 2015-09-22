@@ -81,6 +81,7 @@ state_machine:
               bank_processing: ~
               failed: ~
               succeeded: ~
+            on_init: { callback: StateMachineBundle\Tests\Listeners\MockListener, method: onInit } #only triggered in first state set
             transitions:
               - { from: [new], to: [ exported ], event: "export" }
               - { from: [exported], to: [ bank_processing ], event: "transfer to bank"}

@@ -117,6 +117,12 @@ class Configuration implements ConfigurationInterface
                                     ->end()
                                 ->end()
                             ->end()
+                            ->arrayNode('on_init')
+                                ->children()
+                                    ->scalarNode('callback')->end()
+                                    ->scalarNode('method')->end()
+                                ->end()
+                            ->end()
                         ->end()
                     ->end()
             ->end();

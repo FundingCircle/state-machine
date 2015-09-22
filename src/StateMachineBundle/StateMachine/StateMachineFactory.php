@@ -152,6 +152,15 @@ class StateMachineFactory implements ContainerAwareInterface
             $stateMachine->addTransition($from, $to, $event);
         }
 
+
+        //adding init callback
+        if (isset($definition['on_init'])) {
+            $initCallBack = $definition['on_init'];
+            $stateMachine->setInitCallback(
+                [$this->resolveCallback($initCallBack), $initCallBack['method']]
+            );
+        }
+
         //adding guards
         foreach ($definition['guards'] as $guard) {
             if (!isset($guard['callback'])) {
