@@ -150,17 +150,23 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
                 throw new StateMachineException('No initial state is found');
             }
             $this->stateAccessor->setState($this->object, $state->getName());
+            // Assign the transitions to the states to be able to get allowed transitions easily
+            $this->bindTransitionsToStates();
+            $this->currentState = $state;
+
+            // prevent booting twice
+            $this->booted = true;
             //Dispatch init state event
             $transitionEvent = new TransitionEvent($this->object);
             $this->eventDispatcher->dispatch(Events::EVENT_ON_INIT, $transitionEvent);
+        } else {
+            // Assign the transitions to the states to be able to get allowed transitions easily
+            $this->bindTransitionsToStates();
+            $this->currentState = $state;
+
+            // prevent booting twice
+            $this->booted = true;
         }
-
-        // Assign the transitions to the states to be able to get allowed transitions easily
-        $this->bindTransitionsToStates();
-        $this->currentState = $state;
-
-        // prevent booting twice
-        $this->booted = true;
     }
 
     /**
