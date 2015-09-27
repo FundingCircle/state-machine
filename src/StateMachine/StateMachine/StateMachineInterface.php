@@ -5,6 +5,7 @@ namespace StateMachine\StateMachine;
 use StateMachine\EventDispatcher\EventDispatcher;
 use StateMachine\State\StateInterface;
 use StateMachine\Transition\TransitionInterface;
+use StateMachineBundle\StateMachine\StateMachineFactory;
 
 interface StateMachineInterface
 {
@@ -144,9 +145,15 @@ interface StateMachineInterface
 
     /**
      * Sets the initial callback when init state is set
+     *
      * @param $callable
      *
      * @return null
      */
     public function setInitCallback($callable);
+
+    /**
+     * @return StateMachineFactory
+     */
+    public function getManager();
 }

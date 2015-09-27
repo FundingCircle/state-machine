@@ -5,6 +5,7 @@
 namespace StateMachine\Event;
 
 use StateMachine\Transition\Transition;
+use StateMachineBundle\StateMachine\StateMachineFactory;
 use Symfony\Component\EventDispatcher\Event;
 use StateMachine\StateMachine\StatefulInterface;
 use StateMachine\Transition\TransitionInterface;
@@ -29,17 +30,26 @@ class TransitionEvent extends Event
     /** @var bool */
     protected $passed;
 
+    /** @var  StateMachineFactory */
+    protected $manager;
+
     /**
      * @param StatefulInterface   $object
      * @param TransitionInterface $transition
      * @param array               $options
+     * @param StateMachineFactory $manager
      */
-    public function __construct(StatefulInterface $object, TransitionInterface $transition = null, $options = [])
-    {
+    public function __construct(
+        StatefulInterface $object,
+        TransitionInterface $transition = null,
+        $options = [],
+        $manager = null
+    ) {
         $this->object = $object;
         $this->transition = $transition;
         $this->messages = [];
         $this->options = array_merge($this->options, $options);
+        $this->manager = $manager;
         $this->passed = true;
         $this->failedCallback = '';
     }
@@ -98,6 +108,14 @@ class TransitionEvent extends Event
     public function isPassed()
     {
         return $this->passed;
+    }
+
+    /**
+     * @return StateMachineFactory
+     */
+    public function getManager()
+    {
+        return $this->manager;
     }
 
     /**

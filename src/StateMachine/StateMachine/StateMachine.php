@@ -16,6 +16,7 @@ use StateMachine\State\StateInterface;
 use StateMachine\Transition\Transition;
 use StateMachine\Transition\TransitionInterface;
 use StateMachine\EventDispatcher\EventDispatcher;
+use StateMachineBundle\StateMachine\StateMachineFactory;
 
 /**
  * Class StateMachine.
@@ -68,6 +69,9 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
 
     /** @var string */
     private $historyClass;
+
+    /** @var  StateMachineFactory */
+    private $manager;
 
     /**
      * @param StatefulInterface       $object
@@ -157,7 +161,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
             // prevent booting twice
             $this->booted = true;
             //Dispatch init state event
-            $transitionEvent = new TransitionEvent($this->object);
+            $transitionEvent = new TransitionEvent($this->object, null, [], $this->manager);
             $this->eventDispatcher->dispatch(Events::EVENT_ON_INIT, $transitionEvent);
         } else {
             // Assign the transitions to the states to be able to get allowed transitions easily
@@ -384,7 +388,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
             $transitionName = $this->currentState->getName().TransitionInterface::EDGE_SYMBOL.$state;
             $transition = $this->transitions[$transitionName];
             /** @var TransitionEvent $transitionEvent */
-            $transitionEvent = new TransitionEvent($this->object, $transition);
+            $transitionEvent = new TransitionEvent($this->object, $transition, [], $this->manager);
 
             return $this->eventDispatcher->dispatch(
                 $transitionName.'_'.Events::EVENT_ON_GUARD,
@@ -430,7 +434,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         }
         $transitionName = $this->currentState->getName().TransitionInterface::EDGE_SYMBOL.$state;
         $transition = $this->transitions[$transitionName];
-        $transitionEvent = new TransitionEvent($this->object, $transition, $options);
+        $transitionEvent = new TransitionEvent($this->object, $transition, $options, $this->manager);
 
         //Execute guards
         /* @var TransitionEvent $transitionEvent */
@@ -545,6 +549,22 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     public function getHistoryClass()
     {
         return $this->historyClass;
+    }
+
+    /**
+     * @return StateMachineFactory
+     */
+    public function getManager()
+    {
+        return $this->manager;
+    }
+
+    /**
+     * @param StateMachineFactory $manager
+     */
+    public function setManager($manager)
+    {
+        $this->manager = $manager;
     }
 
     /**

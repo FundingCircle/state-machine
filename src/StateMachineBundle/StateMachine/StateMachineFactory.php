@@ -152,7 +152,6 @@ class StateMachineFactory implements ContainerAwareInterface
             $stateMachine->addTransition($from, $to, $event);
         }
 
-
         //adding init callback
         if (isset($definition['on_init'])) {
             $initCallBack = $definition['on_init'];
@@ -194,8 +193,24 @@ class StateMachineFactory implements ContainerAwareInterface
                 $postTransition['to']
             );
         }
+        $stateMachine->setManager($this);
 
         return $stateMachine;
+    }
+
+    /**
+     * Merge new object to statemachine
+     *
+     * @param StatefulInterface $object
+     *
+     * @throws StateMachineException
+     */
+    public function merge(StatefulInterface $object)
+    {
+        $sm = $this->get($object);
+        $sm->boot();
+        $object->setStateMachine($sm);
+        //@TODO check how to bind persistent subscriber here
     }
 
     /**
