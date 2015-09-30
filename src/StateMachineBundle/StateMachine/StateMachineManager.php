@@ -10,6 +10,7 @@ use StateMachine\StateMachine\ManagerInterface;
 use StateMachine\StateMachine\StatefulInterface;
 use StateMachine\StateMachine\StateMachine;
 use StateMachine\EventDispatcher\EventDispatcher;
+use StateMachineBundle\Subscriber\PersistentSubscriber;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Reference;
@@ -216,11 +217,14 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
      */
     public function add(StatefulInterface $object)
     {
-        $sm = $this->get($object);
-        $sm->boot();
-        $object->setStateMachine($sm);
+        $stateMachine = $this->get($object);
+        //@TODO improve that, get rid of container
+        $objectManager = $this->container->get('doctrine')->getManagerForClass($this->getClass($object));
+        $stateMachine->getEventDispatcher()->addSubscriber(new PersistentSubscriber($objectManager));
+        $stateMachine->boot();
+        $object->setStateMachine($stateMachine);
 
-        return $sm;
+        return $stateMachine;
     }
 
     /**

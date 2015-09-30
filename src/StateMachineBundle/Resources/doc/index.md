@@ -314,12 +314,13 @@ If you want to attach statemachine to newly created object pragmatically, you ca
 Either by using service directly
 
 ``` php
-//in container aware scope
+//in container aware callback
 $this->get("statemachine.manager")->add($newObject);
 
-//inside callback
+//inside static callback
 $transitionEvent->getManager()->add($newobject)
 
+return false; //important to avoid having history record for the initial transition
 ```
 
 
@@ -340,6 +341,7 @@ state_machine:
     history_manager: statemachine.history_manager
     template_layout: StateMachineBundle::layout.html.twig
     db_driver: orm
+    on_init: { callback: ~, method: ~ } #init callback while setting the first state
     state_machines:
         state_machine_name:  #required
             object:
