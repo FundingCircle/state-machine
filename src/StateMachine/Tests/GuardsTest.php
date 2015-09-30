@@ -41,7 +41,7 @@ class GuardsTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($return);
         $this->assertArraySubset(
             ['Transition is rejected by guard'],
-            $stateMachine->getLastStateChange()->getMessages()
+            $stateMachine->getMessages()
         );
     }
 

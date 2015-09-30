@@ -6,6 +6,7 @@ use Doctrine\Common\Persistence\Proxy;
 use StateMachine\Accessor\StateAccessor;
 use StateMachine\Exception\StateMachineException;
 use StateMachine\History\HistoryManagerInterface;
+use StateMachine\StateMachine\ManagerInterface;
 use StateMachine\StateMachine\StatefulInterface;
 use StateMachine\StateMachine\StateMachine;
 use StateMachine\EventDispatcher\EventDispatcher;
@@ -18,7 +19,7 @@ use Symfony\Component\DependencyInjection\Reference;
  * and create statemachines on demand,
  * This is the only place where statemachine is created and booted.
  */
-class StateMachineFactory implements ContainerAwareInterface
+class StateMachineManager implements ContainerAwareInterface, ManagerInterface
 {
     /** @var  HistoryManagerInterface */
     private $historyManager;
@@ -35,6 +36,9 @@ class StateMachineFactory implements ContainerAwareInterface
     /** @var  array */
     private $stateFullClasses;
 
+    /** @var array */
+    private $loadedObjects;
+
     /**
      * @param HistoryManagerInterface $historyManager
      * @param null                    $transitionClass
@@ -44,6 +48,7 @@ class StateMachineFactory implements ContainerAwareInterface
         $this->historyManager = $historyManager;
         $this->transitionClass = $transitionClass;
         $this->stateFullClasses = [];
+        $this->loadedObjects = [];
     }
 
     /**
@@ -114,7 +119,12 @@ class StateMachineFactory implements ContainerAwareInterface
      */
     public function get(StatefulInterface $statefulObject)
     {
-        //@TODO cache booted statemachines
+        $oid = spl_object_hash($statefulObject);
+        //to avoid pre-persist twice on same object
+        if (array_key_exists($oid, $this->loadedObjects)) {
+            return $this->loadedObjects[$oid];
+        }
+
         $class = $this->getClass($statefulObject);
         if (!isset($this->stateMachineDefinitions[$class])) {
             throw new StateMachineException(
@@ -195,22 +205,22 @@ class StateMachineFactory implements ContainerAwareInterface
         }
         $stateMachine->setManager($this);
 
+        //add to loaded SttateMachine objects
+        $this->loadedObjects[$oid] = $stateMachine;
+
         return $stateMachine;
     }
 
     /**
-     * Merge new object to statemachine
-     *
-     * @param StatefulInterface $object
-     *
-     * @throws StateMachineException
+     * {@inheritdoc}
      */
-    public function merge(StatefulInterface $object)
+    public function add(StatefulInterface $object)
     {
         $sm = $this->get($object);
         $sm->boot();
         $object->setStateMachine($sm);
-        //@TODO check how to bind persistent subscriber here
+
+        return $sm;
     }
 
     /**

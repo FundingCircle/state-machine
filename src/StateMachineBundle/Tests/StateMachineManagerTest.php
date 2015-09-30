@@ -3,12 +3,12 @@
 namespace StateMachineBundle\Tests;
 
 use StateMachine\History\HistoryCollection;
-use StateMachineBundle\StateMachine\StateMachineFactory;
+use StateMachineBundle\StateMachine\StateMachineManager;
 use StateMachineBundle\Tests\Entity\ChildOrder;
 use StateMachineBundle\Tests\Entity\Order;
 use StateMachineBundle\Tests\Listeners\MockListener;
 
-class StateMachineFactoryTest extends \PHPUnit_Framework_TestCase
+class StateMachineManagerTest extends \PHPUnit_Framework_TestCase
 {
     public function testGetUndefinedStateMachine()
     {
@@ -115,7 +115,7 @@ class StateMachineFactoryTest extends \PHPUnit_Framework_TestCase
         $containerMock->method("get")
             ->willReturn(new MockListener());
 
-        $factory= new StateMachineFactory($historyManagerMock);
+        $factory= new StateMachineManager($historyManagerMock);
         return $factory->setContainer($containerMock);
 
     }

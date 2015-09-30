@@ -16,7 +16,7 @@ use StateMachine\State\StateInterface;
 use StateMachine\Transition\Transition;
 use StateMachine\Transition\TransitionInterface;
 use StateMachine\EventDispatcher\EventDispatcher;
-use StateMachineBundle\StateMachine\StateMachineFactory;
+use StateMachineBundle\StateMachine\StateMachineManager;
 
 /**
  * Class StateMachine.
@@ -70,7 +70,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     /** @var string */
     private $historyClass;
 
-    /** @var  StateMachineFactory */
+    /** @var  StateMachineManager */
     private $manager;
 
     /**
@@ -161,7 +161,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
             // prevent booting twice
             $this->booted = true;
             //Dispatch init state event
-            $transitionEvent = new TransitionEvent($this->object, null, [], $this->manager);
+            $transitionEvent = new TransitionEvent($this->object, null, $this->manager, []);
             $this->eventDispatcher->dispatch(Events::EVENT_ON_INIT, $transitionEvent);
         } else {
             // Assign the transitions to the states to be able to get allowed transitions easily
@@ -388,7 +388,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
             $transitionName = $this->currentState->getName().TransitionInterface::EDGE_SYMBOL.$state;
             $transition = $this->transitions[$transitionName];
             /** @var TransitionEvent $transitionEvent */
-            $transitionEvent = new TransitionEvent($this->object, $transition, [], $this->manager);
+            $transitionEvent = new TransitionEvent($this->object, $transition, $this->manager, []);
 
             return $this->eventDispatcher->dispatch(
                 $transitionName.'_'.Events::EVENT_ON_GUARD,
@@ -434,7 +434,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         }
         $transitionName = $this->currentState->getName().TransitionInterface::EDGE_SYMBOL.$state;
         $transition = $this->transitions[$transitionName];
-        $transitionEvent = new TransitionEvent($this->object, $transition, $options, $this->manager);
+        $transitionEvent = new TransitionEvent($this->object, $transition, $this->manager, $options);
 
         //Execute guards
         /* @var TransitionEvent $transitionEvent */
@@ -445,7 +445,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         );
 
         if (!$response) {
-            $this->updateTransition($transitionEvent);
+            $this->messages = $transitionEvent->getMessages();
 
             return false;
         }
@@ -465,7 +465,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         );
 
         if (!$response) {
-            $this->updateTransition($transitionEvent);
+            $this->messages = $transitionEvent->getMessages();
             $this->eventDispatcher->dispatch(
                 Events::EVENT_FAIL_TRANSITION,
                 $transitionEvent,
@@ -552,19 +552,19 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     }
 
     /**
-     * @return StateMachineFactory
+     * {@inheritdoc}
      */
-    public function getManager()
+    public function setManager(ManagerInterface $manager)
     {
-        return $this->manager;
+        $this->manager = $manager;
     }
 
     /**
-     * @param StateMachineFactory $manager
+     * @return array
      */
-    public function setManager($manager)
+    public function getMessages()
     {
-        $this->manager = $manager;
+        return $this->messages;
     }
 
     /**
@@ -687,7 +687,6 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         $stateChangeEvent->setGuards($transition->getGuards());
         $stateChangeEvent->setPreTransitions($transition->getPreTransitions());
         $stateChangeEvent->setPostTransitions($transition->getPostTransitions());
-        $stateChangeEvent->setPassed($transitionEvent->isPassed());
         $stateChangeEvent->setMessages($transitionEvent->getMessages());
         $stateChangeEvent->setObjectIdentifier($transitionEvent->getObject()->getId());
         $stateChangeEvent->setOptions($transitionEvent->getOptions());

@@ -10,7 +10,7 @@ class RendererController extends Controller
 {
     public function renderAllAction()
     {
-        $stateMachineFactory = $this->get('statemachine.factory');
+        $stateMachineFactory = $this->get('statemachine.manager');
         $definitions = $stateMachineFactory->getAll();
         $graphs = [];
         foreach ($definitions as $class => $definition) {

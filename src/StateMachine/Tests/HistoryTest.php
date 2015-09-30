@@ -2,8 +2,12 @@
 
 namespace StateMachine\Tests;
 
+use StateMachine\Accessor\StateAccessor;
 use StateMachine\Event\TransitionEvent;
+use StateMachine\State\StateInterface;
+use StateMachine\StateMachine\StateMachine;
 use StateMachine\Tests\Fixtures\StateMachineFixtures;
+use StateMachineBundle\Tests\Entity\Order;
 
 class HistoryTest extends \PHPUnit_Framework_TestCase
 {
@@ -47,17 +51,8 @@ class HistoryTest extends \PHPUnit_Framework_TestCase
         $lastTransition = $stateMachine->getLastStateChange();
         $transition = $stateMachine->getHistory()->last();
 
-        $this->assertFalse($transition->isPassed());
-        $this->assertEquals(1, $transition->getObjectIdentifier());
-        $this->assertEquals(1, $stateMachine->getHistory()->count());
-        $this->assertEmpty($transition->getPreTransitions());
-        $this->assertEmpty($transition->getPostTransitions());
-        $this->assertEmpty($transition->getMessages());
-        $this->assertEquals(1, count($transition->getGuards()));
-        $this->assertNotNull($transition->getFailedCallBack());
-        $this->assertEquals(1, $stateMachine->getHistory()->first()->getObjectIdentifier());
-        $this->assertEquals('pending', $lastTransition->getFromState());
-        $this->assertEquals('checking_out', $lastTransition->getToState());
+        $this->assertNull($transition);
+        $this->assertNull($lastTransition);
     }
 
     public function testHistoryWithTwoMovesWithFirstFailed()
@@ -95,5 +90,40 @@ class HistoryTest extends \PHPUnit_Framework_TestCase
         $stateMachine->boot();
 
         $this->assertFalse($stateMachine->hasReached('checking_out'));
+    }
+
+
+    public function testSubTransactionChangedToState()
+    {
+        $stateMachine = new StateMachine(
+            new Order(1),
+            new StateAccessor()
+        );
+
+        $stateMachine->addState('A', StateInterface::TYPE_INITIAL);
+        $stateMachine->addState('B');
+        $stateMachine->addState('C');
+
+        $stateMachine->addTransition('A', 'B');
+        $stateMachine->addTransition('A', 'C');
+
+        $stateMachine->addPreTransition(
+            function (TransitionEvent $event) {
+                $event->getObject()->getStateMachine()->transitionTo('C');
+
+                return false;
+            },
+            'A',
+            'B'
+        );
+        $stateMachine->boot();
+
+        $stateMachine->transitionTo("B");
+
+        $history = $stateMachine->getHistory();
+
+        $this->assertEquals('C', $stateMachine->getCurrentState()->getName());
+        $this->assertEquals(1, $history->count());
+        $this->assertEquals($history->first()->getToState(), 'C');
     }
 }

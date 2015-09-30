@@ -13,9 +13,6 @@ StateMachineBundle\Entity\History:
         messages:
             type: json_array
             nullable: true
-        passed:
-            type: boolean
-            column: is_passed
         fromState:
             type: string
             length: 255

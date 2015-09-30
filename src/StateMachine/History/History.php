@@ -13,9 +13,6 @@ class History
     /** @var  array */
     protected $messages;
 
-    /** @var  bool */
-    protected $passed;
-
     /** @var  string */
     protected $fromState;
 
@@ -91,22 +88,6 @@ class History
     public function setMessages($messages)
     {
         $this->messages = $messages;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isPassed()
-    {
-        return $this->passed;
-    }
-
-    /**
-     * @param bool $passed
-     */
-    public function setPassed($passed)
-    {
-        $this->passed = $passed;
     }
 
     /**

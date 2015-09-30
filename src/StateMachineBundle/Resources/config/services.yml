@@ -1,6 +1,6 @@
 services:
-    statemachine.factory:
-        class: StateMachineBundle\StateMachine\StateMachineFactory
+    statemachine.manager:
+        class: StateMachineBundle\StateMachine\StateMachineManager
         arguments:
             - @statemachine.history_manager
             - ~
@@ -10,7 +10,7 @@ services:
     statemachine.subscriber.doctrine_loader:
         class: StateMachineBundle\Subscriber\StateMachineLoaderSubscriber
         arguments:
-            - @statemachine.factory
+            - @statemachine.manager
             - @security.token_storage
         tags:
             - { name: doctrine.event_subscriber }

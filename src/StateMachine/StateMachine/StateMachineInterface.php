@@ -5,7 +5,7 @@ namespace StateMachine\StateMachine;
 use StateMachine\EventDispatcher\EventDispatcher;
 use StateMachine\State\StateInterface;
 use StateMachine\Transition\TransitionInterface;
-use StateMachineBundle\StateMachine\StateMachineFactory;
+use StateMachineBundle\StateMachine\StateMachineManager;
 
 interface StateMachineInterface
 {
@@ -153,7 +153,12 @@ interface StateMachineInterface
     public function setInitCallback($callable);
 
     /**
-     * @return StateMachineFactory
+     * @param ManagerInterface $manager
      */
-    public function getManager();
+    public function setManager(ManagerInterface $manager);
+
+    /**
+     * @return array
+     */
+    public function getMessages();
 }

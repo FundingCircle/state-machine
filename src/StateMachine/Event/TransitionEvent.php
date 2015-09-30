@@ -4,8 +4,8 @@
 // Stops event propagation when the transition fails somwhere.
 namespace StateMachine\Event;
 
+use StateMachine\StateMachine\ManagerInterface;
 use StateMachine\Transition\Transition;
-use StateMachineBundle\StateMachine\StateMachineFactory;
 use Symfony\Component\EventDispatcher\Event;
 use StateMachine\StateMachine\StatefulInterface;
 use StateMachine\Transition\TransitionInterface;
@@ -18,6 +18,9 @@ class TransitionEvent extends Event
     /** @var TransitionInterface */
     private $transition;
 
+    /** @var  ManagerInterface */
+    private $manager;
+
     /** @var  array */
     private $messages;
 
@@ -27,30 +30,24 @@ class TransitionEvent extends Event
     /** @var string */
     private $failedCallback;
 
-    /** @var bool */
-    protected $passed;
-
-    /** @var  StateMachineFactory */
-    protected $manager;
 
     /**
      * @param StatefulInterface   $object
      * @param TransitionInterface $transition
+     * @param ManagerInterface    $manager
      * @param array               $options
-     * @param StateMachineFactory $manager
      */
     public function __construct(
         StatefulInterface $object,
         TransitionInterface $transition = null,
-        $options = [],
-        $manager = null
+        ManagerInterface $manager = null,
+        $options = []
     ) {
         $this->object = $object;
         $this->transition = $transition;
+        $this->manager = $manager;
         $this->messages = [];
         $this->options = array_merge($this->options, $options);
-        $this->manager = $manager;
-        $this->passed = true;
         $this->failedCallback = '';
     }
 
@@ -68,6 +65,14 @@ class TransitionEvent extends Event
     public function getTransition()
     {
         return $this->transition;
+    }
+
+    /**
+     * @return ManagerInterface
+     */
+    public function getManager()
+    {
+        return $this->manager;
     }
 
     /**
@@ -102,21 +107,6 @@ class TransitionEvent extends Event
         return $this->options;
     }
 
-    /**
-     * @return bool
-     */
-    public function isPassed()
-    {
-        return $this->passed;
-    }
-
-    /**
-     * @return StateMachineFactory
-     */
-    public function getManager()
-    {
-        return $this->manager;
-    }
 
     /**
      * @param $callable
@@ -124,7 +114,6 @@ class TransitionEvent extends Event
     public function rejectTransition($callable)
     {
         $this->failedCallback = Transition::callableToString($callable);
-        $this->passed = false;
         $this->stopPropagation();
     }
 }

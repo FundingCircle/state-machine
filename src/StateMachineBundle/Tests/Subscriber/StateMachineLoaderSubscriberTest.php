@@ -10,7 +10,7 @@ class StateMachineLoaderSubscriberTest extends \PHPUnit_Framework_TestCase
 {
     public function testPostLoadWithNonStateFulEntity()
     {
-        $factoryMock = $this->getMockBuilder('\StateMachineBundle\StateMachine\StateMachineFactory')
+        $factoryMock = $this->getMockBuilder('\StateMachineBundle\StateMachine\StateMachineManager')
             ->disableOriginalConstructor()->getMock();
 
         $eventArgsMock = $this->getMockBuilder('\Doctrine\ORM\Event\LifecycleEventArgs')
@@ -32,7 +32,7 @@ class StateMachineLoaderSubscriberTest extends \PHPUnit_Framework_TestCase
             ->method('getEventDispatcher')
             ->willReturn($this->getMock("StateMachine\EventDispatcher\EventDispatcher"));
 
-        $factoryMock = $this->getMockBuilder('\StateMachineBundle\StateMachine\StateMachineFactory')
+        $factoryMock = $this->getMockBuilder('\StateMachineBundle\StateMachine\StateMachineManager')
             ->disableOriginalConstructor()->getMock();
 
         $factoryMock->expects($this->once())
@@ -59,7 +59,7 @@ class StateMachineLoaderSubscriberTest extends \PHPUnit_Framework_TestCase
 
     public function testPrePersistWithNonStateFulEntity()
     {
-        $factoryMock = $this->getMockBuilder('\StateMachineBundle\StateMachine\StateMachineFactory')
+        $factoryMock = $this->getMockBuilder('\StateMachineBundle\StateMachine\StateMachineManager')
             ->disableOriginalConstructor()->getMock();
 
         $eventArgsMock = $this->getMockBuilder('\Doctrine\ORM\Event\LifecycleEventArgs')
@@ -85,7 +85,7 @@ class StateMachineLoaderSubscriberTest extends \PHPUnit_Framework_TestCase
             ->method('getEventDispatcher')
             ->willReturn($this->getMock("StateMachine\EventDispatcher\EventDispatcher"));
 
-        $factoryMock = $this->getMockBuilder('\StateMachineBundle\StateMachine\StateMachineFactory')
+        $factoryMock = $this->getMockBuilder('\StateMachineBundle\StateMachine\StateMachineManager')
             ->disableOriginalConstructor()->getMock();
 
         $factoryMock->expects($this->once())
@@ -112,7 +112,7 @@ class StateMachineLoaderSubscriberTest extends \PHPUnit_Framework_TestCase
 
     public function testGetSubscribedEvents()
     {
-        $factoryMock = $this->getMockBuilder('\StateMachineBundle\StateMachine\StateMachineFactory')
+        $factoryMock = $this->getMockBuilder('\StateMachineBundle\StateMachine\StateMachineManager')
             ->disableOriginalConstructor()->getMock();
         $subscriber = new StateMachineLoaderSubscriber($factoryMock, $this->getTokenStorage());
         $this->assertEquals(['postLoad', 'prePersist'], $subscriber->getSubscribedEvents());

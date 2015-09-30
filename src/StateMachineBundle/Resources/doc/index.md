@@ -296,15 +296,40 @@ state_machines:
 Override the templates in `app/Resources/Zencap/StateMachineBundle/views/layout.html.twig` and `app/Resources/Zencap/StateMachineBundle/views/state_machines.html.twig`
 
 
-## Manual flushing
+## No transaction
 
 By default after state change the object is persisted and flushed, if that's not convenient, you can move from state to another without flusing, by passing `flush` option to false
 
 ``` php
-$bankTransaction->getStateMachine()->canTransitionTo("exported"), ["flush"=> false]);
+$bankTransaction->getStateMachine()->canTransitionTo("exported"), ["transaction"=> false]);
 
-$bankTransaction->getStateMachine()->transitionTo("exported"), ["flush"=> false]);
+$bankTransaction->getStateMachine()->transitionTo("exported"), ["transaction"=> false]);
 ```
+
+## Moving to different state in transition callback
+
+
+If you want to attach statemachine to newly created object pragmatically, you can use the statemachine manager directly
+
+Either by using service directly
+
+``` php
+//in container aware scope
+$this->get("statemachine.manager")->add($newObject);
+
+//inside callback
+$transitionEvent->getManager()->add($newobject)
+
+```
+
+
+Or by persisting the object
+``` php
+$em->persist($newObject);
+```
+
+
+
 
 ## Configuration reference
 
