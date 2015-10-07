@@ -411,24 +411,13 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         }
 
         if (!$this->canTransitionTo($state)) {
-            if (null !== $this->historyCollection->last() && !$this->historyCollection->last()->isPassed()) {
-                $failedTransition = $this->historyCollection->last();
-                $exception = sprintf(
-                    "Last transition FAILED: [%s => %s], \n Failed callback: %s, \n Messages: %s \n",
-                    $failedTransition->getFromState(),
-                    $failedTransition->getToState(),
-                    $failedTransition->getFailedCallBack(),
-                    implode(',', $failedTransition->getMessages())
-                );
-            } else {
-                $exception = sprintf(
-                    "There's no transition defined from (%s) to (%s), allowed transitions to : [ %s ]
+            $exception = sprintf(
+                "There's no transition defined from (%s) to (%s), allowed transitions to : [ %s ]
                      or previous transition failed check history for more info",
-                    $this->currentState->getName(),
-                    $state,
-                    implode(',', $this->currentState->getTransitions())
-                );
-            }
+                $this->currentState->getName(),
+                $state,
+                implode(',', $this->currentState->getTransitions())
+            );
 
             throw new StateMachineException($exception);
         }
