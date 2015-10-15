@@ -329,7 +329,12 @@ Or by persisting the object
 $em->persist($newObject);
 ```
 
+### Disable the statemachine
+``` php
 
+StateMachineBundle\Subscriber\StateMachineLoaderSubscriber::$enabled=false;
+
+```
 
 
 ## Configuration reference

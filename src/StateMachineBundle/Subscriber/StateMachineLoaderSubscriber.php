@@ -18,6 +18,8 @@ class StateMachineLoaderSubscriber implements EventSubscriber
     /** @var TokenStorageInterface */
     private $tokenStorage;
 
+    /** @var bool */
+    public static $enabled = true;
 
     /**
      * @param StateMachineManager   $stateMachineFactory
@@ -49,6 +51,9 @@ class StateMachineLoaderSubscriber implements EventSubscriber
      */
     public function postLoad(LifecycleEventArgs $eventArgs)
     {
+        if (!static::$enabled) {
+            return;
+        }
         $entity = $eventArgs->getEntity();
 
         if ($entity instanceof StatefulInterface) {
@@ -69,6 +74,9 @@ class StateMachineLoaderSubscriber implements EventSubscriber
      */
     public function prePersist(LifecycleEventArgs $eventArgs)
     {
+        if (!static::$enabled) {
+            return;
+        }
         $entity = $eventArgs->getEntity();
 
         if ($entity instanceof StatefulInterface && $entity->getStateMachine() == null) {
