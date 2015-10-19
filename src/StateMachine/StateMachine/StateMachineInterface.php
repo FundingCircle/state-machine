@@ -105,10 +105,11 @@ interface StateMachineInterface
      * Triggers a specific event.
      *
      * @param string $eventName
+     * @param array  $options
      *
      * @return bool
      */
-    public function triggers($eventName);
+    public function triggers($eventName, $options = []);
 
     /**
      * @return array

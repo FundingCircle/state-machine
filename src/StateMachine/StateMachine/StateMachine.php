@@ -156,7 +156,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
             $this->stateAccessor->setState($this->object, $state->getName());
             // Assign the transitions to the states to be able to get allowed transitions easily
             $this->bindTransitionsToStates();
-            $this->currentState = $state;
+            $this->currentState = &$state;
 
             // prevent booting twice
             $this->booted = true;
@@ -166,7 +166,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         } else {
             // Assign the transitions to the states to be able to get allowed transitions easily
             $this->bindTransitionsToStates();
-            $this->currentState = $state;
+            $this->currentState = &$state;
 
             // prevent booting twice
             $this->booted = true;
