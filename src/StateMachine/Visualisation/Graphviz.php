@@ -133,7 +133,7 @@ class Graphviz implements VisualisationInterface
                     ],
                     [
                         'label' => $this->renderLabel($trans, $stateMachine),
-                        fontsize' => '10.0',
+                        'fontsize' => '10.0',
                     ]
                 )
                     ->end();
