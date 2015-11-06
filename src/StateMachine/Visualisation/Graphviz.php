@@ -89,6 +89,7 @@ class Graphviz implements VisualisationInterface
         $data = array(
             'shape' => $state->getType() != StateInterface::TYPE_NORMAL ? 'box' : 'box',
             'label' => $this->getNodeLabel($state),
+            'fontsize' => '10.0',
         );
         if ($stateMachine->getCurrentState() == $state && $this->configuration->get('current_state_color')) {
             $data['fillcolor'] = $this->configuration->get('current_state_color');
@@ -132,6 +133,7 @@ class Graphviz implements VisualisationInterface
                     ],
                     [
                         'label' => $this->renderLabel($trans, $stateMachine),
+                        fontsize' => '10.0',
                     ]
                 )
                     ->end();
