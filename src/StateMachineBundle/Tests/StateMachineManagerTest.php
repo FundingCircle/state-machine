@@ -178,7 +178,7 @@ class StateMachineManagerTest extends \PHPUnit_Framework_TestCase
                 0 => [
                     'callback' => 'test_callback',
                     'method' => 'callbackMethod_post',
-                    'from' => 'new',
+                    'from' => ['new', 'originating'],
                     'to' => 'cancelled',
                 ],
             ],
