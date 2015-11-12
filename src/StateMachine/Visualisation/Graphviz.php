@@ -204,8 +204,12 @@ class Graphviz implements VisualisationInterface
                 $additional .= '<TR><TD ALIGN="LEFT">    +'.$displayClassName.'</TD></TR>';
             }
         }
-        foreach ($transition->getPreTransitions() as $preTransition) {
+
+        if (!empty($transition->getPreTransitions())) {
             $additional .= '<TR><TD ALIGN="LEFT">PreTransitions: </TD></TR>';
+        }
+
+        foreach ($transition->getPreTransitions() as $preTransition) {
             $displayClassName =
                 '<FONT COLOR="'.$this->configuration->get('pre_transition_color')
                 .'">'.$this->renderClassName($preTransition)
@@ -213,8 +217,11 @@ class Graphviz implements VisualisationInterface
             $additional .= '<TR><TD ALIGN="LEFT">    +'.$displayClassName.'</TD></TR>';
         }
 
-        foreach ($transition->getPostTransitions() as $postTransition) {
+        if (!empty($transition->getPostTransitions())) {
             $additional .= '<TR><TD ALIGN="LEFT">PostTransitions: </TD></TR>';
+        }
+
+        foreach ($transition->getPostTransitions() as $postTransition) {
             $displayClassName =
                 '<FONT COLOR="'.$this->configuration->get('post_transition_color')
                 .'">'.$this->renderClassName($postTransition)
