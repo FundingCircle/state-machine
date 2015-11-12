@@ -195,8 +195,10 @@ class Graphviz implements VisualisationInterface
         $additional = '';
         // build the markup for callbacks
         if ($this->configuration->get('show_callbacks')) {
-            foreach ($transition->getGuards() as $guard) {
+            if (!empty($transition->getGuards())) {
                 $additional .= '<TR><TD ALIGN="LEFT">Guards: </TD></TR>';
+            }
+            foreach ($transition->getGuards() as $guard) {
                 $displayClassName =
                     '<FONT COLOR="'.$this->configuration->get('guard_color')
                     .'">'.$this->renderClassName($guard)
