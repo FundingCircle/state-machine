@@ -195,31 +195,39 @@ class Graphviz implements VisualisationInterface
         $additional = '';
         // build the markup for callbacks
         if ($this->configuration->get('show_callbacks')) {
-            foreach ($transition->getGuards() as $guard) {
+            if (!empty($transition->getGuards())) {
                 $additional .= '<TR><TD ALIGN="LEFT">Guards: </TD></TR>';
+            }
+            foreach ($transition->getGuards() as $guard) {
                 $displayClassName =
-                    '<FONT COLOR="'.$this->configuration->get('guard_color')
-                    .'">'.$this->renderClassName($guard)
-                    .'</FONT>';
-                $additional .= '<TR><TD ALIGN="LEFT">    +'.$displayClassName.'</TD></TR>';
+                    '<FONT COLOR="' . $this->configuration->get('guard_color')
+                    . '">' . $this->renderClassName($guard)
+                    . '</FONT>';
+                $additional .= '<TR><TD ALIGN="LEFT">    +' . $displayClassName . '</TD></TR>';
+            }
+
+            if (!empty($transition->getPreTransitions())) {
+                $additional .= '<TR><TD ALIGN="LEFT">PreTransitions: </TD></TR>';
             }
 
             foreach ($transition->getPreTransitions() as $preTransition) {
-                $additional .= '<TR><TD ALIGN="LEFT">PreTransitions: </TD></TR>';
                 $displayClassName =
-                    '<FONT COLOR="'.$this->configuration->get('pre_transition_color')
-                    .'">'.$this->renderClassName($preTransition)
-                    .'</FONT>';
-                $additional .= '<TR><TD ALIGN="LEFT">    +'.$displayClassName.'</TD></TR>';
+                    '<FONT COLOR="' . $this->configuration->get('pre_transition_color')
+                    . '">' . $this->renderClassName($preTransition)
+                    . '</FONT>';
+                $additional .= '<TR><TD ALIGN="LEFT">    +' . $displayClassName . '</TD></TR>';
+            }
+
+            if (!empty($transition->getPostTransitions())) {
+                $additional .= '<TR><TD ALIGN="LEFT">PostTransitions: </TD></TR>';
             }
 
             foreach ($transition->getPostTransitions() as $postTransition) {
-                $additional .= '<TR><TD ALIGN="LEFT">PostTransitions: </TD></TR>';
                 $displayClassName =
-                    '<FONT COLOR="'.$this->configuration->get('post_transition_color')
-                    .'">'.$this->renderClassName($postTransition)
-                    .'</FONT>';
-                $additional .= '<TR><TD ALIGN="LEFT">    +'.$displayClassName.'</TD></TR>';
+                    '<FONT COLOR="' . $this->configuration->get('post_transition_color')
+                    . '">' . $this->renderClassName($postTransition)
+                    . '</FONT>';
+                $additional .= '<TR><TD ALIGN="LEFT">    +' . $displayClassName . '</TD></TR>';
             }
         }
 
