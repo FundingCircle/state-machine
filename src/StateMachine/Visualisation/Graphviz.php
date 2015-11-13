@@ -13,7 +13,7 @@ use StateMachine\Transition\TransitionInterface;
  * by graphviz. Pass a configuration object to control how
  * the nodes are rendered.
  *
- * @link http://www.graphviz.org/Gallery/directed/fsm.gv.txt
+ * @link   http://www.graphviz.org/Gallery/directed/fsm.gv.txt
  *
  * @author Daniel Pozzi <bonndan76@googlemail.com>
  */
@@ -203,23 +203,24 @@ class Graphviz implements VisualisationInterface
                     .'</FONT>';
                 $additional .= '<TR><TD ALIGN="LEFT">    +'.$displayClassName.'</TD></TR>';
             }
-        }
-        foreach ($transition->getPreTransitions() as $preTransition) {
-            $additional .= '<TR><TD ALIGN="LEFT">PreTransitions: </TD></TR>';
-            $displayClassName =
-                '<FONT COLOR="'.$this->configuration->get('pre_transition_color')
-                .'">'.$this->renderClassName($preTransition)
-                .'</FONT>';
-            $additional .= '<TR><TD ALIGN="LEFT">    +'.$displayClassName.'</TD></TR>';
-        }
 
-        foreach ($transition->getPostTransitions() as $postTransition) {
-            $additional .= '<TR><TD ALIGN="LEFT">PostTransitions: </TD></TR>';
-            $displayClassName =
-                '<FONT COLOR="'.$this->configuration->get('post_transition_color')
-                .'">'.$this->renderClassName($postTransition)
-                .'</FONT>';
-            $additional .= '<TR><TD ALIGN="LEFT">    +'.$displayClassName.'</TD></TR>';
+            foreach ($transition->getPreTransitions() as $preTransition) {
+                $additional .= '<TR><TD ALIGN="LEFT">PreTransitions: </TD></TR>';
+                $displayClassName =
+                    '<FONT COLOR="'.$this->configuration->get('pre_transition_color')
+                    .'">'.$this->renderClassName($preTransition)
+                    .'</FONT>';
+                $additional .= '<TR><TD ALIGN="LEFT">    +'.$displayClassName.'</TD></TR>';
+            }
+
+            foreach ($transition->getPostTransitions() as $postTransition) {
+                $additional .= '<TR><TD ALIGN="LEFT">PostTransitions: </TD></TR>';
+                $displayClassName =
+                    '<FONT COLOR="'.$this->configuration->get('post_transition_color')
+                    .'">'.$this->renderClassName($postTransition)
+                    .'</FONT>';
+                $additional .= '<TR><TD ALIGN="LEFT">    +'.$displayClassName.'</TD></TR>';
+            }
         }
 
         return $additional;
@@ -232,9 +233,8 @@ class Graphviz implements VisualisationInterface
      *
      * @return mixed|string
      */
-    protected function renderClassName(
-        $className
-    ) {
+    protected function renderClassName($className)
+    {
         $className = addslashes($className);
         if (!$this->configuration->get('full_class_name')) {
             $parts = explode('\\', $className);
