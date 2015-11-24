@@ -94,6 +94,13 @@ class Graphviz implements VisualisationInterface
         if ($stateMachine->getCurrentState() == $state && $this->configuration->get('current_state_color')) {
             $data['fillcolor'] = $this->configuration->get('current_state_color');
             $data['style'] = 'filled';
+        } else {
+            $transitions = $state->getTransitionObjects();
+            foreach ($transitions as $trans) {
+                if (in_array($trans->getToState()->getName(), $this->configuration->get('skip_transition_states'))) {
+                    $data['style'] = 'dashed';
+                }
+            }
         }
 
         return $data;
@@ -125,6 +132,10 @@ class Graphviz implements VisualisationInterface
 
             //@TODO show callbacks on edges
             foreach ($transitions as $trans) {
+                if (in_array($trans->getToState()->getName(), $this->configuration->get('skip_transition_states'))) {
+                    continue;
+                }
+
                 /* @var $trans TransitionInterface */
                 $this->graph->beginEdge(
                     [

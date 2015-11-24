@@ -22,7 +22,10 @@ class Configuration
                 'pre_transition_color' => '#3399FF',
                 'post_transition_color' => '#0033CC',
                 'full_class_name' => false,
-                'current_state_color' => 'green',
+                'current_state_color' => '#84bbc6',
+                'skip_transition_states' => [
+                    'canceled'
+                ]
             ],
             $renderProperties
         );
