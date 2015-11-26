@@ -24,7 +24,8 @@ class Configuration
                 'full_class_name' => false,
                 'current_state_color' => '#84bbc6',
                 'skip_transition_states' => [
-                    'canceled'
+                    ['name' => 'canceled', 'color' => '#d39c3f'],
+                    ['name' => 'rejected', 'color' => '#8eb021']
                 ]
             ],
             $renderProperties
@@ -39,5 +40,26 @@ class Configuration
     public function get($property)
     {
         return $this->renderProperties[$property];
+    }
+
+    public function getSkippedTransitionStatesNames()
+    {
+        $filtered = [];
+        foreach ($this->get('skip_transition_states') as $state) {
+            $filtered[] = $state['name'];
+        }
+
+        return $filtered;
+    }
+
+    public function getSkippedTransitionStateConfig($stateName)
+    {
+        foreach ($this->get('skip_transition_states') as $state) {
+            if ($state['name'] == $stateName) {
+                return $state;
+            }
+        }
+
+        return null;
     }
 }
