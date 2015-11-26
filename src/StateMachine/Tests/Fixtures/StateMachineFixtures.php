@@ -15,8 +15,7 @@ class StateMachineFixtures
     public static function getOrderStateMachine()
     {
         $stateMachine = new StateMachine(
-            new Order(1),
-            new StateAccessor()
+            new Order(1)
         );
 
         $stateMachine->addState('pending', StateInterface::TYPE_INITIAL);
@@ -41,8 +40,7 @@ class StateMachineFixtures
     public static function getBidStateMachine()
     {
         $stateMachine = new StateMachine(
-            new Bid(2),
-            new StateAccessor()
+            new Bid(2)
         );
 
         $stateMachine->addState('new', StateInterface::TYPE_INITIAL);

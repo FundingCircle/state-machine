@@ -16,6 +16,7 @@ class StateAccessor extends PropertyAccessor implements StateAccessorInterface
      */
     public function __construct($property = 'state')
     {
+        parent::__construct();
         $this->property = $property;
     }
 

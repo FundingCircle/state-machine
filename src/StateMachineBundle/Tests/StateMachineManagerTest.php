@@ -25,6 +25,7 @@ class StateMachineManagerTest extends \PHPUnit_Framework_TestCase
         $factory->register($definition);
         $stateMachine = $factory->get(new Order(1));
         $stateMachine->boot();
+
         $this->assertEquals('new', $stateMachine->getCurrentState()->getName());
         $this->assertEquals(1, count($stateMachine->getTransitions()['new->cancelled']->getPostTransitions()));
         $this->assertEquals(1, count($stateMachine->getTransitions()['new->cancelled']->getPreTransitions()));
@@ -111,11 +112,22 @@ class StateMachineManagerTest extends \PHPUnit_Framework_TestCase
             ->method('load')
             ->willReturn(new HistoryCollection());
 
+        $entityManagerMock = $this->getMockBuilder('Doctrine\ORM\EntityManager')
+            ->disableOriginalConstructor()
+            ->getMock();
         $containerMock = $this->getMock('\Symfony\Component\DependencyInjection\ContainerInterface');
         $containerMock->method("get")
             ->willReturn(new MockListener());
 
-        $factory= new StateMachineManager($historyManagerMock);
+        $doctrineMock = $this->getMockBuilder('\Doctrine\Bundle\DoctrineBundle\Registry')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $doctrineMock->method('getManagerForClass')
+            ->willReturn($entityManagerMock);
+
+        $factory = new StateMachineManager($historyManagerMock, $doctrineMock);
+
         return $factory->setContainer($containerMock);
 
     }

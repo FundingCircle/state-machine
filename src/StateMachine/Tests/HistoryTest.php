@@ -96,8 +96,7 @@ class HistoryTest extends \PHPUnit_Framework_TestCase
     public function testSubTransactionChangedToState()
     {
         $stateMachine = new StateMachine(
-            new Order(1),
-            new StateAccessor()
+            new Order(1)
         );
 
         $stateMachine->addState('A', StateInterface::TYPE_INITIAL);
@@ -109,9 +108,7 @@ class HistoryTest extends \PHPUnit_Framework_TestCase
 
         $stateMachine->addPreTransition(
             function (TransitionEvent $event) {
-                $event->getObject()->getStateMachine()->transitionTo('C');
-
-                return false;
+                $event->setTargetState('C');
             },
             'A',
             'B'
