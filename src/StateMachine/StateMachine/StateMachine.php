@@ -471,13 +471,11 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
             );
 
             //save history
-            $this->saveHistory($transitionEvent);
             if (null !== $this->persistentManager) {
                 //commit changes to database
                 $this->persistentManager->commitTransaction($transitionEvent);
             }
 
-            return true;
 
         } catch (\Exception $e) {
             if (null !== $this->persistentManager) {
@@ -486,6 +484,9 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
             throw $e;
         }
 
+        $this->saveHistory($transitionEvent);
+
+        return true;
         //@TODO execute callbacks after_commit
     }
 
