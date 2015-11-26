@@ -1,23 +1,11 @@
 <?php
 
-namespace StateMachineBundle\Tests\Subscriber;
+namespace StateMachine\Tests;
 
-use StateMachineBundle\Subscriber\PersistentSubscriber;
+use StateMachine\StateMachine\PersistentManager;
 
-class PersistentSubscriberTest extends \PHPUnit_Framework_TestCase
+class PersistentManagerTest extends \PHPUnit_Framework_TestCase
 {
-    public function testGetSubscribedEvents()
-    {
-        $this->assertEquals(
-            [
-                'statemachine.events.pre_transition' => 'onPreTransition',
-                'statemachine.events.post_transition' => 'onPostTransition',
-                'statemachine.events.fail_transition' => 'onFailTransition',
-            ],
-            PersistentSubscriber::getSubscribedEvents()
-        );
-    }
-
     public function testPreTransitionWithORM()
     {
         $objectManagerMock = $this->getMockBuilder('Doctrine\ORM\EntityManager')
@@ -27,9 +15,9 @@ class PersistentSubscriberTest extends \PHPUnit_Framework_TestCase
         $objectManagerMock->expects($this->once())
             ->method('beginTransaction');
 
-        $subscriber = new PersistentSubscriber($objectManagerMock);
+        $subscriber = new PersistentManager($objectManagerMock);
         $transitionEventMock = $this->getTransitionEventMock(['transaction' => true]);
-        $subscriber->onPreTransition($transitionEventMock);
+        $subscriber->beginTransaction($transitionEventMock);
     }
 
     public function testPreTransitionWithoutORM()
@@ -41,9 +29,9 @@ class PersistentSubscriberTest extends \PHPUnit_Framework_TestCase
         $objectManagerMock->expects($this->never())
             ->method('beginTransaction');
 
-        $subscriber = new PersistentSubscriber($objectManagerMock);
+        $subscriber = new PersistentManager($objectManagerMock);
         $transitionEventMock = $this->getTransitionEventMock(['transaction' => true]);
-        $subscriber->onPreTransition($transitionEventMock);
+        $subscriber->beginTransaction($transitionEventMock);
     }
 
     public function testFailTransitionWithoutORM()
@@ -55,9 +43,9 @@ class PersistentSubscriberTest extends \PHPUnit_Framework_TestCase
         $objectManagerMock->expects($this->never())
             ->method('rollBack');
 
-        $subscriber = new PersistentSubscriber($objectManagerMock);
+        $subscriber = new PersistentManager($objectManagerMock);
         $transitionEventMock = $this->getTransitionEventMock(['transaction' => true]);
-        $subscriber->onFailTransition($transitionEventMock);
+        $subscriber->rollBackTransaction($transitionEventMock);
     }
 
     public function testFailTransitionWithORM()
@@ -69,9 +57,9 @@ class PersistentSubscriberTest extends \PHPUnit_Framework_TestCase
         $objectManagerMock->expects($this->once())
             ->method('rollBack');
 
-        $subscriber = new PersistentSubscriber($objectManagerMock);
+        $subscriber = new PersistentManager($objectManagerMock);
         $transitionEventMock = $this->getTransitionEventMock(['transaction' => true]);
-        $subscriber->onFailTransition($transitionEventMock);
+        $subscriber->rollBackTransaction($transitionEventMock);
     }
 
     public function testPostTransitionWithTransaction()
@@ -88,9 +76,9 @@ class PersistentSubscriberTest extends \PHPUnit_Framework_TestCase
         $objectManagerMock->expects($this->once())
             ->method('commit');
 
-        $subscriber = new PersistentSubscriber($objectManagerMock);
+        $subscriber = new PersistentManager($objectManagerMock);
         $transitionEventMock = $this->getTransitionEventMock(['transaction' => true]);
-        $subscriber->onPostTransition($transitionEventMock);
+        $subscriber->commitTransaction($transitionEventMock);
     }
 
     public function testPostTransitionWithWithoutTransaction()
@@ -107,9 +95,9 @@ class PersistentSubscriberTest extends \PHPUnit_Framework_TestCase
         $objectManagerMock->expects($this->never())
             ->method('commit');
 
-        $subscriber = new PersistentSubscriber($objectManagerMock);
+        $subscriber = new PersistentManager($objectManagerMock);
         $transitionEventMock = $this->getTransitionEventMock(['transaction' => false]);
-        $subscriber->onPostTransition($transitionEventMock);
+        $subscriber->commitTransaction($transitionEventMock);
     }
 
     private function getTransitionEventMock($options, $transitionMock = null)

@@ -5,18 +5,16 @@ namespace StateMachine\Tests;
 use StateMachine\Accessor\StateAccessor;
 use StateMachine\Event\TransitionEvent;
 use StateMachine\History\History;
-use StateMachine\State\State;
 use StateMachine\State\StateInterface;
 use StateMachine\StateMachine\StateMachine;
 use StateMachine\Tests\Entity\Order;
 use StateMachine\Tests\Fixtures\StateMachineFixtures;
-use StateMachine\Transition\Transition;
 
 class StateMachineTest extends \PHPUnit_Framework_TestCase
 {
     public function testCorrectObject()
     {
-        $stateMachine = new StateMachine(new Order(1), new StateAccessor());
+        $stateMachine = new StateMachine(new Order(1));
         $this->assertNotNull($stateMachine->getObject());
     }
 
@@ -27,7 +25,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
             'No initial state is found'
         );
 
-        $stateMachine = new StateMachine(new Order(1), new StateAccessor());
+        $stateMachine = new StateMachine(new Order(1));
         $stateMachine->addState('pending');
         $stateMachine->addState('checking_out');
         $stateMachine->boot();
@@ -243,7 +241,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
     public function testWithWrongProperty()
     {
         $this->setExpectedException('StateMachine\Exception\StateMachineException');
-        $stateMachine = new StateMachine(new Order(1), new StateAccessor('wrong_state'));
+        $stateMachine = new StateMachine(new Order(1), null, null, new StateAccessor('wrong_state'));
 
         $stateMachine->addState('pending', StateInterface::TYPE_INITIAL);
         $stateMachine->addState('checking_out');
@@ -357,8 +355,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
     {
         $object = new Order(1);
         $stateMachine = new StateMachine(
-            $object,
-            new StateAccessor()
+            $object
         );
         $stateMachine->addState('pending', StateInterface::TYPE_INITIAL);
 
@@ -376,8 +373,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
     {
         $object = new Order(1);
         $stateMachine = new StateMachine(
-            $object,
-            new StateAccessor()
+            $object
         );
         $stateMachine->addState('pending', StateInterface::TYPE_INITIAL);
 

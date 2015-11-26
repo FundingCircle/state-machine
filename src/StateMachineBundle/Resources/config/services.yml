@@ -3,7 +3,7 @@ services:
         class: StateMachineBundle\StateMachine\StateMachineManager
         arguments:
             - @statemachine.history_manager
-            - ~
+            - @doctrine
         calls:
             - [setContainer,[@service_container]]
 

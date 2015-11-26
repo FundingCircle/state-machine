@@ -30,6 +30,9 @@ class TransitionEvent extends Event
     /** @var string */
     private $failedCallback;
 
+    /** @var  string */
+    private $targetState;
+
 
     /**
      * @param StatefulInterface   $object
@@ -107,6 +110,21 @@ class TransitionEvent extends Event
         return $this->options;
     }
 
+    /**
+     * @return string
+     */
+    public function getTargetState()
+    {
+        return $this->targetState;
+    }
+
+    /**
+     * @param string $targetState
+     */
+    public function setTargetState($targetState)
+    {
+        $this->targetState = $targetState;
+    }
 
     /**
      * @param $callable

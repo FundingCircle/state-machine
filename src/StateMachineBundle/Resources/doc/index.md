@@ -18,7 +18,7 @@
 Add this to composer.json
 
 ``` javascript
-    "zencap/state-machine":"dev"
+    "zencap/state-machine":"master"
 ```
 and
 ``` javascript
@@ -27,7 +27,7 @@ and
       "type": "package",
       "package": {
         "name": "zencap/state-machine",
-        "version": "dev",
+        "version": "master",
         "source": {
           "type": "git",
           "url": "https://github.com/zencap/state-machine.git",
@@ -308,26 +308,23 @@ $bankTransaction->getStateMachine()->transitionTo("exported"), ["transaction"=> 
 
 ## Moving to different state in transition callback
 
+### Given transitions:
 
-If you want to attach statemachine to newly created object pragmatically, you can use the statemachine manager directly
+`T1`: `A` to `B`
+`T2`: `A` to `C`
 
-Either by using service directly
+
+During pre-transition callbacks for `T1` , a decision to be made to move t `C` instead of `B`
+
+
 
 ``` php
-//in container aware callback
-$this->get("statemachine.manager")->add($newObject);
 
-//inside static callback
-$transitionEvent->getManager()->add($newobject)
+//inside pre-transition callback
+$transitionEvent->setTargetState('C');
 
-return false; //important to avoid having history record for the initial transition
-```
+After setting target state, only pre-transitions (considered as exit action for state `A`) for `T1` will be executed in addition to all  `T2` callbacks
 
-
-Or by persisting the object
-``` php
-$em->persist($newObject);
-```
 
 ### Disable the statemachine
 ``` php

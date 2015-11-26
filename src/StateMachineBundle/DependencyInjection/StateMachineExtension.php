@@ -4,7 +4,6 @@ namespace StateMachineBundle\DependencyInjection;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
-use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\DependencyInjection\Loader;
 
@@ -27,16 +26,11 @@ class StateMachineExtension extends Extension
         $config = $this->processConfiguration($configuration, $configs);
 
         $container->setParameter('statemachine.template_layout', $config['template_layout']);
-        $stateMachineFactory = $container->getDefinition('statemachine.manager');
-
-        $historyManager = $container->getDefinition($config['history_manager']);
-
-        $stateMachineFactory->replaceArgument(0, $historyManager);
-        $stateMachineFactory->replaceArgument(1, $config['transition_class']);
+        $stateMachineManager = $container->getDefinition('statemachine.manager');
 
         foreach ($config['state_machines'] as $name => $stateMachine) {
             $stateMachine['id'] = $name;
-            $stateMachineFactory->addMethodCall('register', [$stateMachine]);
+            $stateMachineManager->addMethodCall('register', [$stateMachine]);
         }
     }
 }

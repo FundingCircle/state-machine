@@ -6,6 +6,7 @@
 - State machine core logic
 - History
 - Event dispatcher
+- Doctrine
 
 ## Usage
 ```php

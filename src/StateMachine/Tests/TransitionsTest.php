@@ -20,22 +20,6 @@ class TransitionsTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testPreTransitionWithStopPropagation()
-    {
-        $stateMachine = StateMachineFixtures::getBidStateMachine();
-        $stateMachine->addPreTransition(
-            function (TransitionEvent $transitionEvent) {
-                return false;
-            },
-            'new',
-            'committed'
-        );
-
-        $stateMachine->boot();
-        $return = $stateMachine->transitionTo('committed');
-        $this->assertFalse($return);
-    }
-
     public function testPreTransitionSuccess()
     {
         $stateMachine = StateMachineFixtures::getBidStateMachine();

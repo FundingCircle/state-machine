@@ -9,7 +9,6 @@ use StateMachine\Event\TransitionEvent;
 use StateMachine\Exception\StateMachineException;
 use StateMachine\History\HistoryCollection;
 use StateMachine\History\History;
-use StateMachine\History\HistoryManager;
 use StateMachine\History\HistoryManagerInterface;
 use StateMachine\State\State;
 use StateMachine\State\StateInterface;
@@ -30,6 +29,9 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
 
     /** @var StateAccessorInterface */
     private $stateAccessor;
+
+    /** @var  PersistentManager */
+    private $persistentManager;
 
     /** @var  HistoryManagerInterface */
     private $historyManager;
@@ -61,9 +63,6 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     /** @var array */
     private $messages = [];
 
-    /** @var string */
-    private $transitionClass;
-
     /** @var  array */
     private $transitionOptions = [];
 
@@ -75,37 +74,34 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
 
     /**
      * @param StatefulInterface       $object
+     * @param PersistentManager       $persistentManager
+     * @param HistoryManagerInterface $historyManager
      * @param StateAccessorInterface  $stateAccessor
-     * @param string                  $transitionClass
      * @param array                   $transitionOptions
      * @param string                  $historyClass
-     * @param HistoryManagerInterface $historyManager
-     * @param EventDispatcher         $eventDispatcher
      * @param string                  $name
      */
     public function __construct(
         StatefulInterface $object,
+        PersistentManager $persistentManager = null,
+        HistoryManagerInterface $historyManager = null,
         StateAccessorInterface $stateAccessor = null,
-        $transitionClass = null,
         $transitionOptions = [],
         $historyClass = null,
-        HistoryManagerInterface $historyManager = null,
-        EventDispatcher $eventDispatcher = null,
         $name = null
     ) {
+        $this->object = $object;
+        $this->persistentManager = $persistentManager;
+        $this->historyManager = $historyManager;
         $this->stateAccessor = $stateAccessor ?: new StateAccessor();
-        $this->transitionClass = $transitionClass ?: 'StateMachine\Transition\Transition';
         $this->transitionOptions = $transitionOptions;
         $this->historyClass = $historyClass ?: 'StateMachine\History\History';
-        $this->historyManager = $historyManager ?: new HistoryManager();
         $this->historyCollection = new HistoryCollection();
-        $this->object = $object;
         $this->booted = false;
         $this->object->setStateMachine($this);
         $this->states = [];
         $this->transitions = [];
-        $this->messages = [];
-        $this->eventDispatcher = $eventDispatcher ?: new EventDispatcher();
+        $this->eventDispatcher = new EventDispatcher();
         $this->name = $name ?: get_class($object);
     }
 
@@ -119,7 +115,9 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         }
 
         //load history
-        $this->historyCollection = $this->historyManager->load($this->object, $this);
+        if (null !== $this->historyManager) {
+            $this->historyCollection = $this->historyManager->load($this->object, $this);
+        }
 
         $state = null;
         $objectState = $this->stateAccessor->getState($this->object);
@@ -390,11 +388,14 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
             /** @var TransitionEvent $transitionEvent */
             $transitionEvent = new TransitionEvent($this->object, $transition, $this->manager, []);
 
-            return $this->eventDispatcher->dispatch(
+            $response = $this->eventDispatcher->dispatch(
                 $transitionName.'_'.Events::EVENT_ON_GUARD,
-                $transitionEvent,
-                $this->messages
+                $transitionEvent
             );
+
+            $this->messages = $transitionEvent->getMessages();
+
+            return $response;
         }
 
         return $allowedTransition;
@@ -421,6 +422,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
 
             throw new StateMachineException($exception);
         }
+
         $transitionName = $this->currentState->getName().TransitionInterface::EDGE_SYMBOL.$state;
         $transition = $this->transitions[$transitionName];
         $transitionEvent = new TransitionEvent($this->object, $transition, $this->manager, $options);
@@ -429,8 +431,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         /* @var TransitionEvent $transitionEvent */
         $response = $this->eventDispatcher->dispatch(
             $transitionName.'_'.Events::EVENT_ON_GUARD,
-            $transitionEvent,
-            $this->messages
+            $transitionEvent
         );
 
         if (!$response) {
@@ -438,54 +439,55 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
 
             return false;
         }
-
-        //Execute pre transition general @TODO improve this implementation
-        $this->eventDispatcher->dispatch(
-            Events::EVENT_PRE_TRANSITION,
-            $transitionEvent,
-            $this->messages
-        );
-
-        //Execute transition pre-transitions callbacks
-        $response = $this->eventDispatcher->dispatch(
-            $transitionName.'_'.Events::EVENT_PRE_TRANSITION,
-            $transitionEvent,
-            $this->messages
-        );
-
-        if (!$response) {
-            $this->messages = $transitionEvent->getMessages();
+        try {
+            if (null !== $this->persistentManager) {
+                $this->persistentManager->beginTransaction($transitionEvent);
+            }
+            //Execute transition pre-transitions callbacks
             $this->eventDispatcher->dispatch(
-                Events::EVENT_FAIL_TRANSITION,
-                $transitionEvent,
-                $this->messages
+                $transitionName.'_'.Events::EVENT_PRE_TRANSITION,
+                $transitionEvent
+            );
+            $this->messages = $transitionEvent->getMessages();
+
+            //if target state is defined, commit and move to the target state
+            if (null !== $transitionEvent->getTargetState()) {
+                if (null !== $this->persistentManager) {
+                    $this->persistentManager->commitTransaction($transitionEvent);
+                }
+                $this->transitionTo($transitionEvent->getTargetState(), $options);
+
+                return true;
+            }
+
+            //change state
+            $this->currentState = $this->states[$state];
+            $this->stateAccessor->setState($this->object, $state);
+
+            //Execute transition post-transitions callbacks
+            $this->eventDispatcher->dispatch(
+                $transitionName.'_'.Events::EVENT_POST_TRANSITION,
+                $transitionEvent
             );
 
-            return false;
+            //save history
+            if (null !== $this->persistentManager) {
+                //commit changes to database
+                $this->persistentManager->commitTransaction($transitionEvent);
+            }
+
+
+        } catch (\Exception $e) {
+            if (null !== $this->persistentManager) {
+                $this->persistentManager->rollBackTransaction($transitionEvent);
+            }
+            throw $e;
         }
 
-        //change state
-        $this->currentState = $this->states[$state];
-        $this->stateAccessor->setState($this->object, $state);
-
-        //Execute transition post-transitions callbacks
-        $this->eventDispatcher->dispatch(
-            $transitionName.'_'.Events::EVENT_POST_TRANSITION,
-            $transitionEvent,
-            $this->messages
-        );
-
-        //@TODO this mainly dispatched for persistent subscriber in the bundle
-        //Execute general post transitions
-        $this->eventDispatcher->dispatch(
-            Events::EVENT_POST_TRANSITION,
-            $transitionEvent,
-            $this->messages
-        );
-
-        $this->updateTransition($transitionEvent);
+        $this->saveHistory($transitionEvent);
 
         return true;
+        //@TODO execute callbacks after_commit
     }
 
     /**
@@ -630,7 +632,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         $this->validateState($to);
 
         /** @var TransitionInterface $transition */
-        $transition = new $this->transitionClass($this->states[$from], $this->states[$to], $eventName);
+        $transition = new Transition($this->states[$from], $this->states[$to], $eventName);
         //transition getting overridden if it exists already
         $this->transitions[$transition->getName()] = $transition;
         $this->eventTransitions[$eventName] = $transition;
@@ -663,7 +665,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
      *
      * @param TransitionEvent $transitionEvent
      */
-    private function updateTransition(TransitionEvent $transitionEvent)
+    private function saveHistory(TransitionEvent $transitionEvent)
     {
         $transition = $transitionEvent->getTransition();
         /** @var History $stateChangeEvent */
@@ -680,7 +682,10 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
         $stateChangeEvent->setObjectIdentifier($transitionEvent->getObject()->getId());
         $stateChangeEvent->setOptions($transitionEvent->getOptions());
 
-        $this->historyManager->add($this->object, $stateChangeEvent);
+        $this->historyCollection->add($stateChangeEvent);
+        if (null !== $this->historyManager) {
+            $this->historyManager->add($this->object, $stateChangeEvent);
+        }
     }
 
     /**
@@ -736,4 +741,5 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
 
         return $states;
     }
+
 }

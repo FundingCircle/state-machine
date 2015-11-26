@@ -2,15 +2,16 @@
 
 namespace StateMachineBundle\StateMachine;
 
+use Doctrine\Bundle\DoctrineBundle\Registry;
+use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\Common\Persistence\Proxy;
 use StateMachine\Accessor\StateAccessor;
 use StateMachine\Exception\StateMachineException;
 use StateMachine\History\HistoryManagerInterface;
 use StateMachine\StateMachine\ManagerInterface;
+use StateMachine\StateMachine\PersistentManager;
 use StateMachine\StateMachine\StatefulInterface;
 use StateMachine\StateMachine\StateMachine;
-use StateMachine\EventDispatcher\EventDispatcher;
-use StateMachineBundle\Subscriber\PersistentSubscriber;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Reference;
@@ -25,9 +26,6 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
     /** @var  HistoryManagerInterface */
     private $historyManager;
 
-    /** @var  string */
-    private $transitionClass;
-
     /** @var  ContainerInterface */
     private $container;
 
@@ -40,14 +38,17 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
     /** @var array */
     private $loadedObjects;
 
+    /** @var  Registry */
+    private $doctrine;
+
     /**
      * @param HistoryManagerInterface $historyManager
-     * @param null                    $transitionClass
+     * @param Registry                $doctrine
      */
-    public function __construct(HistoryManagerInterface $historyManager, $transitionClass = null)
+    public function __construct(HistoryManagerInterface $historyManager, Registry $doctrine)
     {
         $this->historyManager = $historyManager;
-        $this->transitionClass = $transitionClass;
+        $this->doctrine = $doctrine;
         $this->stateFullClasses = [];
         $this->loadedObjects = [];
     }
@@ -138,15 +139,13 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
         // get definition prepared by the container
         $definition = $this->stateMachineDefinitions[$class];
         //defining the StateMachine
-        $eventDispatcher = new EventDispatcher();
         $stateMachine = new StateMachine(
             $statefulObject,
+            new PersistentManager($this->getObjectManagerByObject($statefulObject)),
+            $this->historyManager,
             new StateAccessor($definition['object']['property']),
-            $this->transitionClass,
             $definition['options'],
             $definition['history_class'],
-            $this->historyManager,
-            $eventDispatcher,
             $definition['id']
         );
 
@@ -206,7 +205,7 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
         }
         $stateMachine->setManager($this);
 
-        //add to loaded SttateMachine objects
+        //add to loaded StateMachine objects
         $this->loadedObjects[$oid] = $stateMachine;
 
         return $stateMachine;
@@ -218,13 +217,19 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
     public function add(StatefulInterface $object)
     {
         $stateMachine = $this->get($object);
-        //@TODO improve that, get rid of container
-        $objectManager = $this->container->get('doctrine')->getManagerForClass($this->getClass($object));
-        $stateMachine->getEventDispatcher()->addSubscriber(new PersistentSubscriber($objectManager));
         $stateMachine->boot();
-        $object->setStateMachine($stateMachine);
 
         return $stateMachine;
+    }
+
+    /**
+     * @param $object
+     *
+     * @return ObjectManager
+     */
+    private function getObjectManagerByObject($object)
+    {
+        return $this->doctrine->getManagerForClass($this->getClass($object));
     }
 
     /**
@@ -244,7 +249,7 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
         //if class is found in the registered list
         if (isset($this->stateMachineDefinitions[$class])) {
             return $class;
-        } else { //incase of a child class
+        } else { //in case of a child class
             foreach ($this->stateFullClasses as $stateFullClass) {
                 if (is_subclass_of($class, $stateFullClass)) {
                     return $stateFullClass;
@@ -265,6 +270,7 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
         if (class_exists($callback['callback'])) {
             return $callback['callback'];
         } else {
+            //@TODO improve that, get rid of container
             return $this->container->get($callback['callback']);
         }
     }

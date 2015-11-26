@@ -4,8 +4,6 @@ namespace StateMachineBundle\Subscriber;
 
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\LifecycleEventArgs;
-use Doctrine\ORM\Event\OnFlushEventArgs;
-use Doctrine\ORM\Event\PostFlushEventArgs;
 use StateMachine\StateMachine\StatefulInterface;
 use StateMachineBundle\StateMachine\StateMachineManager;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -58,9 +56,6 @@ class StateMachineLoaderSubscriber implements EventSubscriber
 
         if ($entity instanceof StatefulInterface) {
             $stateMachine = $this->stateMachineFactory->get($entity);
-            $stateMachine->getEventDispatcher()->addSubscriber(
-                new PersistentSubscriber($eventArgs->getEntityManager())
-            );
             $entity->setStateMachine($stateMachine);
         }
     }
@@ -81,11 +76,8 @@ class StateMachineLoaderSubscriber implements EventSubscriber
 
         if ($entity instanceof StatefulInterface && $entity->getStateMachine() == null) {
             $stateMachine = $this->stateMachineFactory->get($entity);
-            $stateMachine->getEventDispatcher()->addSubscriber(
-                new PersistentSubscriber($eventArgs->getEntityManager())
-            );
-            $stateMachine->boot();
             $entity->setStateMachine($stateMachine);
+            $stateMachine->boot();
         }
     }
 }
