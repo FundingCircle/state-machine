@@ -400,7 +400,7 @@ class StateMachine implements StateMachineInterface
                 $transitionEvent
             );
 
-            $this->messages = $transitionEvent->getMessages();
+            $this->messages = array_merge($this->messages, $transitionEvent->getMessages());
 
             return $response;
         }
@@ -448,7 +448,7 @@ class StateMachine implements StateMachineInterface
         );
 
         if (!$response) {
-            $this->messages = $transitionEvent->getMessages();
+            $this->messages = array_merge($this->messages, $transitionEvent->getMessages());
 
             return false;
         }
@@ -461,10 +461,11 @@ class StateMachine implements StateMachineInterface
                 $transitionName.'_'.Events::EVENT_PRE_TRANSITION,
                 $transitionEvent
             );
-            $this->messages = $transitionEvent->getMessages();
+            $this->messages = array_merge($this->messages, $transitionEvent->getMessages());
 
             //if target state is defined, commit and move to the target state
             if (null !== $transitionEvent->getTargetState()) {
+
                 if (null !== $this->persistentManager) {
                     $this->persistentManager->commitTransaction($transitionEvent);
                 }
