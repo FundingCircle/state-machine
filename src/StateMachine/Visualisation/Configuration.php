@@ -25,8 +25,8 @@ class Configuration
                 'current_state_color' => '#84bbc6',
                 'skip_transition_states' => [
                     ['name' => 'canceled', 'color' => '#d39c3f'],
-                    ['name' => 'rejected', 'color' => '#8eb021']
-                ]
+                    ['name' => 'rejected', 'color' => '#8eb021'],
+                ],
             ],
             $renderProperties
         );
@@ -60,6 +60,6 @@ class Configuration
             }
         }
 
-        return null;
+        return;
     }
 }

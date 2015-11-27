@@ -361,12 +361,11 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
 
         $stateMachine->setInitCallback(
             function (TransitionEvent $event) {
-                $event->getObject()->setSomeValue("some value");
+                $event->getObject()->setSomeValue('some value');
             }
         );
         $stateMachine->boot();
-        $this->assertEquals("some value", $object->getSomeValue());
-
+        $this->assertEquals('some value', $object->getSomeValue());
     }
 
     public function testInitStateEmptyCallback()

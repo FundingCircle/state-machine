@@ -2,7 +2,6 @@
 
 namespace StateMachine\Tests;
 
-use StateMachine\Accessor\StateAccessor;
 use StateMachine\Event\TransitionEvent;
 use StateMachine\State\StateInterface;
 use StateMachine\StateMachine\StateMachine;
@@ -92,7 +91,6 @@ class HistoryTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($stateMachine->hasReached('checking_out'));
     }
 
-
     public function testSubTransactionChangedToState()
     {
         $stateMachine = new StateMachine(
@@ -115,7 +113,7 @@ class HistoryTest extends \PHPUnit_Framework_TestCase
         );
         $stateMachine->boot();
 
-        $stateMachine->transitionTo("B");
+        $stateMachine->transitionTo('B');
 
         $history = $stateMachine->getHistory();
 

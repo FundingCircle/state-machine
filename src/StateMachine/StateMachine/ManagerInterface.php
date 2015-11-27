@@ -5,7 +5,7 @@ namespace StateMachine\StateMachine;
 interface ManagerInterface
 {
     /**
-     * Gets and adds new statemachine instance for giving objects
+     * Gets and adds new statemachine instance for giving objects.
      *
      * @param StatefulInterface $object
      *
@@ -14,7 +14,7 @@ interface ManagerInterface
     public function add(StatefulInterface $object);
 
     /**
-     * Get statemachine instance for giving objects
+     * Get statemachine instance for giving objects.
      *
      * @param StatefulInterface $object
      *

@@ -116,7 +116,7 @@ class StateMachineManagerTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
         $containerMock = $this->getMock('\Symfony\Component\DependencyInjection\ContainerInterface');
-        $containerMock->method("get")
+        $containerMock->method('get')
             ->willReturn(new MockListener());
 
         $doctrineMock = $this->getMockBuilder('\Doctrine\Bundle\DoctrineBundle\Registry')
@@ -129,7 +129,6 @@ class StateMachineManagerTest extends \PHPUnit_Framework_TestCase
         $factory = new StateMachineManager($historyManagerMock, $doctrineMock);
 
         return $factory->setContainer($containerMock);
-
     }
 
     private function getDefinition()

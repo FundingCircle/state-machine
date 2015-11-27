@@ -56,5 +56,4 @@ class Order implements StatefulInterface
     {
         $this->someValue = $someValue;
     }
-
 }

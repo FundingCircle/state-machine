@@ -21,7 +21,9 @@ class PersistentManager
         $this->objectManager = $objectManager;
     }
 
-
+    /**
+     * @param TransitionEvent $transitionEvent
+     */
     public function beginTransaction(TransitionEvent $transitionEvent)
     {
         if (null !== $this->objectManager) {
@@ -33,6 +35,9 @@ class PersistentManager
         }
     }
 
+    /**
+     * @param TransitionEvent $transitionEvent
+     */
     public function commitTransaction(TransitionEvent $transitionEvent)
     {
         if (null !== $this->objectManager) {
@@ -48,6 +53,9 @@ class PersistentManager
         }
     }
 
+    /**
+     * @param TransitionEvent $transitionEvent
+     */
     public function rollBackTransaction(TransitionEvent $transitionEvent)
     {
         if (null !== $this->objectManager) {
@@ -57,5 +65,13 @@ class PersistentManager
                 $this->objectManager->rollback();
             }
         }
+    }
+
+    /**
+     * @return ObjectManager|EntityManager
+     */
+    public function getObjectManager()
+    {
+        return $this->objectManager;
     }
 }

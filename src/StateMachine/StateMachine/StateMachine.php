@@ -22,7 +22,7 @@ use StateMachineBundle\StateMachine\StateMachineManager;
  *
  * @TODO Add logging support
  */
-class StateMachine implements StateMachineInterface, StateMachineHistoryInterface
+class StateMachine implements StateMachineInterface
 {
     /** @var StatefulInterface */
     private $object;
@@ -159,7 +159,13 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
             // prevent booting twice
             $this->booted = true;
             //Dispatch init state event
-            $transitionEvent = new TransitionEvent($this->object, null, $this->manager, []);
+            $transitionEvent = new TransitionEvent(
+                $this->object,
+                null,
+                $this->manager,
+                $this->persistentManager,
+                []
+            );
             $this->eventDispatcher->dispatch(Events::EVENT_ON_INIT, $transitionEvent);
         } else {
             // Assign the transitions to the states to be able to get allowed transitions easily
@@ -214,11 +220,6 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
     /**
      * {@inheritdoc}
      */
-    public function getEventDispatcher()
-    {
-        return $this->eventDispatcher;
-    }
-
     public function getName()
     {
         return $this->name;
@@ -386,7 +387,13 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
             $transitionName = $this->currentState->getName().TransitionInterface::EDGE_SYMBOL.$state;
             $transition = $this->transitions[$transitionName];
             /** @var TransitionEvent $transitionEvent */
-            $transitionEvent = new TransitionEvent($this->object, $transition, $this->manager, []);
+            $transitionEvent = new TransitionEvent(
+                $this->object,
+                $transition,
+                $this->manager,
+                $this->persistentManager,
+                []
+            );
 
             $response = $this->eventDispatcher->dispatch(
                 $transitionName.'_'.Events::EVENT_ON_GUARD,
@@ -425,7 +432,13 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
 
         $transitionName = $this->currentState->getName().TransitionInterface::EDGE_SYMBOL.$state;
         $transition = $this->transitions[$transitionName];
-        $transitionEvent = new TransitionEvent($this->object, $transition, $this->manager, $options);
+        $transitionEvent = new TransitionEvent(
+            $this->object,
+            $transition,
+            $this->manager,
+            $this->persistentManager,
+            $options
+        );
 
         //Execute guards
         /* @var TransitionEvent $transitionEvent */
@@ -475,8 +488,6 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
                 //commit changes to database
                 $this->persistentManager->commitTransaction($transitionEvent);
             }
-
-
         } catch (\Exception $e) {
             if (null !== $this->persistentManager) {
                 $this->persistentManager->rollBackTransaction($transitionEvent);
@@ -692,7 +703,7 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
      * Returns all transitions between two states, null refers to all states.
      *
      * @param null $from , can be null, array, value
-     * @param null $to , can be null, array, value
+     * @param null $to   , can be null, array, value
      *
      * @return TransitionInterface[]
      */
@@ -741,5 +752,4 @@ class StateMachine implements StateMachineInterface, StateMachineHistoryInterfac
 
         return $states;
     }
-
 }
