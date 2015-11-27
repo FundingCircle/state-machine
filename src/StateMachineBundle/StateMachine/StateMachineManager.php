@@ -55,11 +55,12 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
 
     /**
      * Container is injected here for purpose to avoid circular references
-     * and instead loading services in runtime requires container
+     * and instead loading services in runtime requires container.
      *
      * @param ContainerInterface|null $container A ContainerInterface instance or null
      *
      * @api
+     *
      * @return self
      */
     public function setContainer(ContainerInterface $container = null)

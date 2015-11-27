@@ -108,10 +108,8 @@ class PersistentManagerTest extends \PHPUnit_Framework_TestCase
                 ->getMock();
         }
 
-        $stateMachineMock = $this->getMockClass(
-            'StateMachine\StateMachine\StateMachineHistoryInterface',
-            ['getHistory', 'getLastStateChange', 'getHistoryClass', 'getObject']
-        );
+        $stateMachineMock = $this->getMockBuilder('StateMachine\StateMachine\StateMachineInterface')
+            ->disableOriginalConstructor()->getMock();
 
         $statefulMock = $this->getMock(
             'StateMachine\StateMachine\StatefulInterface',

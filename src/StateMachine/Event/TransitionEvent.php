@@ -4,7 +4,10 @@
 // Stops event propagation when the transition fails somwhere.
 namespace StateMachine\Event;
 
+use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\ORM\EntityManager;
 use StateMachine\StateMachine\ManagerInterface;
+use StateMachine\StateMachine\PersistentManager;
 use StateMachine\Transition\Transition;
 use Symfony\Component\EventDispatcher\Event;
 use StateMachine\StateMachine\StatefulInterface;
@@ -33,21 +36,26 @@ class TransitionEvent extends Event
     /** @var  string */
     private $targetState;
 
+    /** @var  PersistentManager */
+    private $persistentManager;
 
     /**
      * @param StatefulInterface   $object
      * @param TransitionInterface $transition
      * @param ManagerInterface    $manager
+     * @param PersistentManager   $persistentManager
      * @param array               $options
      */
     public function __construct(
         StatefulInterface $object,
         TransitionInterface $transition = null,
         ManagerInterface $manager = null,
+        PersistentManager $persistentManager = null,
         $options = []
     ) {
         $this->object = $object;
         $this->transition = $transition;
+        $this->persistentManager = $persistentManager;
         $this->manager = $manager;
         $this->messages = [];
         $this->options = array_merge($this->options, $options);
@@ -124,6 +132,14 @@ class TransitionEvent extends Event
     public function setTargetState($targetState)
     {
         $this->targetState = $targetState;
+    }
+
+    /**
+     * @return ObjectManager|EntityManager
+     */
+    public function getObjectManager()
+    {
+        return $this->persistentManager->getObjectManager();
     }
 
     /**

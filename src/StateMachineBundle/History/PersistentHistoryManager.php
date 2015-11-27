@@ -7,7 +7,7 @@ use StateMachine\History\History;
 use StateMachine\History\HistoryCollection;
 use StateMachine\History\HistoryManagerInterface;
 use StateMachine\StateMachine\StatefulInterface;
-use StateMachine\StateMachine\StateMachineHistoryInterface;
+use StateMachine\StateMachine\StateMachineInterface;
 use StateMachineBundle\Model\BlameableStateChangeInterface;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -33,7 +33,7 @@ class PersistentHistoryManager implements HistoryManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function load(StatefulInterface $statefulObject, StateMachineHistoryInterface $stateMachine)
+    public function load(StatefulInterface $statefulObject, StateMachineInterface $stateMachine)
     {
         $om = $this->registry->getManagerForClass(get_class($statefulObject));
         $stateChanges = $om->getRepository($stateMachine->getHistoryClass())->findBy(

@@ -2,10 +2,10 @@
 
 namespace StateMachine\StateMachine;
 
-use StateMachine\EventDispatcher\EventDispatcher;
+use StateMachine\History\History;
+use StateMachine\History\HistoryCollection;
 use StateMachine\State\StateInterface;
 use StateMachine\Transition\TransitionInterface;
-use StateMachineBundle\StateMachine\StateMachineManager;
 
 interface StateMachineInterface
 {
@@ -35,11 +35,6 @@ interface StateMachineInterface
      * @return StateInterface
      */
     public function getCurrentState();
-
-    /**
-     * @return EventDispatcher
-     */
-    public function getEventDispatcher();
 
     /**
      * Identify unique name for stateMachine.
@@ -138,6 +133,7 @@ interface StateMachineInterface
     /**
      * @param callable $callable
      * @param mixed    $from
+     * @param mixed    $to
      * @param int      $priority
      *
      * @return mixed
@@ -145,11 +141,9 @@ interface StateMachineInterface
     public function addPostTransition($callable, $from, $to, $priority);
 
     /**
-     * Sets the initial callback when init state is set
+     * Sets the initial callback when init state is set.
      *
      * @param $callable
-     *
-     * @return null
      */
     public function setInitCallback($callable);
 
@@ -162,4 +156,19 @@ interface StateMachineInterface
      * @return array
      */
     public function getMessages();
+
+    /**
+     * @return HistoryCollection
+     */
+    public function getHistory();
+
+    /**
+     * @return History
+     */
+    public function getLastStateChange();
+
+    /**
+     * @return string
+     */
+    public function getHistoryClass();
 }
