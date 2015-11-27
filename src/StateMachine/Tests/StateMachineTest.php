@@ -384,4 +384,40 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
         $stateMachine->boot();
         $this->assertNull($object->getSomeValue());
     }
+
+    public function testMessagesThroughMultiStates()
+    {
+        $object = new Order(1);
+        $stateMachine = new StateMachine($object);
+        $stateMachine->addState('state-a', StateInterface::TYPE_INITIAL);
+        $stateMachine->addState('state-b');
+        $stateMachine->addState('state-c');
+        $stateMachine->addTransition('state-a', 'state-b', 'to-b');
+        $stateMachine->addTransition('state-a', 'state-c', 'to-c');
+        $stateMachine->addPreTransition(
+            function (TransitionEvent $event) {
+                $event->addMessage('message-1');
+                $event->setTargetState('state-c');
+            },
+            'state-a',
+            'state-b'
+        );
+        $stateMachine->addPreTransition(
+            function (TransitionEvent $event) {
+                $event->addMessage('message-2');
+            },
+            'state-a',
+            'state-c'
+        );
+
+        $stateMachine->boot();
+        $stateMachine->triggers('to-b');
+        $messages = $stateMachine->getMessages();
+
+        $this->assertEquals('state-c', $stateMachine->getCurrentState()->getName());
+        $this->assertInternalType('array', $messages);
+        $this->assertCount(2, $messages);
+        $this->assertEquals('message-1', $messages[0]);
+        $this->assertEquals('message-2', $messages[1]);
+    }
 }
