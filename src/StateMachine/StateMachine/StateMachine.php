@@ -110,6 +110,14 @@ class StateMachine implements StateMachineInterface
     }
 
     /**
+     * @param Logger|null $logger
+     */
+    public function setLogger(Logger $logger = null)
+    {
+        $this->logger = $logger;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function boot()
@@ -454,7 +462,10 @@ class StateMachine implements StateMachineInterface
         if (!$response) {
             $this->messages = array_merge($this->messages, $transitionEvent->getMessages());
 
-            $this->logger->logTransitionFailed($transitionEvent);
+            if (null !== $this->logger) {
+                $this->logger->logTransitionFailed($transitionEvent);
+            }
+
             return false;
         }
         try {
@@ -498,13 +509,17 @@ class StateMachine implements StateMachineInterface
                 $this->persistentManager->rollBackTransaction($transitionEvent);
             }
 
-            $this->logger->logTransitionFailed($transitionEvent);
+            if (null !== $this->logger) {
+                $this->logger->logTransitionFailed($transitionEvent);
+            }
 
             throw $e;
         }
 
         $this->saveHistory($transitionEvent);
-        $this->logger->logTransitionSucceed($transitionEvent);
+        if (null !== $this->logger) {
+            $this->logger->logTransitionSucceed($transitionEvent);
+        }
 
         return true;
         //@TODO execute callbacks after_commit
@@ -712,7 +727,7 @@ class StateMachine implements StateMachineInterface
      * Returns all transitions between two states, null refers to all states.
      *
      * @param null $from , can be null, array, value
-     * @param null $to   , can be null, array, value
+     * @param null $to , can be null, array, value
      *
      * @return TransitionInterface[]
      */
@@ -760,10 +775,5 @@ class StateMachine implements StateMachineInterface
         }
 
         return $states;
-    }
-
-    public function setLogger(Logger $logger)
-    {
-        $this->logger = $logger;
     }
 }

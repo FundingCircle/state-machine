@@ -50,7 +50,7 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
      * @param Registry                $doctrine
      * @param Logger                  $logger
      */
-    public function __construct(HistoryManagerInterface $historyManager, Registry $doctrine, Logger $logger)
+    public function __construct(HistoryManagerInterface $historyManager, Registry $doctrine, Logger $logger = null)
     {
         $this->historyManager = $historyManager;
         $this->doctrine = $doctrine;
