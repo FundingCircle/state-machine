@@ -10,6 +10,7 @@ use StateMachine\Exception\StateMachineException;
 use StateMachine\History\HistoryCollection;
 use StateMachine\History\History;
 use StateMachine\History\HistoryManagerInterface;
+use StateMachine\Logger\Logger;
 use StateMachine\State\State;
 use StateMachine\State\StateInterface;
 use StateMachine\Transition\Transition;
@@ -71,6 +72,9 @@ class StateMachine implements StateMachineInterface
 
     /** @var  StateMachineManager */
     private $manager;
+
+    /** @var  Logger */
+    private $logger;
 
     /**
      * @param StatefulInterface       $object
@@ -450,6 +454,7 @@ class StateMachine implements StateMachineInterface
         if (!$response) {
             $this->messages = array_merge($this->messages, $transitionEvent->getMessages());
 
+            $this->logger->logTransitionFailed($transitionEvent);
             return false;
         }
         try {
@@ -465,7 +470,6 @@ class StateMachine implements StateMachineInterface
 
             //if target state is defined, commit and move to the target state
             if (null !== $transitionEvent->getTargetState()) {
-
                 if (null !== $this->persistentManager) {
                     $this->persistentManager->commitTransaction($transitionEvent);
                 }
@@ -493,10 +497,14 @@ class StateMachine implements StateMachineInterface
             if (null !== $this->persistentManager) {
                 $this->persistentManager->rollBackTransaction($transitionEvent);
             }
+
+            $this->logger->logTransitionFailed($transitionEvent);
+
             throw $e;
         }
 
         $this->saveHistory($transitionEvent);
+        $this->logger->logTransitionSucceed($transitionEvent);
 
         return true;
         //@TODO execute callbacks after_commit
@@ -752,5 +760,10 @@ class StateMachine implements StateMachineInterface
         }
 
         return $states;
+    }
+
+    public function setLogger(Logger $logger)
+    {
+        $this->logger = $logger;
     }
 }
