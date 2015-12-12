@@ -4,7 +4,7 @@ services:
         arguments:
             - @statemachine.history_manager
             - @doctrine
-            - @statemachine.logger
+            - ~
         calls:
             - [setContainer,[@service_container]]
 

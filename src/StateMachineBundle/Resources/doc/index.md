@@ -344,6 +344,7 @@ state_machine:
     template_layout: StateMachineBundle::layout.html.twig
     db_driver: orm
     on_init: { callback: ~, method: ~ } #init callback while setting the first state
+    profiler: false #enable logging + profiler
     state_machines:
         state_machine_name:  #required
             object:
