@@ -4,6 +4,7 @@ services:
         arguments:
             - @statemachine.history_manager
             - @doctrine
+            - ~
         calls:
             - [setContainer,[@service_container]]
 
@@ -25,6 +26,21 @@ services:
         class: StateMachineBundle\Twig\StateMachineExtension
         tags:
             - { name: twig.extension }
+
+    statemachine.logger:
+        class: StateMachine\Logger\Logger
+        arguments:
+            - @monolog.logger
+            - %kernel.debug%
+        tags:
+            - { name: monolog.logger, channel: state_machine }
+
+    statemachine.data_collector:
+        class: StateMachineBundle\DataCollector\StateMachineDataCollector
+        arguments:
+            - @statemachine.logger
+        tags:
+            - { name: data_collector, id: state_machine, template: 'StateMachineBundle:Collector:state_machine' }
 
     test_callback:
         class: StateMachineBundle\Tests\Listeners\MockListener

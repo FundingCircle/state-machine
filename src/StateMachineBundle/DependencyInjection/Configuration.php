@@ -39,6 +39,7 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('history_manager')->defaultValue('statemachine.history_manager')->end()
                 ->scalarNode('template_layout')->defaultValue('StateMachineBundle::layout.html.twig')->end()
                 ->scalarNode('db_driver')->defaultValue('orm')->end()
+                ->booleanNode('profiler')->defaultValue(false)->end()
             ->end()
         ;
     }

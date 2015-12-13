@@ -27,6 +27,10 @@ class StateMachineExtension extends Extension
 
         $container->setParameter('statemachine.template_layout', $config['template_layout']);
         $stateMachineManager = $container->getDefinition('statemachine.manager');
+        if ($config['profiler']) {
+            $logger = $container->getDefinition('statemachine.logger');
+            $stateMachineManager->replaceArgument(2, $logger);
+        }
 
         foreach ($config['state_machines'] as $name => $stateMachine) {
             $stateMachine['id'] = $name;

@@ -8,6 +8,7 @@ use Doctrine\Common\Persistence\Proxy;
 use StateMachine\Accessor\StateAccessor;
 use StateMachine\Exception\StateMachineException;
 use StateMachine\History\HistoryManagerInterface;
+use StateMachine\Logger\Logger;
 use StateMachine\StateMachine\ManagerInterface;
 use StateMachine\StateMachine\PersistentManager;
 use StateMachine\StateMachine\StatefulInterface;
@@ -41,14 +42,19 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
     /** @var  Registry */
     private $doctrine;
 
+    /** @var Logger */
+    private $logger;
+
     /**
      * @param HistoryManagerInterface $historyManager
      * @param Registry                $doctrine
+     * @param Logger                  $logger
      */
-    public function __construct(HistoryManagerInterface $historyManager, Registry $doctrine)
+    public function __construct(HistoryManagerInterface $historyManager, Registry $doctrine, Logger $logger = null)
     {
         $this->historyManager = $historyManager;
         $this->doctrine = $doctrine;
+        $this->logger = $logger;
         $this->stateFullClasses = [];
         $this->loadedObjects = [];
     }
@@ -205,6 +211,7 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
             );
         }
         $stateMachine->setManager($this);
+        $stateMachine->setLogger($this->logger);
 
         //add to loaded StateMachine objects
         $this->loadedObjects[$oid] = $stateMachine;

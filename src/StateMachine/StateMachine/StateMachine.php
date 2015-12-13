@@ -10,6 +10,7 @@ use StateMachine\Exception\StateMachineException;
 use StateMachine\History\HistoryCollection;
 use StateMachine\History\History;
 use StateMachine\History\HistoryManagerInterface;
+use StateMachine\Logger\Logger;
 use StateMachine\State\State;
 use StateMachine\State\StateInterface;
 use StateMachine\Transition\Transition;
@@ -72,6 +73,9 @@ class StateMachine implements StateMachineInterface
     /** @var  StateMachineManager */
     private $manager;
 
+    /** @var  Logger */
+    private $logger;
+
     /**
      * @param StatefulInterface       $object
      * @param PersistentManager       $persistentManager
@@ -103,6 +107,14 @@ class StateMachine implements StateMachineInterface
         $this->transitions = [];
         $this->eventDispatcher = new EventDispatcher();
         $this->name = $name ?: get_class($object);
+    }
+
+    /**
+     * @param Logger|null $logger
+     */
+    public function setLogger(Logger $logger = null)
+    {
+        $this->logger = $logger;
     }
 
     /**
@@ -450,6 +462,10 @@ class StateMachine implements StateMachineInterface
         if (!$response) {
             $this->messages = array_merge($this->messages, $transitionEvent->getMessages());
 
+            if (null !== $this->logger) {
+                $this->logger->logTransitionFailed($transitionEvent);
+            }
+
             return false;
         }
         try {
@@ -465,7 +481,6 @@ class StateMachine implements StateMachineInterface
 
             //if target state is defined, commit and move to the target state
             if (null !== $transitionEvent->getTargetState()) {
-
                 if (null !== $this->persistentManager) {
                     $this->persistentManager->commitTransaction($transitionEvent);
                 }
@@ -493,10 +508,18 @@ class StateMachine implements StateMachineInterface
             if (null !== $this->persistentManager) {
                 $this->persistentManager->rollBackTransaction($transitionEvent);
             }
+
+            if (null !== $this->logger) {
+                $this->logger->logTransitionFailed($transitionEvent);
+            }
+
             throw $e;
         }
 
         $this->saveHistory($transitionEvent);
+        if (null !== $this->logger) {
+            $this->logger->logTransitionSucceed($transitionEvent);
+        }
 
         return true;
         //@TODO execute callbacks after_commit
@@ -704,7 +727,7 @@ class StateMachine implements StateMachineInterface
      * Returns all transitions between two states, null refers to all states.
      *
      * @param null $from , can be null, array, value
-     * @param null $to   , can be null, array, value
+     * @param null $to , can be null, array, value
      *
      * @return TransitionInterface[]
      */

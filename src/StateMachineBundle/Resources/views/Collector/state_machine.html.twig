@@ -1,0 +1,88 @@
+{% extends 'WebProfilerBundle:Profiler:layout.html.twig' %}
+
+{% block toolbar %}
+    {% set icon %}
+        <img alt="elastica"
+             src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACt0lEQVR42r2XW4hNURjHv51LRHiQmrdxK17QJDFqSqYoL8plDC805JJnZShTY0x58eQa5sVlzkzkDYnx5ChivBANXpTCA5NyO4z/v/UtZ509a5+92Wf516+zL+vs77/W/r71nRNJWQtAO1gJpoHXoB8cBZ8kn6aAPtAB7rs3Iv3cAs6D8Z4vvwLNasinFWAgJfgNsEwnsto1EenMH2jwu+AweAOW63EdGASLwU9PgG9gF+hJCW5VYYIGekGLBm+OBZkDHoPJYD244gkyonSDg3qcFHyUCRp4D6Zr8NuewafATnAS7HEC+FQAW3U1k4JXmKCBH2AsmAeeewZyVp3gMticYuCXmHyaBM5Kum7SwAswF7SJScS4rutyHQEHdJauNurnF519n54fEpP1SSraFegSU35vQRMYcgZtA+f0uEFMMsbFFXkH1upDXSWZKOqkhmlgKngEZoHP4KKUq2CVmEQ9LSbTfXoK1khymcZN/AkuUt4HZoKrYJFndmfAXlBKCMBN66NUlzVREdw1QI3RZYzvhINSG7Xp84bdi5Fn4AQ10lujwFUVec5ZbhtAq5QzOq9YObZaKmLGDdiKoFhWfB1Fya9MBmzJuddYXkslOcNrZoAdjVunrxs+A42Snum5V8DKbrV8/y05grKS7oH5nnvfxZTjQEgDFPcXtt0ZseezJHtCr4AVOyK77EQ9tz1F/pcBiu+f5c2NqNWJ4TUQSpvANfDVvUgDhYwP4Ls89g+B2UX5a6peTCXdUSMla2Ak44P+9pWMA8fBdhm90k/AOvAypAF20R1V7nNzawhlgMv+UNJzrDuUAZba/gzjhkIZuCSm3NJUCmXgBNidYdyHUAZYdv0ZxhVCGeD/DCbhwipj2JCWhCzD2eCWmIbkC86GdCGkAYoteZ+Yn3j1YnZCNib+j+RmJL8BZFy1TTKQpu8AAAAASUVORK5CYII%3D"/>
+        <span class="sf-toolbar-status {% if collector.data.failed_transitions_count > 0 %}sf-toolbar-status-red{% else %}sf-toolbar-status-green{% endif %}">
+            {{ collector.data.failed_transitions_count + collector.data.succeed_transitions_count }}
+        </span>
+    {% endset %}
+    {% set text %}
+        <div class="sf-toolbar-info-piece">
+            <b>Transitions</b>
+            <span>
+                {{ collector.data.failed_transitions_count + collector.data.succeed_transitions_count }}
+            </span>
+        </div>
+    {% endset %}
+    {% include 'WebProfilerBundle:Profiler:toolbar_item.html.twig' with { 'link': profiler_url } %}
+{% endblock %}
+
+{% block menu %}
+    <span class="label">
+        <span class="icon"><img
+                    src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACt0lEQVR42r2XW4hNURjHv51LRHiQmrdxK17QJDFqSqYoL8plDC805JJnZShTY0x58eQa5sVlzkzkDYnx5ChivBANXpTCA5NyO4z/v/UtZ509a5+92Wf516+zL+vs77/W/r71nRNJWQtAO1gJpoHXoB8cBZ8kn6aAPtAB7rs3Iv3cAs6D8Z4vvwLNasinFWAgJfgNsEwnsto1EenMH2jwu+AweAOW63EdGASLwU9PgG9gF+hJCW5VYYIGekGLBm+OBZkDHoPJYD244gkyonSDg3qcFHyUCRp4D6Zr8NuewafATnAS7HEC+FQAW3U1k4JXmKCBH2AsmAeeewZyVp3gMticYuCXmHyaBM5Kum7SwAswF7SJScS4rutyHQEHdJauNurnF519n54fEpP1SSraFegSU35vQRMYcgZtA+f0uEFMMsbFFXkH1upDXSWZKOqkhmlgKngEZoHP4KKUq2CVmEQ9LSbTfXoK1khymcZN/AkuUt4HZoKrYJFndmfAXlBKCMBN66NUlzVREdw1QI3RZYzvhINSG7Xp84bdi5Fn4AQ10lujwFUVec5ZbhtAq5QzOq9YObZaKmLGDdiKoFhWfB1Fya9MBmzJuddYXkslOcNrZoAdjVunrxs+A42Snum5V8DKbrV8/y05grKS7oH5nnvfxZTjQEgDFPcXtt0ZseezJHtCr4AVOyK77EQ9tz1F/pcBiu+f5c2NqNWJ4TUQSpvANfDVvUgDhYwP4Ls89g+B2UX5a6peTCXdUSMla2Ak44P+9pWMA8fBdhm90k/AOvAypAF20R1V7nNzawhlgMv+UNJzrDuUAZba/gzjhkIZuCSm3NJUCmXgBNidYdyHUAZYdv0ZxhVCGeD/DCbhwipj2JCWhCzD2eCWmIbkC86GdCGkAYoteZ+Yn3j1YnZCNib+j+RmJL8BZFy1TTKQpu8AAAAASUVORK5CYII%3D"
+                    alt=""/></span>
+        <strong>State Machine</strong>
+        <span class="count">
+             <span>
+                 {{ collector.data.failed_transitions_count + collector.data.succeed_transitions_count }}
+             </span>
+        </span>
+    </span>
+{% endblock %}
+
+{% block panel %}
+    <h2>Transitions</h2>
+    <table class="routing inline">
+        <tbody>
+        <tr>
+            <th>Transition name</th>
+            <th>Messages</th>
+            <th>Guards</th>
+            <th>Pre-Transitions</th>
+            <th>Post-Transitions</th>
+        </tr>
+        {% for transition in collector.data.succeed_transitions %}
+            <tr class="">
+                <td>{{ transition.name }}</td>
+                <td>{{ transition.messages|json_encode }}</td>
+                <td>
+                    <table>
+                        <tbody>
+                        {% for guard in transition.callbacks.guards %}
+                            <tr>
+                                {{ guard }}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </td>
+                <td>
+                    <table>
+                        <tbody>
+                        {% for pre_transition in transition.callbacks.pre_transitions %}
+                            <tr>
+                                {{ pre_transition }}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </td>
+                <td>
+                    <table>
+                        <tbody>
+                        {% for post_transition in transition.callbacks.post_transitions %}
+                            <tr>
+                                {{ post_transition }}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
