@@ -484,9 +484,8 @@ class StateMachine implements StateMachineInterface
                 if (null !== $this->persistentManager) {
                     $this->persistentManager->commitTransaction($transitionEvent);
                 }
-                $this->transitionTo($transitionEvent->getTargetState(), $options);
 
-                return true;
+                return $this->transitionTo($transitionEvent->getTargetState(), $options);
             }
 
             //change state

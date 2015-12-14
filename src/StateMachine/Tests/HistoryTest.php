@@ -121,4 +121,47 @@ class HistoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(1, $history->count());
         $this->assertEquals($history->first()->getToState(), 'C');
     }
+
+    public function testSubTransactionChangedToStateWithFailedGuard()
+    {
+        $stateMachine = new StateMachine(
+            new Order(1)
+        );
+
+        $stateMachine->addState('A', StateInterface::TYPE_INITIAL);
+        $stateMachine->addState('B');
+        $stateMachine->addState('C');
+
+        $stateMachine->addTransition('A', 'B');
+        $stateMachine->addTransition('A', 'C');
+        $stateMachine->addGuard(
+            function (TransitionEvent $event) {
+                $event->addMessage('failed sub guard');
+
+                return false;
+            },
+            'A',
+            'C'
+        );
+
+        $stateMachine->addPreTransition(
+            function (TransitionEvent $event) {
+                $event->setTargetState('C');
+            },
+            'A',
+            'B'
+        );
+        $stateMachine->boot();
+
+        $return = $stateMachine->transitionTo('B');
+
+        $history = $stateMachine->getHistory();
+
+        //nothing should happen and we should display guard message from substate
+        $this->assertFalse($return);
+        $this->assertEquals('A', $stateMachine->getCurrentState()->getName());
+        $this->assertEquals(0, $history->count());
+        $this->assertEquals("failed sub guard", $stateMachine->getMessages()[0]);
+
+    }
 }
