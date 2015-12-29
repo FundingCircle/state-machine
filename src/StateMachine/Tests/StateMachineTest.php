@@ -420,4 +420,59 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('message-1', $messages[0]);
         $this->assertEquals('message-2', $messages[1]);
     }
+
+    public function testNewObjectWithStateValueSetToNormal()
+    {
+        $this->setExpectedException(
+            'StateMachine\Exception\StateMachineException',
+            'Object has state: B, which is not final or initial'
+        );
+        //new object
+        $object = new Order(null);
+        $object->setState('B');
+
+        $stateMachine = new StateMachine($object);
+
+        $stateMachine->addState('A', StateInterface::TYPE_INITIAL);
+        $stateMachine->addState('B');
+        $stateMachine->addState('C', StateInterface::TYPE_FINAL);
+
+        $stateMachine->boot();
+    }
+
+
+    public function testNewObjectWithStateValueSetToFinal()
+    {
+        //new object
+        $object = new Order(null);
+        $object->setState('A');
+
+        $stateMachine = new StateMachine($object);
+
+        $stateMachine->addState('A', StateInterface::TYPE_INITIAL);
+        $stateMachine->addState('B');
+        $stateMachine->addState('C', StateInterface::TYPE_FINAL);
+
+        $stateMachine->boot();
+
+        $this->assertEquals('A', $stateMachine->getCurrentState());
+    }
+
+
+    public function testNewObjectWithStateValueSetToInitial()
+    {
+        //new object
+        $object = new Order(null);
+        $object->setState('C');
+
+        $stateMachine = new StateMachine($object);
+
+        $stateMachine->addState('A', StateInterface::TYPE_INITIAL);
+        $stateMachine->addState('B');
+        $stateMachine->addState('C', StateInterface::TYPE_FINAL);
+
+        $stateMachine->boot();
+
+        $this->assertEquals('C', $stateMachine->getCurrentState());
+    }
 }

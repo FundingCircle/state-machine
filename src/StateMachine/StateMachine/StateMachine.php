@@ -141,9 +141,7 @@ class StateMachine implements StateMachineInterface
 
         //state exists in history and not the same as object, conflict alert
         if (null !== $state
-            && '' !== $state
             && null !== $objectState
-            && '' !== $objectState
             && $state->getName() !== $objectState
         ) {
             throw new StateMachineException(
@@ -157,11 +155,24 @@ class StateMachine implements StateMachineInterface
                 )
             );
         }
-        //no state found for the object it means it's new instance, set initial state
-        if (null === $state || '' == $state || null === $objectState || '' == $objectState) {
-            $state = $this->getInitialState();
-            if (null == $state) {
-                throw new StateMachineException('No initial state is found');
+        //No history found
+        if (null === $state) {
+            //no state found for the object it means it's new instance, set initial state
+            if (null === $objectState) {
+                $state = $this->getInitialState();
+                if (null == $state) {
+                    throw new StateMachineException('No initial state is found');
+                }
+            } else {
+                $this->validateState($objectState);
+                /** @var StateInterface $currentState */
+                $state = $this->states[$objectState];
+                //if new object and has state previously set which is not final or initial
+                if ($state->isNormal()) {
+                    throw new StateMachineException(
+                        sprintf("Object has state: %s, which is not final or initial", $objectState)
+                    );
+                }
             }
             $this->stateAccessor->setState($this->object, $state->getName());
             // Assign the transitions to the states to be able to get allowed transitions easily
