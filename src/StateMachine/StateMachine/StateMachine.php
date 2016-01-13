@@ -5,6 +5,7 @@ namespace StateMachine\StateMachine;
 use StateMachine\Accessor\StateAccessor;
 use StateMachine\Accessor\StateAccessorInterface;
 use StateMachine\Event\Events;
+use StateMachine\Event\PreTransitionEvent;
 use StateMachine\Event\TransitionEvent;
 use StateMachine\Exception\StateMachineException;
 use StateMachine\History\HistoryCollection;
@@ -492,20 +493,29 @@ class StateMachine implements StateMachineInterface
             if (null !== $this->persistentManager) {
                 $this->persistentManager->beginTransaction($transitionEvent);
             }
+
+            $preTransitionEvent  = new PreTransitionEvent(
+                $this->object,
+                $transition,
+                $this->manager,
+                $this->persistentManager,
+                $options
+            );
+
             //Execute transition pre-transitions callbacks
             $this->eventDispatcher->dispatch(
                 $transitionName.'_'.Events::EVENT_PRE_TRANSITION,
-                $transitionEvent
+                $preTransitionEvent
             );
-            $this->messages = array_merge($this->messages, $transitionEvent->getMessages());
+            $this->messages = array_merge($this->messages, $preTransitionEvent->getMessages());
 
             //if target state is defined, commit and move to the target state
-            if (null !== $transitionEvent->getTargetState()) {
+            if (null !== $preTransitionEvent->getTargetState()) {
                 if (null !== $this->persistentManager) {
-                    $this->persistentManager->commitTransaction($transitionEvent);
+                    $this->persistentManager->commitTransaction($preTransitionEvent);
                 }
 
-                return $this->transitionTo($transitionEvent->getTargetState(), $options);
+                return $this->transitionTo($preTransitionEvent->getTargetState(), $options);
             }
 
             //change state

@@ -3,6 +3,7 @@
 namespace StateMachine\Tests;
 
 use StateMachine\Accessor\StateAccessor;
+use StateMachine\Event\PreTransitionEvent;
 use StateMachine\Event\TransitionEvent;
 use StateMachine\History\History;
 use StateMachine\State\StateInterface;
@@ -395,7 +396,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
         $stateMachine->addTransition('state-a', 'state-b', 'to-b');
         $stateMachine->addTransition('state-a', 'state-c', 'to-c');
         $stateMachine->addPreTransition(
-            function (TransitionEvent $event) {
+            function (PreTransitionEvent $event) {
                 $event->addMessage('message-1');
                 $event->setTargetState('state-c');
             },

@@ -2,6 +2,7 @@
 
 namespace StateMachine\Tests;
 
+use StateMachine\Event\PreTransitionEvent;
 use StateMachine\Event\TransitionEvent;
 use StateMachine\State\StateInterface;
 use StateMachine\StateMachine\StateMachine;
@@ -105,7 +106,7 @@ class HistoryTest extends \PHPUnit_Framework_TestCase
         $stateMachine->addTransition('A', 'C');
 
         $stateMachine->addPreTransition(
-            function (TransitionEvent $event) {
+            function (PreTransitionEvent $event) {
                 $event->setTargetState('C');
             },
             'A',
@@ -145,7 +146,7 @@ class HistoryTest extends \PHPUnit_Framework_TestCase
         );
 
         $stateMachine->addPreTransition(
-            function (TransitionEvent $event) {
+            function (PreTransitionEvent $event) {
                 $event->setTargetState('C');
             },
             'A',
