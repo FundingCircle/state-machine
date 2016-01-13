@@ -43,6 +43,9 @@ class StateMachine implements StateMachineInterface
     /** @var StateInterface */
     private $currentState;
 
+    /** @var  string */
+    private $targetState;
+
     /** @var TransitionInterface[] */
     private $transitions;
 
@@ -404,6 +407,10 @@ class StateMachine implements StateMachineInterface
             throw new StateMachineException('Statemachine is not booted');
         }
 
+        if ($this->targetState == $state) {
+            return false;
+        }
+
         $allowedTransition = in_array($state, $this->currentState->getTransitions());
         //check guards if enabled
         if ($withGuards && $allowedTransition) {
@@ -452,6 +459,8 @@ class StateMachine implements StateMachineInterface
 
             throw new StateMachineException($exception);
         }
+
+        $this->targetState = $state;
 
         $transitionName = $this->currentState->getName().TransitionInterface::EDGE_SYMBOL.$state;
         $transition = $this->transitions[$transitionName];
@@ -514,8 +523,11 @@ class StateMachine implements StateMachineInterface
                 //commit changes to database
                 $this->persistentManager->commitTransaction($transitionEvent);
             }
+        } catch (StateMachineException $e) {
+            throw $e;
         } catch (\Exception $e) {
             if (null !== $this->persistentManager) {
+                //@TODO find a way to handle runtime exception
                 $this->persistentManager->rollBackTransaction($transitionEvent);
             }
 
