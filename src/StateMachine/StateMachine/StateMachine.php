@@ -5,6 +5,7 @@ namespace StateMachine\StateMachine;
 use StateMachine\Accessor\StateAccessor;
 use StateMachine\Accessor\StateAccessorInterface;
 use StateMachine\Event\Events;
+use StateMachine\Event\PreTransitionEvent;
 use StateMachine\Event\TransitionEvent;
 use StateMachine\Exception\StateMachineException;
 use StateMachine\History\HistoryCollection;
@@ -42,6 +43,9 @@ class StateMachine implements StateMachineInterface
 
     /** @var StateInterface */
     private $currentState;
+
+    /** @var  string */
+    private $targetState;
 
     /** @var TransitionInterface[] */
     private $transitions;
@@ -141,9 +145,7 @@ class StateMachine implements StateMachineInterface
 
         //state exists in history and not the same as object, conflict alert
         if (null !== $state
-            && '' !== $state
             && null !== $objectState
-            && '' !== $objectState
             && $state->getName() !== $objectState
         ) {
             throw new StateMachineException(
@@ -157,11 +159,24 @@ class StateMachine implements StateMachineInterface
                 )
             );
         }
-        //no state found for the object it means it's new instance, set initial state
-        if (null === $state || '' == $state || null === $objectState || '' == $objectState) {
-            $state = $this->getInitialState();
-            if (null == $state) {
-                throw new StateMachineException('No initial state is found');
+        //No history found
+        if (null === $state) {
+            //no state found for the object it means it's new instance, set initial state
+            if (null === $objectState) {
+                $state = $this->getInitialState();
+                if (null == $state) {
+                    throw new StateMachineException('No initial state is found');
+                }
+            } else {
+                $this->validateState($objectState);
+                /** @var StateInterface $currentState */
+                $state = $this->states[$objectState];
+                //if new object and has state previously set which is not final or initial
+                if ($state->isNormal()) {
+                    throw new StateMachineException(
+                        sprintf("Object has state: %s, which is not final or initial", $objectState)
+                    );
+                }
             }
             $this->stateAccessor->setState($this->object, $state->getName());
             // Assign the transitions to the states to be able to get allowed transitions easily
@@ -393,6 +408,10 @@ class StateMachine implements StateMachineInterface
             throw new StateMachineException('Statemachine is not booted');
         }
 
+        if ($this->targetState == $state) {
+            return false;
+        }
+
         $allowedTransition = in_array($state, $this->currentState->getTransitions());
         //check guards if enabled
         if ($withGuards && $allowedTransition) {
@@ -442,6 +461,8 @@ class StateMachine implements StateMachineInterface
             throw new StateMachineException($exception);
         }
 
+        $this->targetState = $state;
+
         $transitionName = $this->currentState->getName().TransitionInterface::EDGE_SYMBOL.$state;
         $transition = $this->transitions[$transitionName];
         $transitionEvent = new TransitionEvent(
@@ -472,20 +493,29 @@ class StateMachine implements StateMachineInterface
             if (null !== $this->persistentManager) {
                 $this->persistentManager->beginTransaction($transitionEvent);
             }
+
+            $preTransitionEvent  = new PreTransitionEvent(
+                $this->object,
+                $transition,
+                $this->manager,
+                $this->persistentManager,
+                $options
+            );
+
             //Execute transition pre-transitions callbacks
             $this->eventDispatcher->dispatch(
                 $transitionName.'_'.Events::EVENT_PRE_TRANSITION,
-                $transitionEvent
+                $preTransitionEvent
             );
-            $this->messages = array_merge($this->messages, $transitionEvent->getMessages());
+            $this->messages = array_merge($this->messages, $preTransitionEvent->getMessages());
 
             //if target state is defined, commit and move to the target state
-            if (null !== $transitionEvent->getTargetState()) {
+            if (null !== $preTransitionEvent->getTargetState()) {
                 if (null !== $this->persistentManager) {
-                    $this->persistentManager->commitTransaction($transitionEvent);
+                    $this->persistentManager->commitTransaction($preTransitionEvent);
                 }
 
-                return $this->transitionTo($transitionEvent->getTargetState(), $options);
+                return $this->transitionTo($preTransitionEvent->getTargetState(), $options);
             }
 
             //change state
@@ -503,8 +533,11 @@ class StateMachine implements StateMachineInterface
                 //commit changes to database
                 $this->persistentManager->commitTransaction($transitionEvent);
             }
+        } catch (StateMachineException $e) {
+            throw $e;
         } catch (\Exception $e) {
             if (null !== $this->persistentManager) {
+                //@TODO find a way to handle runtime exception
                 $this->persistentManager->rollBackTransaction($transitionEvent);
             }
 

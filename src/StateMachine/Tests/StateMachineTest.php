@@ -3,6 +3,7 @@
 namespace StateMachine\Tests;
 
 use StateMachine\Accessor\StateAccessor;
+use StateMachine\Event\PreTransitionEvent;
 use StateMachine\Event\TransitionEvent;
 use StateMachine\History\History;
 use StateMachine\State\StateInterface;
@@ -395,7 +396,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
         $stateMachine->addTransition('state-a', 'state-b', 'to-b');
         $stateMachine->addTransition('state-a', 'state-c', 'to-c');
         $stateMachine->addPreTransition(
-            function (TransitionEvent $event) {
+            function (PreTransitionEvent $event) {
                 $event->addMessage('message-1');
                 $event->setTargetState('state-c');
             },
@@ -419,5 +420,60 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(2, $messages);
         $this->assertEquals('message-1', $messages[0]);
         $this->assertEquals('message-2', $messages[1]);
+    }
+
+    public function testNewObjectWithStateValueSetToNormal()
+    {
+        $this->setExpectedException(
+            'StateMachine\Exception\StateMachineException',
+            'Object has state: B, which is not final or initial'
+        );
+        //new object
+        $object = new Order(null);
+        $object->setState('B');
+
+        $stateMachine = new StateMachine($object);
+
+        $stateMachine->addState('A', StateInterface::TYPE_INITIAL);
+        $stateMachine->addState('B');
+        $stateMachine->addState('C', StateInterface::TYPE_FINAL);
+
+        $stateMachine->boot();
+    }
+
+
+    public function testNewObjectWithStateValueSetToFinal()
+    {
+        //new object
+        $object = new Order(null);
+        $object->setState('A');
+
+        $stateMachine = new StateMachine($object);
+
+        $stateMachine->addState('A', StateInterface::TYPE_INITIAL);
+        $stateMachine->addState('B');
+        $stateMachine->addState('C', StateInterface::TYPE_FINAL);
+
+        $stateMachine->boot();
+
+        $this->assertEquals('A', $stateMachine->getCurrentState());
+    }
+
+
+    public function testNewObjectWithStateValueSetToInitial()
+    {
+        //new object
+        $object = new Order(null);
+        $object->setState('C');
+
+        $stateMachine = new StateMachine($object);
+
+        $stateMachine->addState('A', StateInterface::TYPE_INITIAL);
+        $stateMachine->addState('B');
+        $stateMachine->addState('C', StateInterface::TYPE_FINAL);
+
+        $stateMachine->boot();
+
+        $this->assertEquals('C', $stateMachine->getCurrentState());
     }
 }
