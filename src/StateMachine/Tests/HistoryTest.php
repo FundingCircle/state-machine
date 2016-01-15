@@ -162,7 +162,6 @@ class HistoryTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($return);
         $this->assertEquals('A', $stateMachine->getCurrentState()->getName());
         $this->assertEquals(0, $history->count());
-        $this->assertEquals("failed sub guard", $stateMachine->getMessages()[0]);
-
+        $this->assertEquals('failed sub guard', $stateMachine->getMessages()[0]);
     }
 }

@@ -21,8 +21,8 @@ class StateMachineDataCollector extends DataCollector
     /**
      * Collects data for the given Request and Response.
      *
-     * @param Request    $request A Request instance
-     * @param Response   $response A Response instance
+     * @param Request    $request   A Request instance
+     * @param Response   $response  A Response instance
      * @param \Exception $exception An Exception instance
      *
      * @api
@@ -42,8 +42,8 @@ class StateMachineDataCollector extends DataCollector
                 'callbacks' => [
                     'guards' => $transitionEvent->getTransition()->getGuards(),
                     'pre_transitions' => $transitionEvent->getTransition()->getPreTransitions(),
-                    'post_transitions' => $transitionEvent->getTransition()->getPostTransitions()
-                ]
+                    'post_transitions' => $transitionEvent->getTransition()->getPostTransitions(),
+                ],
             ];
         }
 
@@ -55,8 +55,8 @@ class StateMachineDataCollector extends DataCollector
                 'callbacks' => [
                     'guards' => $transitionEvent->getTransition()->getGuards(),
                     'pre_transitions' => $transitionEvent->getTransition()->getPreTransitions(),
-                    'post_transitions' => $transitionEvent->getTransition()->getPostTransitions()
-                ]
+                    'post_transitions' => $transitionEvent->getTransition()->getPostTransitions(),
+                ],
             ];
         }
     }

@@ -19,6 +19,8 @@ class Transition implements TransitionInterface
     /** @var array */
     protected $postTransitions;
     /** @var array */
+    protected $postCommits;
+    /** @var array */
     protected $guards;
 
     /**
@@ -34,6 +36,7 @@ class Transition implements TransitionInterface
         $this->guards = [];
         $this->preTransitions = [];
         $this->postTransitions = [];
+        $this->postCommits = [];
     }
 
     /**
@@ -98,6 +101,22 @@ class Transition implements TransitionInterface
     public function addPostTransition($postTransition)
     {
         $this->postTransitions[] = self::callableToString($postTransition);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function addPostCommit($postCommit)
+    {
+        $this->postCommits[] = self::callableToString($postCommit);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPostCommits()
+    {
+        return $this->postCommits;
     }
 
     /**

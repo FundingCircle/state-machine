@@ -441,7 +441,6 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
         $stateMachine->boot();
     }
 
-
     public function testNewObjectWithStateValueSetToFinal()
     {
         //new object
@@ -458,7 +457,6 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals('A', $stateMachine->getCurrentState());
     }
-
 
     public function testNewObjectWithStateValueSetToInitial()
     {

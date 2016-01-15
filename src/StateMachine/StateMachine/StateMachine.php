@@ -169,12 +169,12 @@ class StateMachine implements StateMachineInterface
                 }
             } else {
                 $this->validateState($objectState);
-                /** @var StateInterface $currentState */
+                /* @var StateInterface $currentState */
                 $state = $this->states[$objectState];
                 //if new object and has state previously set which is not final or initial
                 if ($state->isNormal()) {
                     throw new StateMachineException(
-                        sprintf("Object has state: %s, which is not final or initial", $objectState)
+                        sprintf('Object has state: %s, which is not final or initial', $objectState)
                     );
                 }
             }
@@ -342,6 +342,25 @@ class StateMachine implements StateMachineInterface
     /**
      * {@inheritdoc}
      */
+    public function addPostCommit($callable, $from = null, $to = null, $priority = 0)
+    {
+        if ($this->booted) {
+            throw new StateMachineException('Cannot add post-commit to booted StateMachine');
+        }
+
+        foreach ($this->getTransitionsByStates($from, $to) as $transition) {
+            $transition->addPostCommit($callable);
+            $this->eventDispatcher->addListener(
+                $transition->getName().'_'.Events::EVENT_POST_COMMIT,
+                $callable,
+                $priority
+            );
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function setInitCallback($callable)
     {
         if ($this->booted) {
@@ -494,7 +513,7 @@ class StateMachine implements StateMachineInterface
                 $this->persistentManager->beginTransaction($transitionEvent);
             }
 
-            $preTransitionEvent  = new PreTransitionEvent(
+            $preTransitionEvent = new PreTransitionEvent(
                 $this->object,
                 $transition,
                 $this->manager,
@@ -553,8 +572,15 @@ class StateMachine implements StateMachineInterface
             $this->logger->logTransitionSucceed($transitionEvent);
         }
 
+        //Execute transition post-transitions callbacks
+        $this->eventDispatcher->dispatch(
+            $transitionName.'_'.Events::EVENT_POST_COMMIT,
+            $transitionEvent
+        );
+
+        $this->messages = array_merge($this->messages, $transitionEvent->getMessages());
+
         return true;
-        //@TODO execute callbacks after_commit
     }
 
     /**
