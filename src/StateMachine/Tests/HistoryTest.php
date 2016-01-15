@@ -51,7 +51,7 @@ class HistoryTest extends \PHPUnit_Framework_TestCase
         $lastTransition = $stateMachine->getLastStateChange();
         $transition = $stateMachine->getHistory()->last();
 
-        $this->assertNull($transition);
+        $this->assertFalse($transition);
         $this->assertNull($lastTransition);
     }
 
