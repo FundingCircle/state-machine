@@ -33,7 +33,6 @@ class TransitionEvent extends Event
     /** @var string */
     private $failedCallback;
 
-
     /** @var  PersistentManager */
     private $persistentManager;
 

@@ -141,6 +141,16 @@ interface StateMachineInterface
     public function addPostTransition($callable, $from, $to, $priority);
 
     /**
+     * @param callable $callable
+     * @param mixed    $from
+     * @param mixed    $to
+     * @param int      $priority
+     *
+     * @return mixed
+     */
+    public function addPostCommit($callable, $from, $to, $priority);
+
+    /**
      * Sets the initial callback when init state is set.
      *
      * @param $callable

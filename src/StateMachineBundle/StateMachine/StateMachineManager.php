@@ -210,6 +210,18 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
                 $postTransition['to']
             );
         }
+
+        //adding post-commit
+        foreach ($definition['post_commits'] as $postCommit) {
+            if (!isset($postCommit['callback'])) {
+                $postCommit['callback'] = $class;
+            }
+            $stateMachine->addPostCommit(
+                [$this->resolveCallback($postCommit), $postCommit['method']],
+                $postCommit['from'],
+                $postCommit['to']
+            );
+        }
         $stateMachine->setManager($this);
         $stateMachine->setLogger($this->logger);
 
