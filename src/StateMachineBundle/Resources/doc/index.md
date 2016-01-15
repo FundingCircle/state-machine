@@ -333,6 +333,10 @@ StateMachineBundle\Subscriber\StateMachineLoaderSubscriber::$enabled=false;
 
 ```
 
+## Transition lifecycle
+
+![SM Flow]
+(https://github.com/zencap/state-machine/blob/master/src/StateMachineBundle/Resources/doc/sm_flow.png)
 
 ## Configuration reference
 
@@ -356,6 +360,7 @@ state_machine:
             guards:[] #optional  #{ transition: ~ ,callback: ~, method: ~}
             pre_transitions:[] #optional { from: ~, to: ~ ,callback: ~, method: ~}
             post_transitions:[] #optional { from: ~ , to: ~, callback: ~, method: ~}
+            post_commits:[] #optional { from: ~ , to: ~, callback: ~, method: ~}
 
 
 ```
@@ -365,4 +370,3 @@ state_machine:
 
 - Add versionable statemachine possible in StateMachine factory.
 - Configuration rendering properties for GraphicZ.
-- Add one twig filter to generate buttons for given object with configurable template.
