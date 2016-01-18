@@ -243,6 +243,18 @@ class Graphviz implements VisualisationInterface
                     .'</FONT>';
                 $additional .= '<TR><TD ALIGN="LEFT">    +'.$displayClassName.'</TD></TR>';
             }
+
+            if (!empty($transition->getPostCommits())) {
+                $additional .= '<TR><TD ALIGN="LEFT">PostCommits: </TD></TR>';
+            }
+
+            foreach ($transition->getPostCommits() as $postCommit) {
+                $displayClassName =
+                    '<FONT COLOR="'.$this->configuration->get('post_commit_color')
+                    .'">'.$this->renderClassName($postCommit)
+                    .'</FONT>';
+                $additional .= '<TR><TD ALIGN="LEFT">    +'.$displayClassName.'</TD></TR>';
+            }
         }
 
         return $additional;

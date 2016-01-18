@@ -21,6 +21,7 @@ class Configuration
                 'guard_color' => '#993300',
                 'pre_transition_color' => '#3399FF',
                 'post_transition_color' => '#0033CC',
+                'post_commit_color' => '#8eb021',
                 'full_class_name' => false,
                 'current_state_color' => '#84bbc6',
                 'skip_transition_states' => [
