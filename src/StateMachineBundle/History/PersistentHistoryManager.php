@@ -38,10 +38,11 @@ class PersistentHistoryManager implements HistoryManagerInterface
         $om = $this->registry->getManagerForClass(get_class($statefulObject));
         $stateChanges = $om->getRepository($stateMachine->getHistoryClass())->findBy(
             [
-                'objectIdentifier' => $stateMachine->getObject()->getId(),
+                'objectIdentifier' => $statefulObject->getId(),
             ],
             [
                 'createdAt' => 'asc',
+                'id' => 'asc'
             ]
         );
 
