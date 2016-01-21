@@ -2,6 +2,7 @@
 
 namespace StateMachine\Tests;
 
+use StateMachine\Event\PreTransitionEvent;
 use StateMachine\Event\TransitionEvent;
 use StateMachine\State\StateInterface;
 use StateMachine\StateMachine\StateMachine;
@@ -50,7 +51,7 @@ class HistoryTest extends \PHPUnit_Framework_TestCase
         $lastTransition = $stateMachine->getLastStateChange();
         $transition = $stateMachine->getHistory()->last();
 
-        $this->assertNull($transition);
+        $this->assertFalse($transition);
         $this->assertNull($lastTransition);
     }
 
@@ -105,7 +106,7 @@ class HistoryTest extends \PHPUnit_Framework_TestCase
         $stateMachine->addTransition('A', 'C');
 
         $stateMachine->addPreTransition(
-            function (TransitionEvent $event) {
+            function (PreTransitionEvent $event) {
                 $event->setTargetState('C');
             },
             'A',
@@ -145,7 +146,7 @@ class HistoryTest extends \PHPUnit_Framework_TestCase
         );
 
         $stateMachine->addPreTransition(
-            function (TransitionEvent $event) {
+            function (PreTransitionEvent $event) {
                 $event->setTargetState('C');
             },
             'A',
@@ -161,7 +162,6 @@ class HistoryTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($return);
         $this->assertEquals('A', $stateMachine->getCurrentState()->getName());
         $this->assertEquals(0, $history->count());
-        $this->assertEquals("failed sub guard", $stateMachine->getMessages()[0]);
-
+        $this->assertEquals('failed sub guard', $stateMachine->getMessages()[0]);
     }
 }

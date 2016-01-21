@@ -82,4 +82,23 @@ class TransitionsTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('committed', $stateMachine->getCurrentState()->getName());
         $this->assertTrue($return);
     }
+
+    public function testPostCommitCalled()
+    {
+        $stateMachine = StateMachineFixtures::getBidStateMachine();
+        $stateMachine->addPostCommit(
+            function (TransitionEvent $transitionEvent) {
+                //do nothing
+                $transitionEvent->addMessage('post commit called');
+            },
+            'new',
+            'committed'
+        );
+
+        $stateMachine->boot();
+        $return = $stateMachine->transitionTo('committed');
+        $this->assertEquals('committed', $stateMachine->getCurrentState()->getName());
+        $this->assertTrue($return);
+        $this->assertEquals([0 => 'post commit called'], $stateMachine->getMessages());
+    }
 }

@@ -5,6 +5,7 @@ namespace StateMachine\StateMachine;
 use StateMachine\Accessor\StateAccessor;
 use StateMachine\Accessor\StateAccessorInterface;
 use StateMachine\Event\Events;
+use StateMachine\Event\PreTransitionEvent;
 use StateMachine\Event\TransitionEvent;
 use StateMachine\Exception\StateMachineException;
 use StateMachine\History\HistoryCollection;
@@ -42,6 +43,9 @@ class StateMachine implements StateMachineInterface
 
     /** @var StateInterface */
     private $currentState;
+
+    /** @var  string */
+    private $targetState;
 
     /** @var TransitionInterface[] */
     private $transitions;
@@ -165,12 +169,12 @@ class StateMachine implements StateMachineInterface
                 }
             } else {
                 $this->validateState($objectState);
-                /** @var StateInterface $currentState */
+                /* @var StateInterface $currentState */
                 $state = $this->states[$objectState];
                 //if new object and has state previously set which is not final or initial
                 if ($state->isNormal()) {
                     throw new StateMachineException(
-                        sprintf("Object has state: %s, which is not final or initial", $objectState)
+                        sprintf('Object has state: %s, which is not final or initial', $objectState)
                     );
                 }
             }
@@ -338,6 +342,25 @@ class StateMachine implements StateMachineInterface
     /**
      * {@inheritdoc}
      */
+    public function addPostCommit($callable, $from = null, $to = null, $priority = 0)
+    {
+        if ($this->booted) {
+            throw new StateMachineException('Cannot add post-commit to booted StateMachine');
+        }
+
+        foreach ($this->getTransitionsByStates($from, $to) as $transition) {
+            $transition->addPostCommit($callable);
+            $this->eventDispatcher->addListener(
+                $transition->getName().'_'.Events::EVENT_POST_COMMIT,
+                $callable,
+                $priority
+            );
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function setInitCallback($callable)
     {
         if ($this->booted) {
@@ -404,6 +427,10 @@ class StateMachine implements StateMachineInterface
             throw new StateMachineException('Statemachine is not booted');
         }
 
+        if ($this->targetState == $state) {
+            return false;
+        }
+
         $allowedTransition = in_array($state, $this->currentState->getTransitions());
         //check guards if enabled
         if ($withGuards && $allowedTransition) {
@@ -453,6 +480,8 @@ class StateMachine implements StateMachineInterface
             throw new StateMachineException($exception);
         }
 
+        $this->targetState = $state;
+
         $transitionName = $this->currentState->getName().TransitionInterface::EDGE_SYMBOL.$state;
         $transition = $this->transitions[$transitionName];
         $transitionEvent = new TransitionEvent(
@@ -483,20 +512,29 @@ class StateMachine implements StateMachineInterface
             if (null !== $this->persistentManager) {
                 $this->persistentManager->beginTransaction($transitionEvent);
             }
+
+            $preTransitionEvent = new PreTransitionEvent(
+                $this->object,
+                $transition,
+                $this->manager,
+                $this->persistentManager,
+                $options
+            );
+
             //Execute transition pre-transitions callbacks
             $this->eventDispatcher->dispatch(
                 $transitionName.'_'.Events::EVENT_PRE_TRANSITION,
-                $transitionEvent
+                $preTransitionEvent
             );
-            $this->messages = array_merge($this->messages, $transitionEvent->getMessages());
+            $this->messages = array_merge($this->messages, $preTransitionEvent->getMessages());
 
             //if target state is defined, commit and move to the target state
-            if (null !== $transitionEvent->getTargetState()) {
+            if (null !== $preTransitionEvent->getTargetState()) {
                 if (null !== $this->persistentManager) {
-                    $this->persistentManager->commitTransaction($transitionEvent);
+                    $this->persistentManager->commitTransaction($preTransitionEvent);
                 }
 
-                return $this->transitionTo($transitionEvent->getTargetState(), $options);
+                return $this->transitionTo($preTransitionEvent->getTargetState(), $options);
             }
 
             //change state
@@ -514,8 +552,11 @@ class StateMachine implements StateMachineInterface
                 //commit changes to database
                 $this->persistentManager->commitTransaction($transitionEvent);
             }
+        } catch (StateMachineException $e) {
+            throw $e;
         } catch (\Exception $e) {
             if (null !== $this->persistentManager) {
+                //@TODO find a way to handle runtime exception
                 $this->persistentManager->rollBackTransaction($transitionEvent);
             }
 
@@ -531,8 +572,15 @@ class StateMachine implements StateMachineInterface
             $this->logger->logTransitionSucceed($transitionEvent);
         }
 
+        //Execute transition post-transitions callbacks
+        $this->eventDispatcher->dispatch(
+            $transitionName.'_'.Events::EVENT_POST_COMMIT,
+            $transitionEvent
+        );
+
+        $this->messages = array_merge($this->messages, $transitionEvent->getMessages());
+
         return true;
-        //@TODO execute callbacks after_commit
     }
 
     /**

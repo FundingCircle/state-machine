@@ -51,6 +51,15 @@ interface TransitionInterface
     /**
      * @return array
      */
+    public function getPostCommits();
+    /**
+     * @param string $postCommit
+     */
+    public function addPostCommit($postCommit);
+
+    /**
+     * @return array
+     */
     public function getGuards();
 
     /**

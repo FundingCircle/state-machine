@@ -28,6 +28,7 @@ class StateMachineManagerTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals('new', $stateMachine->getCurrentState()->getName());
         $this->assertEquals(1, count($stateMachine->getTransitions()['new->cancelled']->getPostTransitions()));
+        $this->assertEquals(1, count($stateMachine->getTransitions()['new->cancelled']->getPostCommits()));
         $this->assertEquals(1, count($stateMachine->getTransitions()['new->cancelled']->getPreTransitions()));
         $this->assertEquals('order_statemachine', $stateMachine->getName());
     }
@@ -66,6 +67,7 @@ class StateMachineManagerTest extends \PHPUnit_Framework_TestCase
             'guards' => [],
             'pre_transitions' => [],
             'post_transitions' => [],
+            'post_commits' => [],
         ];
 
         $factory = $this->getFactory();
@@ -189,6 +191,14 @@ class StateMachineManagerTest extends \PHPUnit_Framework_TestCase
                 0 => [
                     'callback' => 'test_callback',
                     'method' => 'callbackMethod_post',
+                    'from' => ['new', 'originating'],
+                    'to' => 'cancelled',
+                ],
+            ],
+            'post_commits' => [
+                0 => [
+                    'callback' => 'test_callback',
+                    'method' => 'callbackMethod_post_commit',
                     'from' => ['new', 'originating'],
                     'to' => 'cancelled',
                 ],

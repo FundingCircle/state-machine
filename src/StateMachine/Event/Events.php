@@ -10,4 +10,5 @@ final class Events
     const EVENT_PRE_TRANSITION = 'statemachine.events.pre_transition';
     const EVENT_POST_TRANSITION = 'statemachine.events.post_transition';
     const EVENT_FAIL_TRANSITION = 'statemachine.events.fail_transition';
+    const EVENT_POST_COMMIT = 'statemachine.events.post_commit';
 }

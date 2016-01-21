@@ -1,7 +1,7 @@
 <?php
 
 // Purpose: allow arbitrary chaining of processing on a transition via the symfony event dispatcher
-// Stops event propagation when the transition fails somwhere.
+// Stops event propagation when the transition fails somewhere.
 namespace StateMachine\Event;
 
 use Doctrine\Common\Persistence\ObjectManager;
@@ -32,9 +32,6 @@ class TransitionEvent extends Event
 
     /** @var string */
     private $failedCallback;
-
-    /** @var  string */
-    private $targetState;
 
     /** @var  PersistentManager */
     private $persistentManager;
@@ -116,22 +113,6 @@ class TransitionEvent extends Event
     public function getOptions()
     {
         return $this->options;
-    }
-
-    /**
-     * @return string
-     */
-    public function getTargetState()
-    {
-        return $this->targetState;
-    }
-
-    /**
-     * @param string $targetState
-     */
-    public function setTargetState($targetState)
-    {
-        $this->targetState = $targetState;
     }
 
     /**
