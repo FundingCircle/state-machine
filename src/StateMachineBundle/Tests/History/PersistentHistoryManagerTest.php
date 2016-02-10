@@ -2,7 +2,9 @@
 
 namespace StateMachineBundle\Tests\History;
 
+use StateMachine\History\History;
 use StateMachine\History\HistoryCollection;
+use StateMachine\Tests\Entity\Order;
 use StateMachineBundle\History\PersistentHistoryManager;
 use StateMachineBundle\Tests\Entity\BlameableHistory;
 
@@ -152,6 +154,71 @@ class PersistentHistoryManagerTest extends \PHPUnit_Framework_TestCase
         $historyManager = $this->getHistoryManager($this->getRegistryMock($objectManagerMock), $tokenStorageMock);
         $historyManager->add($objectMock, $blameableStateChange);
         $this->assertNull($blameableStateChange->getUser());
+    }
+
+    public function testLoadIdSortingOrder()
+    {
+        $stateChange1 = new History();
+        $stateChange1->setFromState('A');
+        $stateChange1->setToState('B');
+
+        $stateChange2 = new History();
+        $stateChange2->setFromState('B');
+        $stateChange2->setToState('C');
+
+        $stateChange3 = new History();
+        $stateChange3->setFromState('C');
+        $stateChange3->setToState('D');
+
+        $history = [$stateChange1, $stateChange2, $stateChange3];
+
+        $objectManagerMock = $this->getMockBuilder('Doctrine\Common\Persistence\ObjectManager')
+            ->getMock();
+
+        $entityRepositoryMock = $this->getMockBuilder('Doctrine\ORM\EntityRepository')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $entityRepositoryMock->expects($this->exactly(1))
+            ->method('findBy')
+            ->with([
+                'objectIdentifier' => 1
+            ],
+                [
+                    'createdAt' => 'asc',
+                    'id' => 'asc'
+                ])
+            ->willReturn($history);
+
+        $objectManagerMock->expects($this->exactly(1))
+            ->method("getRepository")
+            ->willReturn($entityRepositoryMock);
+
+        $tokenStorageMock = $this->getTokenStorageMock();
+
+        $object = new Order(1);
+
+        $stateMachineMock = $this->getMockBuilder('StateMachine\StateMachine\StateMachineInterface')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $stateMachineMock->expects($this->once())
+            ->method('getHistoryClass');
+
+        $object->setStateMachine($stateMachineMock);
+
+        $historyManager = $this->getHistoryManager($this->getRegistryMock($objectManagerMock), $tokenStorageMock);
+        $historyCollection = $historyManager->load($object, $stateMachineMock);
+
+        $this->assertEquals(3, $historyCollection->count());
+        $this->assertEquals('A', $historyCollection->first()->getFromState());
+        $this->assertEquals('B', $historyCollection->first()->getToState());
+    }
+
+
+    public function testLoadCreatedAtSortingOrder()
+    {
+
     }
 
     private function getRegistryMock($objectManagerMock)
