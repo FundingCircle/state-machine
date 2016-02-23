@@ -182,16 +182,16 @@ class PersistentHistoryManagerTest extends \PHPUnit_Framework_TestCase
         $entityRepositoryMock->expects($this->exactly(1))
             ->method('findBy')
             ->with([
-                'objectIdentifier' => 1
+                'objectIdentifier' => 1,
             ],
                 [
                     'createdAt' => 'asc',
-                    'id' => 'asc'
+                    'id' => 'asc',
                 ])
             ->willReturn($history);
 
         $objectManagerMock->expects($this->exactly(1))
-            ->method("getRepository")
+            ->method('getRepository')
             ->willReturn($entityRepositoryMock);
 
         $tokenStorageMock = $this->getTokenStorageMock();
@@ -215,10 +215,8 @@ class PersistentHistoryManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('B', $historyCollection->first()->getToState());
     }
 
-
     public function testLoadCreatedAtSortingOrder()
     {
-
     }
 
     private function getRegistryMock($objectManagerMock)

@@ -42,7 +42,7 @@ class PersistentHistoryManager implements HistoryManagerInterface
             ],
             [
                 'createdAt' => 'asc',
-                'id' => 'asc'
+                'id' => 'asc',
             ]
         );
 

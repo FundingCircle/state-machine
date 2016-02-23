@@ -482,26 +482,25 @@ class StateMachine implements StateMachineInterface
             $this->persistentManager,
             $options
         );
-
-        //Execute guards
-        /* @var TransitionEvent $transitionEvent */
-        $response = $this->eventDispatcher->dispatch(
-            $transitionName.'_'.Events::EVENT_ON_GUARD,
-            $transitionEvent
-        );
-
-        if (!$response) {
-            $this->messages = array_merge($this->messages, $transitionEvent->getMessages());
-
-            if (null !== $this->logger) {
-                $this->logger->logTransitionFailed($transitionEvent);
-            }
-
-            return false;
-        }
         try {
             if (null !== $this->persistentManager) {
                 $this->persistentManager->beginTransaction($transitionEvent);
+            }
+            //Execute guards
+            /* @var TransitionEvent $transitionEvent */
+            $response = $this->eventDispatcher->dispatch(
+                $transitionName.'_'.Events::EVENT_ON_GUARD,
+                $transitionEvent
+            );
+
+            if (!$response) {
+                $this->messages = array_merge($this->messages, $transitionEvent->getMessages());
+
+                if (null !== $this->logger) {
+                    $this->logger->logTransitionFailed($transitionEvent);
+                }
+
+                return false;
             }
 
             $preTransitionEvent = new PreTransitionEvent(
@@ -773,7 +772,7 @@ class StateMachine implements StateMachineInterface
      * Returns all transitions between two states, null refers to all states.
      *
      * @param null $from , can be null, array, value
-     * @param null $to , can be null, array, value
+     * @param null $to   , can be null, array, value
      *
      * @return TransitionInterface[]
      */
