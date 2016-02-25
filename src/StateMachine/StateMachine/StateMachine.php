@@ -500,6 +500,10 @@ class StateMachine implements StateMachineInterface
                     $this->logger->logTransitionFailed($transitionEvent);
                 }
 
+                if (null !== $this->persistentManager) {
+                    $this->persistentManager->rollBackTransaction($transitionEvent);
+                }
+
                 return false;
             }
 
