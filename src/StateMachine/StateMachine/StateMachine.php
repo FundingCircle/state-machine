@@ -535,6 +535,11 @@ class StateMachine implements StateMachineInterface
             $this->currentState = $this->states[$state];
             $this->stateAccessor->setState($this->object, $state);
 
+            if (null !== $this->persistentManager) {
+                //flush new state, so SQL transaction can be aware of new state
+                $this->persistentManager->save($this->object);
+            }
+
             //Execute transition post-transitions callbacks
             $this->eventDispatcher->dispatch(
                 $transitionName.'_'.Events::EVENT_POST_TRANSITION,

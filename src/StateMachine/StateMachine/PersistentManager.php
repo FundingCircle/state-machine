@@ -54,6 +54,17 @@ class PersistentManager
     }
 
     /**
+     * @param StatefulInterface $statefulObject
+     */
+    public function save(StatefulInterface $statefulObject)
+    {
+        if (null !== $this->objectManager) {
+            $this->objectManager->persist($statefulObject);
+            $this->objectManager->flush($statefulObject);
+        }
+    }
+
+    /**
      * @param TransitionEvent $transitionEvent
      */
     public function rollBackTransaction(TransitionEvent $transitionEvent)

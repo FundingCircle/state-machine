@@ -88,6 +88,9 @@ class GuardsTest extends \PHPUnit_Framework_TestCase
         $persistentManagerMock->expects($this->exactly(1))
             ->method('rollBackTransaction');
 
+        $persistentManagerMock->expects($this->exactly(0))
+            ->method('save');
+
         $stateMachine = new StateMachine(
             new Order(1),
             $persistentManagerMock
@@ -126,6 +129,9 @@ class GuardsTest extends \PHPUnit_Framework_TestCase
 
         $persistentManagerMock->expects($this->exactly(1))
             ->method('commitTransaction');
+
+        $persistentManagerMock->expects($this->exactly(1))
+            ->method('save');
 
         $persistentManagerMock->expects($this->exactly(0))
             ->method('rollBackTransaction');
