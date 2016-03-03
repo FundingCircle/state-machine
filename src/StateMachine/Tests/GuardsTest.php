@@ -82,10 +82,10 @@ class GuardsTest extends \PHPUnit_Framework_TestCase
         $persistentManagerMock->expects($this->exactly(1))
             ->method('beginTransaction');
 
-        $persistentManagerMock->expects($this->exactly(0))
+        $persistentManagerMock->expects($this->exactly(1))
             ->method('commitTransaction');
 
-        $persistentManagerMock->expects($this->exactly(1))
+        $persistentManagerMock->expects($this->exactly(0))
             ->method('rollBackTransaction');
 
         $persistentManagerMock->expects($this->exactly(0))

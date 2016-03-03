@@ -501,7 +501,7 @@ class StateMachine implements StateMachineInterface
                 }
 
                 if (null !== $this->persistentManager) {
-                    $this->persistentManager->rollBackTransaction($transitionEvent);
+                    $this->persistentManager->commitTransaction($transitionEvent);
                 }
 
                 return false;
