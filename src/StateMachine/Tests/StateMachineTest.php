@@ -354,7 +354,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
 
     public function testInitStateCallback()
     {
-        $object = new Order(1);
+        $object = new Order(null);
         $stateMachine = new StateMachine(
             $object
         );
@@ -367,6 +367,23 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
         );
         $stateMachine->boot();
         $this->assertEquals('some value', $object->getSomeValue());
+    }
+
+    public function testInitStateCallbackNotCalled()
+    {
+        $object = new Order(1);
+        $stateMachine = new StateMachine(
+            $object
+        );
+        $stateMachine->addState('pending', StateInterface::TYPE_INITIAL);
+
+        $stateMachine->setInitCallback(
+            function (TransitionEvent $event) {
+                $event->getObject()->setSomeValue('some value');
+            }
+        );
+        $stateMachine->boot();
+        $this->assertNull($object->getSomeValue());
     }
 
     public function testInitStateEmptyCallback()

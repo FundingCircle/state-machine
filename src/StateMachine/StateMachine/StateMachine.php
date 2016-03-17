@@ -182,15 +182,18 @@ class StateMachine implements StateMachineInterface
 
             // prevent booting twice
             $this->booted = true;
-            //Dispatch init state event
-            $transitionEvent = new TransitionEvent(
-                $this->object,
-                null,
-                $this->manager,
-                $this->persistentManager,
-                []
-            );
-            $this->eventDispatcher->dispatch(Events::EVENT_ON_INIT, $transitionEvent);
+            //fire on_init only 1 time, on pre-persist
+            if (null == $this->object->getId()) {
+                //Dispatch init state event
+                $transitionEvent = new TransitionEvent(
+                    $this->object,
+                    null,
+                    $this->manager,
+                    $this->persistentManager,
+                    []
+                );
+                $this->eventDispatcher->dispatch(Events::EVENT_ON_INIT, $transitionEvent);
+            }
         } else {
             // Assign the transitions to the states to be able to get allowed transitions easily
             $this->bindTransitionsToStates();
