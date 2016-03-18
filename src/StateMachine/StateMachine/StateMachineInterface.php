@@ -22,7 +22,7 @@ interface StateMachineInterface
     /**
      * @param boolean $triggers whether to trigger events on boot or no
      */
-    public function boot($triggers);
+    public function boot($triggers = true);
 
     /** @return bool */
     public function isBooted();
