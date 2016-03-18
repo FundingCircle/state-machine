@@ -121,7 +121,7 @@ class StateMachine implements StateMachineInterface
     /**
      * {@inheritdoc}
      */
-    public function boot()
+    public function boot($triggers = true)
     {
         if ($this->booted) {
             throw new StateMachineException('Statemachine is already booted');
@@ -183,7 +183,7 @@ class StateMachine implements StateMachineInterface
             // prevent booting twice
             $this->booted = true;
             //fire on_init only 1 time, on pre-persist
-            if (null == $this->object->getId()) {
+            if ($triggers && null == $this->object->getId()) {
                 //Dispatch init state event
                 $transitionEvent = new TransitionEvent(
                     $this->object,

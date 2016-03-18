@@ -20,8 +20,9 @@ interface StateMachineInterface
     public function getTransitions();
 
     /**
+     * @param boolean $triggers whether to trigger events on boot or no
      */
-    public function boot();
+    public function boot($triggers);
 
     /** @return bool */
     public function isBooted();
