@@ -5,6 +5,7 @@ namespace StateMachineBundle\StateMachine;
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\Common\Persistence\Proxy;
+use ProxyManager\Factory\LazyLoadingValueHolderFactory;
 use StateMachine\Accessor\StateAccessor;
 use StateMachine\Exception\StateMachineException;
 use StateMachine\History\HistoryManagerInterface;
@@ -44,6 +45,9 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
 
     /** @var Logger */
     private $logger;
+
+    /** @var  LazyLoadingValueHolderFactory */
+    private $proxyFactory;
 
     /**
      * @param HistoryManagerInterface $historyManager
@@ -145,90 +149,103 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
         }
         // get definition prepared by the container
         $definition = $this->stateMachineDefinitions[$class];
-        //defining the StateMachine
-        $stateMachine = new StateMachine(
-            $statefulObject,
-            new PersistentManager($this->getObjectManagerByObject($statefulObject)),
-            $this->historyManager,
-            new StateAccessor($definition['object']['property']),
-            $definition['options'],
-            $definition['history_class'],
-            $definition['id']
+
+        $logger = $this->logger;
+        $stateMachineProxy = $this->getProxyFactory()->createProxy(
+            StateMachine::class,
+            function (&$stateMachine, $stateMachineProxy, $method, $parameters, &$initializer) use (
+                $statefulObject,
+                $definition,
+                $class,
+                $logger
+            ) {
+                //defining the StateMachine
+                $stateMachine = new StateMachine(
+                    $statefulObject,
+                    new PersistentManager($this->getObjectManagerByObject($statefulObject)),
+                    $this->historyManager,
+                    new StateAccessor($definition['object']['property']),
+                    $definition['options'],
+                    $definition['history_class'],
+                    $definition['id']
+                );
+
+                //adding states
+                foreach ($definition['states'] as $name => $state) {
+                    $stateMachine->addState($name, $state['type']);
+                }
+
+                //adding transitions
+                foreach ($definition['transitions'] as $transition) {
+                    $from = empty($transition['from']) ? null : $transition['from'];
+                    $to = empty($transition['to']) ? null : $transition['to'];
+                    $event = empty($transition['event']) ? null : $transition['event'];
+                    $stateMachine->addTransition($from, $to, $event);
+                }
+
+                //adding init callback
+                if (isset($definition['on_init'])) {
+                    $initCallBack = $definition['on_init'];
+                    $stateMachine->setInitCallback(
+                        [$this->resolveCallback($initCallBack), $initCallBack['method']]
+                    );
+                }
+
+                //adding guards
+                foreach ($definition['guards'] as $guard) {
+                    if (!isset($guard['callback'])) {
+                        $guard['callback'] = $class;
+                    }
+                    $stateMachine->addGuard(
+                        [$this->resolveCallback($guard), $guard['method']],
+                        $guard['from'],
+                        $guard['to']
+                    );
+                }
+                //adding pre-transitions
+                foreach ($definition['pre_transitions'] as $preTransition) {
+                    if (!isset($preTransition['callback'])) {
+                        $preTransition['callback'] = $class;
+                    }
+                    $stateMachine->addPreTransition(
+                        [$this->resolveCallback($preTransition), $preTransition['method']],
+                        $preTransition['from'],
+                        $preTransition['to']
+                    );
+                }
+                //adding post-transitions
+                foreach ($definition['post_transitions'] as $postTransition) {
+                    if (!isset($postTransition['callback'])) {
+                        $postTransition['callback'] = $class;
+                    }
+                    $stateMachine->addPostTransition(
+                        [$this->resolveCallback($postTransition), $postTransition['method']],
+                        $postTransition['from'],
+                        $postTransition['to']
+                    );
+                }
+
+                //adding post-commit
+                foreach ($definition['post_commits'] as $postCommit) {
+                    if (!isset($postCommit['callback'])) {
+                        $postCommit['callback'] = $class;
+                    }
+                    $stateMachine->addPostCommit(
+                        [$this->resolveCallback($postCommit), $postCommit['method']],
+                        $postCommit['from'],
+                        $postCommit['to']
+                    );
+                }
+                $stateMachine->setManager($this);
+                $stateMachine->setLogger($logger);
+                $initializer = null; // turning off further lazy initialization
+            }
         );
 
-        //adding states
-        foreach ($definition['states'] as $name => $state) {
-            $stateMachine->addState($name, $state['type']);
-        }
-
-        //adding transitions
-        foreach ($definition['transitions'] as $transition) {
-            $from = empty($transition['from']) ? null : $transition['from'];
-            $to = empty($transition['to']) ? null : $transition['to'];
-            $event = empty($transition['event']) ? null : $transition['event'];
-            $stateMachine->addTransition($from, $to, $event);
-        }
-
-        //adding init callback
-        if (isset($definition['on_init'])) {
-            $initCallBack = $definition['on_init'];
-            $stateMachine->setInitCallback(
-                [$this->resolveCallback($initCallBack), $initCallBack['method']]
-            );
-        }
-
-        //adding guards
-        foreach ($definition['guards'] as $guard) {
-            if (!isset($guard['callback'])) {
-                $guard['callback'] = $class;
-            }
-            $stateMachine->addGuard(
-                [$this->resolveCallback($guard), $guard['method']],
-                $guard['from'],
-                $guard['to']
-            );
-        }
-        //adding pre-transitions
-        foreach ($definition['pre_transitions'] as $preTransition) {
-            if (!isset($preTransition['callback'])) {
-                $preTransition['callback'] = $class;
-            }
-            $stateMachine->addPreTransition(
-                [$this->resolveCallback($preTransition), $preTransition['method']],
-                $preTransition['from'],
-                $preTransition['to']
-            );
-        }
-        //adding post-transitions
-        foreach ($definition['post_transitions'] as $postTransition) {
-            if (!isset($postTransition['callback'])) {
-                $postTransition['callback'] = $class;
-            }
-            $stateMachine->addPostTransition(
-                [$this->resolveCallback($postTransition), $postTransition['method']],
-                $postTransition['from'],
-                $postTransition['to']
-            );
-        }
-
-        //adding post-commit
-        foreach ($definition['post_commits'] as $postCommit) {
-            if (!isset($postCommit['callback'])) {
-                $postCommit['callback'] = $class;
-            }
-            $stateMachine->addPostCommit(
-                [$this->resolveCallback($postCommit), $postCommit['method']],
-                $postCommit['from'],
-                $postCommit['to']
-            );
-        }
-        $stateMachine->setManager($this);
-        $stateMachine->setLogger($this->logger);
-
         //add to loaded StateMachine objects
-        $this->loadedObjects[$oid] = $stateMachine;
+        $this->loadedObjects[$oid] = $stateMachineProxy;
 
-        return $stateMachine;
+        return $stateMachineProxy;
     }
 
     /**
@@ -293,5 +310,17 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
             //@TODO improve that, get rid of container
             return $this->container->get($callback['callback']);
         }
+    }
+
+    /**
+     * @return LazyLoadingValueHolderFactory
+     */
+    private function getProxyFactory()
+    {
+        if (null == $this->proxyFactory) {
+            $this->proxyFactory = new LazyLoadingValueHolderFactory();
+        }
+
+        return $this->proxyFactory;
     }
 }
