@@ -4,6 +4,7 @@ services:
         arguments:
             - @statemachine.history_manager
             - @doctrine
+            - @statemachine.proxy_factory
             - ~
         calls:
             - [setContainer,[@service_container]]
@@ -41,6 +42,16 @@ services:
             - @statemachine.logger
         tags:
             - { name: data_collector, id: state_machine, template: 'StateMachineBundle:Collector:state_machine' }
+
+    statemachine.proxy_factory:
+        class: ProxyManager\Factory\LazyLoadingValueHolderFactory
+        arguments:
+            - @statemachine.proxy_configuration
+
+    statemachine.proxy_configuration:
+        class: ProxyManager\Configuration
+        calls:
+            - [setProxiesTargetDir, ['%kernel.cache_dir%'] ]
 
     test_callback:
         class: StateMachineBundle\Tests\Listeners\MockListener

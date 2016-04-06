@@ -2,6 +2,7 @@
 
 namespace StateMachineBundle\Tests;
 
+use ProxyManager\Factory\LazyLoadingValueHolderFactory;
 use StateMachine\History\HistoryCollection;
 use StateMachineBundle\StateMachine\StateMachineManager;
 use StateMachineBundle\Tests\Entity\ChildOrder;
@@ -128,7 +129,7 @@ class StateMachineManagerTest extends \PHPUnit_Framework_TestCase
         $doctrineMock->method('getManagerForClass')
             ->willReturn($entityManagerMock);
 
-        $factory = new StateMachineManager($historyManagerMock, $doctrineMock);
+        $factory = new StateMachineManager($historyManagerMock, $doctrineMock, new LazyLoadingValueHolderFactory());
 
         return $factory->setContainer($containerMock);
     }

@@ -50,14 +50,22 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
     private $proxyFactory;
 
     /**
-     * @param HistoryManagerInterface $historyManager
-     * @param Registry                $doctrine
-     * @param Logger                  $logger
+     * StateMachineManager constructor.
+     *
+     * @param HistoryManagerInterface       $historyManager
+     * @param Registry                      $doctrine
+     * @param LazyLoadingValueHolderFactory $proxyFactory
+     * @param Logger|null                   $logger
      */
-    public function __construct(HistoryManagerInterface $historyManager, Registry $doctrine, Logger $logger = null)
-    {
+    public function __construct(
+        HistoryManagerInterface $historyManager,
+        Registry $doctrine,
+        LazyLoadingValueHolderFactory $proxyFactory,
+        Logger $logger = null
+    ) {
         $this->historyManager = $historyManager;
         $this->doctrine = $doctrine;
+        $this->proxyFactory = $proxyFactory;
         $this->logger = $logger;
         $this->stateFullClasses = [];
         $this->loadedObjects = [];
@@ -151,7 +159,7 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
         $definition = $this->stateMachineDefinitions[$class];
 
         $logger = $this->logger;
-        $stateMachineProxy = $this->getProxyFactory()->createProxy(
+        $stateMachineProxy = $this->proxyFactory->createProxy(
             StateMachine::class,
             function (&$stateMachine, $stateMachineProxy, $method, $parameters, &$initializer) use (
                 $statefulObject,
@@ -310,17 +318,5 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
             //@TODO improve that, get rid of container
             return $this->container->get($callback['callback']);
         }
-    }
-
-    /**
-     * @return LazyLoadingValueHolderFactory
-     */
-    private function getProxyFactory()
-    {
-        if (null == $this->proxyFactory) {
-            $this->proxyFactory = new LazyLoadingValueHolderFactory();
-        }
-
-        return $this->proxyFactory;
     }
 }

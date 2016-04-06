@@ -29,7 +29,7 @@ class StateMachineExtension extends Extension
         $stateMachineManager = $container->getDefinition('statemachine.manager');
         if ($config['profiler']) {
             $logger = $container->getDefinition('statemachine.logger');
-            $stateMachineManager->replaceArgument(2, $logger);
+            $stateMachineManager->replaceArgument(3, $logger);
         }
 
         foreach ($config['state_machines'] as $name => $stateMachine) {
