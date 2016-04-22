@@ -215,6 +215,30 @@ class PersistentHistoryManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('B', $historyCollection->first()->getToState());
     }
 
+    public function testNotCheckingHistoryWithNewObject()
+    {
+        $objectManagerMock = $this->getMockBuilder('Doctrine\Common\Persistence\ObjectManager')
+            ->getMock();
+
+        $objectManagerMock->expects($this->exactly(0))
+            ->method('getRepository');
+
+        $tokenStorageMock = $this->getTokenStorageMock();
+
+        $object = new Order(null);
+
+        $stateMachineMock = $this->getMockBuilder('StateMachine\StateMachine\StateMachineInterface')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $object->setStateMachine($stateMachineMock);
+
+        $historyManager = $this->getHistoryManager($this->getRegistryMock($objectManagerMock), $tokenStorageMock);
+        $historyCollection = $historyManager->load($object, $stateMachineMock);
+
+        $this->assertEquals(0, $historyCollection->count());
+    }
+
     public function testLoadCreatedAtSortingOrder()
     {
     }

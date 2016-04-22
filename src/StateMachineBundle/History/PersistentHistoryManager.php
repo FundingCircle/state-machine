@@ -35,6 +35,11 @@ class PersistentHistoryManager implements HistoryManagerInterface
      */
     public function load(StatefulInterface $statefulObject, StateMachineInterface $stateMachine)
     {
+        //No history records for new object
+        if (null == $statefulObject->getId()) {
+            return new HistoryCollection([]);
+        }
+
         $om = $this->registry->getManagerForClass(get_class($statefulObject));
         $stateChanges = $om->getRepository($stateMachine->getHistoryClass())->findBy(
             [
