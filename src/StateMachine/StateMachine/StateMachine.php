@@ -603,7 +603,7 @@ class StateMachine implements StateMachineInterface
                 "Event %s didn't match any transition, allowed events for state %s are [%s]",
                 $eventName,
                 $this->currentState,
-                implode(',', array_keys($this->eventTransitions))
+                implode(',', $this->getAllowedEvents())
 
             )
         );

@@ -491,4 +491,29 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals('C', $stateMachine->getCurrentState());
     }
+
+    public function testNotAllowedEvent()
+    {
+        $this->setExpectedException(
+            'StateMachine\Exception\StateMachineException',
+            'Event A_D didn\'t match any transition, allowed events for state A are [A_B,A_C]'
+        );
+        //new object
+        $object = new Order(1);
+        $object->setState('A');
+
+        $stateMachine = new StateMachine($object);
+
+        $stateMachine->addState('A', StateInterface::TYPE_INITIAL);
+        $stateMachine->addState('B');
+        $stateMachine->addState('C', StateInterface::TYPE_FINAL);
+
+        $stateMachine->addTransition('A', 'B', 'A_B');
+        $stateMachine->addTransition('A', 'C', 'A_C');
+        $stateMachine->addTransition('B', 'C', 'B_C');
+
+        $stateMachine->boot();
+
+        $stateMachine->triggers('A_D');
+    }
 }
