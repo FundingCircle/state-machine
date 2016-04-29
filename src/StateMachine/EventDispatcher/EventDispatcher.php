@@ -11,7 +11,7 @@ class EventDispatcher extends BaseEventDispatcher
     /**
      * {@inheritdoc}
      */
-    public function dispatch($eventName, Event $event = null)
+    public function dispatch($eventName, Event $event = null, &$messages = [])
     {
         if ($event instanceof TransitionEvent) {
             if (null === $event) {
@@ -20,6 +20,7 @@ class EventDispatcher extends BaseEventDispatcher
 
             foreach ($this->getListeners($eventName) as $listener) {
                 $return = call_user_func($listener, $event, $eventName);
+                $messages = array_merge($messages, $event->getMessages());
                 if (false === $return) {
                     $event->rejectTransition($listener);
 

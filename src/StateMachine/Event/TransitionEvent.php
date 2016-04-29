@@ -42,19 +42,21 @@ class TransitionEvent extends Event
      * @param ManagerInterface    $manager
      * @param PersistentManager   $persistentManager
      * @param array               $options
+     * @param array               $messages
      */
     public function __construct(
         StatefulInterface $object,
         TransitionInterface $transition = null,
         ManagerInterface $manager = null,
         PersistentManager $persistentManager = null,
-        $options = []
+        $options = [],
+        $messages = []
     ) {
         $this->object = $object;
         $this->transition = $transition;
         $this->persistentManager = $persistentManager;
         $this->manager = $manager;
-        $this->messages = [];
+        $this->messages = $messages;
         $this->options = array_merge($this->options, $options);
         $this->failedCallback = '';
     }

@@ -108,6 +108,7 @@ class StateMachine implements StateMachineInterface
         $this->transitions = [];
         $this->eventDispatcher = new EventDispatcher();
         $this->name = $name ?: get_class($object);
+        $this->messages = [];
     }
 
     /**
@@ -192,7 +193,7 @@ class StateMachine implements StateMachineInterface
                     $this->persistentManager,
                     []
                 );
-                $this->eventDispatcher->dispatch(Events::EVENT_ON_INIT, $transitionEvent);
+                $this->eventDispatcher->dispatch(Events::EVENT_ON_INIT, $transitionEvent, $this->messages);
             }
         } else {
             // Assign the transitions to the states to be able to get allowed transitions easily
@@ -443,10 +444,9 @@ class StateMachine implements StateMachineInterface
 
             $response = $this->eventDispatcher->dispatch(
                 $transitionName.'_'.Events::EVENT_ON_GUARD,
-                $transitionEvent
+                $transitionEvent,
+                $this->messages
             );
-
-            $this->messages = array_merge($this->messages, $transitionEvent->getMessages());
 
             return $response;
         }
@@ -483,7 +483,8 @@ class StateMachine implements StateMachineInterface
             $transition,
             $this->manager,
             $this->persistentManager,
-            $options
+            $options,
+            $this->messages
         );
         try {
             if (null !== $this->persistentManager) {
@@ -493,12 +494,11 @@ class StateMachine implements StateMachineInterface
             /* @var TransitionEvent $transitionEvent */
             $response = $this->eventDispatcher->dispatch(
                 $transitionName.'_'.Events::EVENT_ON_GUARD,
-                $transitionEvent
+                $transitionEvent,
+                $this->messages
             );
 
             if (!$response) {
-                $this->messages = array_merge($this->messages, $transitionEvent->getMessages());
-
                 if (null !== $this->logger) {
                     $this->logger->logTransitionFailed($transitionEvent);
                 }
@@ -521,9 +521,9 @@ class StateMachine implements StateMachineInterface
             //Execute transition pre-transitions callbacks
             $this->eventDispatcher->dispatch(
                 $transitionName.'_'.Events::EVENT_PRE_TRANSITION,
-                $preTransitionEvent
+                $preTransitionEvent,
+                $this->messages
             );
-            $this->messages = array_merge($this->messages, $preTransitionEvent->getMessages());
 
             //if target state is defined, commit and move to the target state
             if (null !== $preTransitionEvent->getTargetState()) {
@@ -546,7 +546,8 @@ class StateMachine implements StateMachineInterface
             //Execute transition post-transitions callbacks
             $this->eventDispatcher->dispatch(
                 $transitionName.'_'.Events::EVENT_POST_TRANSITION,
-                $transitionEvent
+                $transitionEvent,
+                $this->messages
             );
 
             //save history
@@ -574,10 +575,9 @@ class StateMachine implements StateMachineInterface
         //Execute transition post-transitions callbacks
         $this->eventDispatcher->dispatch(
             $transitionName.'_'.Events::EVENT_POST_COMMIT,
-            $transitionEvent
+            $transitionEvent,
+            $this->messages
         );
-
-        $this->messages = array_merge($this->messages, $transitionEvent->getMessages());
 
         return true;
     }

@@ -439,6 +439,40 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('message-2', $messages[1]);
     }
 
+    public function testMessagesThroughMultiStatesInit()
+    {
+        $object = new Order(null);
+        $stateMachine = new StateMachine($object);
+        $stateMachine->addState('A', StateInterface::TYPE_INITIAL);
+        $stateMachine->addState('B');
+        $stateMachine->addState('C');
+        $stateMachine->addTransition('A', 'C');
+
+        $stateMachine->setInitCallback(
+            function (TransitionEvent $event) {
+                $event->addMessage('on init message');
+                $event->getObject()->getStateMachine()->transitionTo('C');
+            }
+        );
+        $stateMachine->addPreTransition(
+            function (TransitionEvent $event) {
+                $event->addMessage('normal message');
+            },
+            'A',
+            'C'
+        );
+
+        $stateMachine->boot();
+
+        $messages = $stateMachine->getMessages();
+
+        $this->assertEquals('C', $stateMachine->getCurrentState()->getName());
+        $this->assertInternalType('array', $messages);
+        $this->assertCount(2, $messages);
+        $this->assertEquals('on init message', $messages[1]);
+        $this->assertEquals('normal message', $messages[0]);
+    }
+
     public function testNewObjectWithStateValueSetToNormal()
     {
         $this->setExpectedException(
