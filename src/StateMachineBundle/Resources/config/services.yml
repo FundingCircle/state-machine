@@ -55,3 +55,11 @@ services:
 
     test_callback:
         class: StateMachineBundle\Tests\Listeners\MockListener
+
+    statemachine.commands.trigger:
+        class: StateMachineBundle\Command\StateMachineCommand
+        arguments:
+            - @statemachine.manager
+            - @doctrine
+        tags:
+            - { name: console.command }
