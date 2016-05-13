@@ -49,6 +49,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->arrayNode('state_machines')
+                ->useAttributeAsKey('array')
                     ->prototype('array')
                         ->children()
                             ->arrayNode('object')
