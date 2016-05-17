@@ -87,6 +87,18 @@ class StateMachineManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($definition, reset($definitions));
     }
 
+    public function testRegisterDefinitionTwice()
+    {
+        $this->setExpectedException(
+            "StateMachine\Exception\StateMachineException",
+            "Cannot register statemachine for the same class more than one time, class: StateMachineBundle\Tests\Entity\Order"
+        );
+        $definition = $this->getDefinition();
+        $factory = $this->getFactory();
+        $factory->register($definition);
+        $factory->register($definition);
+    }
+
     public function testGetOneDefinition()
     {
         $definition = $this->getDefinition();

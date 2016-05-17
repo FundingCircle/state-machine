@@ -89,14 +89,23 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
     }
 
     /**
-     * Register statemachine definition.
-     *
      * @param array $definition
+     *
+     * @throws StateMachineException
      */
     public function register(array $definition)
     {
-        $this->stateMachineDefinitions[$definition['object']['class']] = $definition;
-        $this->stateFullClasses[] = $definition['object']['class'];
+        $class = $definition['object']['class'];
+        if (isset($this->stateMachineDefinitions[$class])) {
+            throw new StateMachineException(
+                sprintf(
+                    'Cannot register statemachine for the same class more than one time, class: %s',
+                    $definition['object']['class']
+                )
+            );
+        }
+        $this->stateMachineDefinitions[$class] = $definition;
+        $this->stateFullClasses[] = $class;
     }
 
     /**
