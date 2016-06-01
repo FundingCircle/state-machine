@@ -483,8 +483,7 @@ class StateMachine implements StateMachineInterface
             $transition,
             $this->manager,
             $this->persistentManager,
-            $options,
-            $this->messages
+            $options
         );
         try {
             if (null !== $this->persistentManager) {

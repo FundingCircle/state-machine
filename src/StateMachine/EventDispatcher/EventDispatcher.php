@@ -20,7 +20,7 @@ class EventDispatcher extends BaseEventDispatcher
 
             foreach ($this->getListeners($eventName) as $listener) {
                 $return = call_user_func($listener, $event, $eventName);
-                $messages = array_merge($messages, $event->getMessages());
+                $this->bindMessages($event, $messages);
                 if (false === $return) {
                     $event->rejectTransition($listener);
 
@@ -32,5 +32,15 @@ class EventDispatcher extends BaseEventDispatcher
         }
 
         throw new \Exception('Event should be instance of '.TransitionEvent::class);
+    }
+
+    /**
+     * @param TransitionEvent $event
+     * @param array           $messages
+     */
+    private function bindMessages(TransitionEvent $event, &$messages)
+    {
+        $messages = array_merge($messages, $event->getMessages());
+        $event->clearMessages();
     }
 }

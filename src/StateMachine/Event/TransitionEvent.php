@@ -125,6 +125,11 @@ class TransitionEvent extends Event
         return $this->persistentManager->getObjectManager();
     }
 
+    public function clearMessages()
+    {
+        $this->messages = [];
+    }
+
     /**
      * @param $callable
      */
