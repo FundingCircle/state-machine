@@ -46,7 +46,7 @@ class PersistentHistoryManager implements HistoryManagerInterface
                 'objectIdentifier' => $statefulObject->getId(),
             ],
             [
-                'createdAt' => 'asc',
+//                'createdAt' => 'asc', @FIXME to be added back 
                 'id' => 'asc',
             ]
         );
