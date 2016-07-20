@@ -185,7 +185,6 @@ class PersistentHistoryManagerTest extends \PHPUnit_Framework_TestCase
                 'objectIdentifier' => 1,
             ],
                 [
-                    'createdAt' => 'asc',
                     'id' => 'asc',
                 ])
             ->willReturn($history);
