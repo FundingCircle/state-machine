@@ -22,7 +22,8 @@
     "doctrine/collections": "~1.3",
     "symfony/event-dispatcher": "~2.1",
     "symfony/property-access": "~2.3",
-    "alom/graphviz": "~1.0"
+    "alom/graphviz": "~1.0",
+    "doctrine/common": "~2.0"
   },
   "require-dev": {
     "phpunit/phpunit": "~4.0"

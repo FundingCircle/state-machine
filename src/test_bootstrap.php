@@ -8,3 +8,6 @@ if (!file_exists(dirname(__DIR__) . '/composer.lock')) {
 }
 // Include the composer autoloader
 require dirname(__DIR__) . '/vendor/autoload.php';
+// Need to load the state machine bundle for tests in that directory to find its own classes.
+$loader->add('StateMachineBundle', __DIR__);
+date_default_timezone_set('Europe/Berlin');
