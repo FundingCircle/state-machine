@@ -1,15 +1,10 @@
 <?php
 
-if (!($loader = include __DIR__.'/../../../../vendor/autoload.php')) {
-    die(<<<EOT
-You need to install the project dependencies using Composer:
-$ wget http://getcomposer.org/composer.phar
-OR
-$ curl -s https://getcomposer.org/installer | php
-$ php composer.phar install
-$ phpunit
-EOT
-    );
+error_reporting(E_ALL | E_STRICT);
+// Ensure that composer has installed all dependencies
+if (!file_exists(dirname(__DIR__) . '/composer.lock')) {
+    die("Dependencies must be installed using composer:\n\nphp composer.phar install --dev\n\n"
+        . "See http://getcomposer.org for help with installing composer\n");
 }
-// Need to load the state machine bundle for tests in that directory to find its own classes.
-$loader->add('StateMachineBundle', __DIR__);
+// Include the composer autoloader
+require dirname(__DIR__) . '/vendor/autoload.php';
