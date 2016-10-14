@@ -117,6 +117,24 @@ class StateMachineManagerTest extends \PHPUnit_Framework_TestCase
         $factory->getDefinition('not_found_statemachine');
     }
 
+    public function testClearEmpty()
+    {
+        $definition = $this->getDefinition();
+
+        $factory = $this->getFactory();
+        $factory->register($definition);
+        $factory->get(new Order(1));
+    }
+
+    public function testClearWithEntities()
+    {
+        $definition = $this->getDefinition();
+
+        $factory = $this->getFactory();
+        $factory->register($definition);
+        $factory->get(new Order(1));
+    }
+
     private function getFactory()
     {
         $historyManagerMock = $this->getMockBuilder('StateMachine\History\HistoryManagerInterface')
