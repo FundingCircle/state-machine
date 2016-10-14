@@ -8,10 +8,10 @@ use StateMachine\StateMachine\StatefulInterface;
 use StateMachineBundle\StateMachine\StateMachineManager;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
-class StateMachineLoaderSubscriber implements EventSubscriber
+class LifeCycleEventsSubscriber implements EventSubscriber
 {
     /** @var StateMachineManager */
-    private $stateMachineFactory;
+    private $stateMachineManager;
 
     /** @var TokenStorageInterface */
     private $tokenStorage;
@@ -25,7 +25,7 @@ class StateMachineLoaderSubscriber implements EventSubscriber
      */
     public function __construct(StateMachineManager $stateMachineFactory, TokenStorageInterface $tokenStorage)
     {
-        $this->stateMachineFactory = $stateMachineFactory;
+        $this->stateMachineManager = $stateMachineFactory;
         $this->tokenStorage = $tokenStorage;
     }
 
@@ -37,6 +37,7 @@ class StateMachineLoaderSubscriber implements EventSubscriber
         return [
             'postLoad',
             'prePersist',
+            'onClear',
         ];
     }
 
@@ -55,7 +56,7 @@ class StateMachineLoaderSubscriber implements EventSubscriber
         $entity = $eventArgs->getEntity();
 
         if ($entity instanceof StatefulInterface) {
-            $stateMachine = $this->stateMachineFactory->get($entity);
+            $stateMachine = $this->stateMachineManager->get($entity);
             $entity->setStateMachine($stateMachine);
         }
     }
@@ -75,9 +76,17 @@ class StateMachineLoaderSubscriber implements EventSubscriber
         $entity = $eventArgs->getEntity();
 
         if ($entity instanceof StatefulInterface && $entity->getStateMachine() == null) {
-            $stateMachine = $this->stateMachineFactory->get($entity);
+            $stateMachine = $this->stateMachineManager->get($entity);
             $entity->setStateMachine($stateMachine);
             $stateMachine->boot();
         }
+    }
+
+    public function onClear()
+    {
+        if (!static::$enabled) {
+            return;
+        }
+        $this->stateMachineManager->clear();
     }
 }

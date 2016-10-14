@@ -277,6 +277,14 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
     }
 
     /**
+     * Clear all loaded objects
+     */
+    public function clear()
+    {
+        $this->loadedObjects = [];
+    }
+
+    /**
      * @param $object
      *
      * @return ObjectManager

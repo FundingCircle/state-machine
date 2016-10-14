@@ -117,6 +117,88 @@ class StateMachineManagerTest extends \PHPUnit_Framework_TestCase
         $factory->getDefinition('not_found_statemachine');
     }
 
+    public function testClearEmpty()
+    {
+        $definition = $this->getDefinition();
+
+        $historyManagerMock = $this->getMockBuilder('StateMachine\History\HistoryManagerInterface')
+            ->setMethods(['load', 'add'])
+            ->getMock();
+
+        $historyManagerMock->expects($this->any())
+            ->method('load')
+            ->willReturn(new HistoryCollection());
+
+        $entityManagerMock = $this->getMockBuilder('Doctrine\ORM\EntityManager')
+            ->disableOriginalConstructor()
+            ->getMock();
+        $containerMock = $this->getMock('\Symfony\Component\DependencyInjection\ContainerInterface');
+        $containerMock->method('get')
+            ->willReturn(new MockListener());
+
+        $doctrineMock = $this->getMockBuilder('\Doctrine\Bundle\DoctrineBundle\Registry')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $doctrineMock->method('getManagerForClass')
+            ->willReturn($entityManagerMock);
+
+        $lazyLoadingFactory = $this->getMockBuilder('ProxyManager\Factory\LazyLoadingValueHolderFactory')
+            ->getMock();
+        $lazyLoadingFactory->expects($this->exactly(1))
+            ->method('createProxy');
+
+        $factory = new StateMachineManager($historyManagerMock, $doctrineMock, $lazyLoadingFactory);
+
+        $factory->setContainer($containerMock);
+
+        $factory->register($definition);
+        $order = new Order(1);
+        $factory->get($order);
+        $factory->get($order);
+    }
+
+    public function testClearWithEntities()
+    {
+        $definition = $this->getDefinition();
+
+        $historyManagerMock = $this->getMockBuilder('StateMachine\History\HistoryManagerInterface')
+            ->setMethods(['load', 'add'])
+            ->getMock();
+
+        $historyManagerMock->expects($this->any())
+            ->method('load')
+            ->willReturn(new HistoryCollection());
+
+        $entityManagerMock = $this->getMockBuilder('Doctrine\ORM\EntityManager')
+            ->disableOriginalConstructor()
+            ->getMock();
+        $containerMock = $this->getMock('\Symfony\Component\DependencyInjection\ContainerInterface');
+        $containerMock->method('get')
+            ->willReturn(new MockListener());
+
+        $doctrineMock = $this->getMockBuilder('\Doctrine\Bundle\DoctrineBundle\Registry')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $doctrineMock->method('getManagerForClass')
+            ->willReturn($entityManagerMock);
+
+        $lazyLoadingFactory = $this->getMockBuilder('ProxyManager\Factory\LazyLoadingValueHolderFactory')
+            ->getMock();
+        $lazyLoadingFactory->expects($this->exactly(2))
+            ->method('createProxy');
+
+        $factory = new StateMachineManager($historyManagerMock, $doctrineMock, $lazyLoadingFactory);
+
+        $factory->setContainer($containerMock);
+
+        $factory->register($definition);
+        $factory->get(new Order(1));
+        $factory->clear();
+        $factory->get(new Order(1));
+    }
+
     private function getFactory()
     {
         $historyManagerMock = $this->getMockBuilder('StateMachine\History\HistoryManagerInterface')
