@@ -329,7 +329,7 @@ After setting target state, only pre-transitions (considered as exit action for 
 ### Disable the statemachine
 ``` php
 
-StateMachineBundle\Subscriber\StateMachineLoaderSubscriber::$enabled=false;
+StateMachineBundle\Subscriber\LifeCycleEventsSubscriber::$enabled=false;
 
 ```
 

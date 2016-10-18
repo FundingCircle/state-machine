@@ -10,7 +10,7 @@ services:
             - [setContainer,[@service_container]]
 
     statemachine.subscriber.doctrine_loader:
-        class: StateMachineBundle\Subscriber\StateMachineLoaderSubscriber
+        class: StateMachineBundle\Subscriber\LifeCycleEventsSubscriber
         arguments:
             - @statemachine.manager
             - @security.token_storage
