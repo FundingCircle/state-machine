@@ -1,7 +1,7 @@
 {
   "name": "zencap/state-machine",
   "description": "State machine",
-  "keywords": ["state machine"],
+  "keywords": ["state machine", "doctrine", "doctrine behavior", "symfony", "workflow"],
   "homepage": "https://github.com/zencap/state-machine",
   "type": "library",
   "license": "Zencap",
@@ -18,7 +18,7 @@
     "symfony/event-dispatcher": "~2.1",
     "symfony/property-access": "~2.3",
     "alom/graphviz": "~1.0",
-    "doctrine/common": "~2.0"
+    "doctrine/orm": "~2.0"
   },
   "require-dev": {
     "phpunit/phpunit": "~4.0"
