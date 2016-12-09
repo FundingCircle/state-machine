@@ -5,16 +5,12 @@
   "homepage": "https://github.com/zencap/state-machine",
   "type": "library",
   "license": "Zencap",
+  "minimum-stability": "master",
   "authors": [
     {
       "name": "Ahmed Samy",
-      "email": "ahmed.samy@zencap.de",
-      "homepage": "http://www.zencap.de"
-    },
-    {
-      "name": "Daniel Martin",
-      "email": "daniel.martin@zencap.de",
-      "homepage": "http://www.zencap.de"
+      "email": "ahmed.samy@fundingcircle.com",
+      "homepage": "http://wwww.ahmed-samy.com"
     }
   ],
   "require": {
