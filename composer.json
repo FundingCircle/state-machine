@@ -5,7 +5,6 @@
   "homepage": "https://github.com/zencap/state-machine",
   "type": "library",
   "license": "Zencap",
-  "minimum-stability": "master",
   "authors": [
     {
       "name": "Ahmed Samy",
