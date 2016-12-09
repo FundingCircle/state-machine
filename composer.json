@@ -20,6 +20,7 @@
     "doctrine/orm": "~2.0",
     "symfony/doctrine-bridge": "~2.3",
     "symfony/dependency-injection": "~2.0",
+    "symfony/security-csrf": "~2.0",
     "ocramius/proxy-manager": "1.0.*"
   },
   "require-dev": {
