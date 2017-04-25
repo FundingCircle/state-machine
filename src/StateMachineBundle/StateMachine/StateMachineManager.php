@@ -14,6 +14,7 @@ use StateMachine\StateMachine\ManagerInterface;
 use StateMachine\StateMachine\PersistentManager;
 use StateMachine\StateMachine\StatefulInterface;
 use StateMachine\StateMachine\StateMachine;
+use StateMachine\StateMachine\VersionInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Reference;
@@ -96,15 +97,16 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
     public function register(array $definition)
     {
         $class = $definition['object']['class'];
-        if (isset($this->stateMachineDefinitions[$class])) {
+        $version = $definition['version'];
+        if (isset($this->stateMachineDefinitions[$class][$version])) {
             throw new StateMachineException(
                 sprintf(
-                    'Cannot register statemachine for the same class more than one time, class: %s',
+                    "Cannot register statemachine's same class, with same version for more than one time, class: %s",
                     $definition['object']['class']
                 )
             );
         }
-        $this->stateMachineDefinitions[$class] = $definition;
+        $this->stateMachineDefinitions[$class][$version] = $definition;
         $this->stateFullClasses[] = $class;
     }
 
@@ -122,16 +124,21 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
      * Get one definition by id.
      *
      * @param $id
+     * @param $version
      *
      * @return array
-     *
      * @throws StateMachineException
      */
-    public function getDefinition($id)
+    public function getDefinition($id, $version = null)
     {
+        $version = $version ?: StateMachine::DEFAULT_VERSION;
         foreach ($this->stateMachineDefinitions as $definition) {
-            if ($definition['id'] == $id) {
-                return $definition;
+            if (!isset($definition[$version])) {
+                throw new StateMachineException(sprintf("can't find version %d of Statemachine %s", $version, $id));
+            }
+            $versionedDefinition = $definition[$version];
+            if ($versionedDefinition['id'] == $id) {
+                return $versionedDefinition;
             }
         }
 
@@ -156,16 +163,32 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
         }
 
         $class = $this->getClass($statefulObject);
-        if (!isset($this->stateMachineDefinitions[$class])) {
-            throw new StateMachineException(
-                sprintf(
-                    'Definition for class :%s is not found, have you forgot to define statemachine in config.yml',
-                    get_class($statefulObject)
-                )
-            );
+        if ($statefulObject instanceof VersionInterface) {
+            $version = $statefulObject->getVersion();
+        } else {
+            $version = StateMachine::DEFAULT_VERSION;
+        }
+
+        if (!isset($this->stateMachineDefinitions[$class][$version])) {
+            if ($version != StateMachine::DEFAULT_VERSION) {
+                throw new StateMachineException(
+                    sprintf(
+                        'Definition for class: %s, with version: %d is not found, have you forgot to define statemachine in config.yml',
+                        get_class($statefulObject),
+                        $version
+                    )
+                );
+            } else {
+                throw new StateMachineException(
+                    sprintf(
+                        'Definition for class :%s is not found, have you forgot to define statemachine in config.yml',
+                        get_class($statefulObject)
+                    )
+                );
+            }
         }
         // get definition prepared by the container
-        $definition = $this->stateMachineDefinitions[$class];
+        $definition = $this->stateMachineDefinitions[$class][$version];
 
         $logger = $this->logger;
         $stateMachineProxy = $this->proxyFactory->createProxy(

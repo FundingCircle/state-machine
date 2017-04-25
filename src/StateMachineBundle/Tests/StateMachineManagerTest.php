@@ -41,6 +41,7 @@ class StateMachineManagerTest extends \PHPUnit_Framework_TestCase
                 'class' => "StateMachineBundle\Tests\Entity\Order",
                 'property' => 'state',
             ],
+            'version' => 1,
             'id' => 'order_statemachine',
             'history_class' => "StateMachineBundle\Tests\Entity\History",
             'options' => ['flush' => true],
@@ -81,17 +82,18 @@ class StateMachineManagerTest extends \PHPUnit_Framework_TestCase
     public function testGetAllDefinitions()
     {
         $definition = $this->getDefinition();
+        $version = $definition['version'];
         $factory = $this->getFactory();
         $factory->register($definition);
         $definitions = $factory->getDefinitions();
-        $this->assertEquals($definition, reset($definitions));
+        $this->assertEquals($definition, reset($definitions)[$version]);
     }
 
     public function testRegisterDefinitionTwice()
     {
         $this->setExpectedException(
             "StateMachine\Exception\StateMachineException",
-            "Cannot register statemachine for the same class more than one time, class: StateMachineBundle\Tests\Entity\Order"
+            "Cannot register statemachine's same class, with same version for more than one time, class: StateMachineBundle\Tests\Entity\Order"
         );
         $definition = $this->getDefinition();
         $factory = $this->getFactory();
@@ -102,9 +104,10 @@ class StateMachineManagerTest extends \PHPUnit_Framework_TestCase
     public function testGetOneDefinition()
     {
         $definition = $this->getDefinition();
+        $version = $definition['version'];
         $factory = $this->getFactory();
         $factory->register($definition);
-        $definition = $factory->getDefinition('order_statemachine');
+        $definition = $factory->getDefinition('order_statemachine', $version);
         $this->assertEquals('order_statemachine', $definition['id']);
     }
 
@@ -231,6 +234,7 @@ class StateMachineManagerTest extends \PHPUnit_Framework_TestCase
     private function getDefinition()
     {
         return [
+            'version' => 1,
             'id' => 'order_statemachine',
             'object' => [
                 'class' => "StateMachineBundle\Tests\Entity\Order",

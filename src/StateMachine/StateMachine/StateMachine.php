@@ -77,6 +77,8 @@ class StateMachine implements StateMachineInterface
     /** @var  Logger */
     private $logger;
 
+    const DEFAULT_VERSION = 1;
+
     /**
      * @param StatefulInterface       $object
      * @param PersistentManager       $persistentManager

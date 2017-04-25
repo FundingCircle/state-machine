@@ -4,6 +4,7 @@ namespace StateMachineBundle\Command;
 
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use StateMachine\StateMachine\StatefulInterface;
+use StateMachine\StateMachine\StateMachine;
 use StateMachine\StateMachine\StateMachineInterface;
 use StateMachine\Transition\TransitionInterface;
 use StateMachineBundle\StateMachine\StateMachineManager;
@@ -53,10 +54,16 @@ class StateMachineCommand extends Command
         $helper = $this->getHelper('question');
 
         $question = new ChoiceQuestion('Select State Machine', $this->getDefinitions());
-
         $choice = $helper->ask($input, $output, $question);
+
+        $question = new Question(
+            'Enter version of ' . $choice . ' Statemachine (Default: ' . StateMachine::DEFAULT_VERSION . '): ',
+            StateMachine::DEFAULT_VERSION
+        );
+        $version = $helper->ask($input, $output, $question);
+
         $definitionId = $this->idsMap[$choice];
-        $definition = $this->stateMachineManager->getDefinition($definitionId);
+        $definition = $this->stateMachineManager->getDefinition($definitionId, $version);
         $class = $definition['object']['class'];
 
         $question = new Question('Enter the object id ?', null);
@@ -168,9 +175,11 @@ class StateMachineCommand extends Command
         $definitions = $this->stateMachineManager->getDefinitions();
         $i = 1;
         foreach ($definitions as $definition) {
-            $choices[$i] = $definition['description'];
-            $this->idsMap[$definition['description']] = $definition['id'];
-            ++$i;
+            foreach ($definition as $version => $definitionDetails) {
+                $choices[$i] = $definitionDetails['description'];
+                $this->idsMap[$definitionDetails['description']] = $definitionDetails['id'];
+                ++$i;
+            }
         }
 
         return $choices;
