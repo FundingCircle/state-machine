@@ -13,12 +13,15 @@ use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableStyle;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
 
 class StateMachineCommand extends Command
 {
+    const TRIGGER_TYPES = [1 => 'event', 2 => 'to state'];
+
     /** @var StateMachineManager */
     private $stateMachineManager;
 
@@ -45,16 +48,32 @@ class StateMachineCommand extends Command
     {
         $this
             ->setName('state-machine:trigger')
+            ->addOption('id', null, InputOption::VALUE_REQUIRED, 'Object PK')
+            ->addOption('class', null, InputOption::VALUE_REQUIRED, $this->getClassOptionDescription())
+            ->addOption('trigger', null, InputOption::VALUE_REQUIRED, $this->getTriggerOptionDescription())
+            ->addOption('state', null, InputOption::VALUE_REQUIRED)
+            ->addOption('event', null, InputOption::VALUE_REQUIRED)
             ->setDescription('Trigger state machine events/states interactively');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $objectId = (int)$input->getOption('id');
+        $classDefinition = $input->getOption('class');
+        $triggerType = $input->getOption('trigger');
+        $state = $input->getOption('state');
+        $eventName = $input->getOption('event');
+
         /** @var QuestionHelper $helper */
         $helper = $this->getHelper('question');
-
-        $question = new ChoiceQuestion('Select State Machine', $this->getDefinitions());
-        $choice = $helper->ask($input, $output, $question);
+        if (!$classDefinition) {
+            $question = new ChoiceQuestion('Select State Machine', $this->getDefinitions());
+            $choice = $helper->ask($input, $output, $question);
+            $definitionId = $this->idsMap[$choice];
+        } else {
+            $definitions = $this->getDefinitions();
+            $definitionId = $this->idsMap[$definitions[$classDefinition]];
+        }
 
         $question = new Question(
             'Enter version of ' . $choice . ' Statemachine (Default: ' . StateMachine::DEFAULT_VERSION . '): ',
@@ -62,22 +81,23 @@ class StateMachineCommand extends Command
         );
         $version = $helper->ask($input, $output, $question);
 
-        $definitionId = $this->idsMap[$choice];
         $definition = $this->stateMachineManager->getDefinition($definitionId, $version);
         $class = $definition['object']['class'];
 
-        $question = new Question('Enter the object id ?', null);
-        $question->setValidator(
-            function ($value) {
-                if (trim($value) == '') {
-                    throw new \Exception('Object id is not specified');
+        if ($objectId <= 0) {
+            $question = new Question('Enter the object id ?', null);
+            $question->setValidator(
+                function ($value) {
+                    if (trim($value) == '') {
+                        throw new \Exception('Object id is not specified');
+                    }
+
+                    return $value;
                 }
+            );
+            $objectId = $helper->ask($input, $output, $question);
+        }
 
-                return $value;
-            }
-        );
-
-        $objectId = $helper->ask($input, $output, $question);
         $objectManager = $this->registry->getManagerForClass($class);
         /** @var StatefulInterface $statefulObject */
         $statefulObject = $objectManager->getRepository($class)->find($objectId);
@@ -92,56 +112,63 @@ class StateMachineCommand extends Command
                 sprintf('Object is in final state, (%s)', $stateMachine->getCurrentState()->getName())
             );
         }
-        $question = new ChoiceQuestion('Select trigger', [1 => 'event', 2 => 'to state'], 'event');
-        $question->setValidator(
-            function ($value) {
-                if (trim($value) == '') {
-                    throw new \Exception('Trigger type is not specified');
-                }
 
-                return $value;
-            }
-        );
         $oldState = $stateMachine->getCurrentState()->getName();
-        $triggerType = (int) $helper->ask($input, $output, $question);
-
-        if (1 == $triggerType) {
-            $allowedEvents = array_combine(
-                array_values($stateMachine->getAllowedEvents()),
-                array_values($stateMachine->getAllowedEvents())
-            );
-
-            $question = new ChoiceQuestion(
-                'Select event',
-                $allowedEvents
-            );
-            $eventName = $helper->ask($input, $output, $question);
+        if (!$triggerType) {
+            $question = new ChoiceQuestion('Select trigger', self::TRIGGER_TYPES, 'event');
             $question->setValidator(
                 function ($value) {
                     if (trim($value) == '') {
-                        throw new \Exception('Event name is not specified');
+                        throw new \Exception('Trigger type is not specified');
                     }
 
                     return $value;
                 }
             );
-            $success = $statefulObject->getStateMachine()->triggers($eventName);
+            $triggerType = (int)$helper->ask($input, $output, $question);
+        }
+
+        if (1 == $triggerType) {
+            if (!$eventName) {
+                $allowedEvents = array_combine(
+                    array_values($stateMachine->getAllowedEvents()),
+                    array_values($stateMachine->getAllowedEvents())
+                );
+
+                $question = new ChoiceQuestion(
+                    'Select event',
+                    $allowedEvents
+                );
+                $eventName = $helper->ask($input, $output, $question);
+                $question->setValidator(
+                    function ($value) {
+                        if (trim($value) == '') {
+                            throw new \Exception('Event name is not specified');
+                        }
+
+                        return $value;
+                    }
+                );
+            }
+            $success = $stateMachine->triggers($eventName);
         }
 
         if (2 == $triggerType) {
-            $statesArray = $this->formatAllowedStates($stateMachine);
-            $question = new ChoiceQuestion('Select state', $statesArray);
-            $state = $helper->ask($input, $output, $question);
-            $question->setValidator(
-                function ($value) {
-                    if (trim($value) == '') {
-                        throw new \Exception('Destination state is not specified');
-                    }
+            if (!$state) {
+                $statesArray = $this->formatAllowedStates($stateMachine);
+                $question = new ChoiceQuestion('Select state', $statesArray);
+                $state = $helper->ask($input, $output, $question);
+                $question->setValidator(
+                    function ($value) {
+                        if (trim($value) == '') {
+                            throw new \Exception('Destination state is not specified');
+                        }
 
-                    return $value;
-                }
-            );
-            $success = $statefulObject->getStateMachine()->transitionTo($state);
+                        return $value;
+                    }
+                );
+            }
+            $success = $stateMachine->transitionTo($state);
         }
 
         $table = new Table($output);
@@ -149,12 +176,10 @@ class StateMachineCommand extends Command
 
         if ($success) {
             $style
-                ->setHorizontalBorderChar('<fg=green>-</>')
-            ;
+                ->setHorizontalBorderChar('<fg=green>-</>');
         } else {
             $style
-                ->setHorizontalBorderChar('<fg=red>-</>')
-            ;
+                ->setHorizontalBorderChar('<fg=red>-</>');
         }
 
         $table->setStyle($style);
@@ -194,5 +219,33 @@ class StateMachineCommand extends Command
         }
 
         return $statesArray;
+    }
+
+    private function getClassOptionDescription()
+    {
+        return "Class: \n".join(
+            "\n",
+            array_map(
+                function ($k, $v) {
+                    return "$k - $v";
+                },
+                array_keys($this->getDefinitions()),
+                array_values($this->getDefinitions())
+            )
+        );
+    }
+
+    private function getTriggerOptionDescription()
+    {
+        return 'Trigger type: '.join(
+            ',',
+            array_map(
+                function ($k, $v) {
+                    return "$k ($v)";
+                },
+                array_keys(self::TRIGGER_TYPES),
+                array_values(self::TRIGGER_TYPES)
+            )
+        );
     }
 }
