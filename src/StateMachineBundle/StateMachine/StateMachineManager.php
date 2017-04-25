@@ -129,9 +129,8 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
      * @return array
      * @throws StateMachineException
      */
-    public function getDefinition($id, $version = null)
+    public function getDefinition($id, $version = VersionInterface::DEFAULT_VERSION)
     {
-        $version = $version ?: StateMachine::DEFAULT_VERSION;
         foreach ($this->stateMachineDefinitions as $definition) {
             if (!isset($definition[$version])) {
                 throw new StateMachineException(sprintf("can't find version %d of Statemachine %s", $version, $id));
@@ -166,11 +165,11 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
         if ($statefulObject instanceof VersionInterface) {
             $version = $statefulObject->getVersion();
         } else {
-            $version = StateMachine::DEFAULT_VERSION;
+            $version = VersionInterface::DEFAULT_VERSION;
         }
 
         if (!isset($this->stateMachineDefinitions[$class][$version])) {
-            if ($version != StateMachine::DEFAULT_VERSION) {
+            if ($version != VersionInterface::DEFAULT_VERSION) {
                 throw new StateMachineException(
                     sprintf(
                         'Definition for class: %s, with version: %d is not found, have you forgot to define statemachine in config.yml',
