@@ -78,7 +78,7 @@ class StateMachineCommand extends Command
         $definitionId = $this->idsMap[$choice];
         if (!$version) {
             $question = new Question(
-                'Enter version of ' . $choice . ' Statemachine (Default: ' . VersionInterface::DEFAULT_VERSION . '): ',
+                sprintf('Enter version of %s Statemachine (Default: %d):', $choice, VersionInterface::DEFAULT_VERSION),
                 VersionInterface::DEFAULT_VERSION
             );
             $version = $helper->ask($input, $output, $question);
