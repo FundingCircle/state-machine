@@ -132,9 +132,10 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
     public function getDefinition($id, $version = VersionInterface::DEFAULT_VERSION)
     {
         foreach ($this->stateMachineDefinitions as $definition) {
-            $versionedDefinition = $definition[$version];
-            if ($versionedDefinition['id'] == $id) {
-                return $versionedDefinition;
+            foreach ($definition as $versionedDefinition) {
+                if ($versionedDefinition['id'] == $id && $versionedDefinition['version'] == $version) {
+                    return $versionedDefinition;
+                }
             }
         }
 
