@@ -132,16 +132,13 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
     public function getDefinition($id, $version = VersionInterface::DEFAULT_VERSION)
     {
         foreach ($this->stateMachineDefinitions as $definition) {
-            if (!isset($definition[$version])) {
-                throw new StateMachineException(sprintf("can't find version %d of Statemachine %s", $version, $id));
-            }
             $versionedDefinition = $definition[$version];
             if ($versionedDefinition['id'] == $id) {
                 return $versionedDefinition;
             }
         }
 
-        throw new StateMachineException(sprintf("can't find definition %s", $id));
+        throw new StateMachineException(sprintf("can't find definition of Statemachine %s with version %d", $id, $version));
     }
 
     /**
