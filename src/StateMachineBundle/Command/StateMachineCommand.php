@@ -77,11 +77,10 @@ class StateMachineCommand extends Command
         }
         $definitionId = $this->idsMap[$choice];
         if (!$version) {
-            $question = new Question(
-                sprintf('Enter version of %s Statemachine (Default: %d):', $choice, VersionInterface::DEFAULT_VERSION),
-                VersionInterface::DEFAULT_VERSION
-            );
-            $version = $helper->ask($input, $output, $question);
+            $version = VersionInterface::DEFAULT_VERSION;
+            if(preg_match_all('/\d+/', $definitionId, $numbers)) {
+                $version = end($numbers[0]);
+            }
         }
 
         $definition = $this->stateMachineManager->getDefinition($definitionId, $version);
