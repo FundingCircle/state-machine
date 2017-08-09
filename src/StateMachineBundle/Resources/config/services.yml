@@ -5,7 +5,7 @@ services:
             - @statemachine.history_manager
             - @doctrine
             - @statemachine.proxy_factory
-            - ~
+            - @statemachine.logger
         calls:
             - [setContainer,[@service_container]]
 
@@ -31,8 +31,7 @@ services:
     statemachine.logger:
         class: StateMachine\Logger\Logger
         arguments:
-            - @monolog.logger
-            - %kernel.debug%
+            - @logger
         tags:
             - { name: monolog.logger, channel: state_machine }
 
