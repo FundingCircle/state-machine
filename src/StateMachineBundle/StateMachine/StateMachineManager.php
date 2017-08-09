@@ -7,6 +7,7 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\Common\Persistence\Proxy;
 use ProxyManager\Factory\LazyLoadingValueHolderFactory;
 use StateMachine\Accessor\StateAccessor;
+use StateMachine\Event\TransitionEvent;
 use StateMachine\Exception\StateMachineException;
 use StateMachine\History\HistoryManagerInterface;
 use StateMachine\Logger\Logger;
@@ -203,9 +204,7 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
                 //adding init callback
                 if (isset($definition['on_init'])) {
                     $initCallBack = $definition['on_init'];
-                    $stateMachine->setInitCallback(
-                        [$this->resolveCallback($initCallBack), $initCallBack['method']]
-                    );
+                    $stateMachine->setInitCallback($this->getCallbackWrapper($initCallBack));
                 }
 
                 //adding guards
@@ -214,7 +213,7 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
                         $guard['callback'] = $class;
                     }
                     $stateMachine->addGuard(
-                        [$this->resolveCallback($guard), $guard['method']],
+                        $this->getCallbackWrapper($guard),
                         $guard['from'],
                         $guard['to']
                     );
@@ -225,7 +224,7 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
                         $preTransition['callback'] = $class;
                     }
                     $stateMachine->addPreTransition(
-                        [$this->resolveCallback($preTransition), $preTransition['method']],
+                        $this->getCallbackWrapper($preTransition),
                         $preTransition['from'],
                         $preTransition['to']
                     );
@@ -236,7 +235,7 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
                         $postTransition['callback'] = $class;
                     }
                     $stateMachine->addPostTransition(
-                        [$this->resolveCallback($postTransition), $postTransition['method']],
+                        $this->getCallbackWrapper($postTransition),
                         $postTransition['from'],
                         $postTransition['to']
                     );
@@ -248,7 +247,7 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
                         $postCommit['callback'] = $class;
                     }
                     $stateMachine->addPostCommit(
-                        [$this->resolveCallback($postCommit), $postCommit['method']],
+                        $this->getCallbackWrapper($postCommit),
                         $postCommit['from'],
                         $postCommit['to']
                     );
@@ -335,5 +334,23 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
             //@TODO improve that, get rid of container
             return $this->container->get($callback['callback']);
         }
+    }
+
+    private function getCallbackWrapper(array $callbackConfig)
+    {
+        $logger = $this->logger;
+
+        return function (TransitionEvent $event, $eventName) use ($callbackConfig, $logger) {
+
+            $callback = [$this->resolveCallback($callbackConfig), $callbackConfig['method']];
+
+            $result = call_user_func($callback, $event, $eventName);
+
+            if ($logger instanceof Logger) {
+                $logger->logCallbackCall($event, $eventName, $callbackConfig, $result);
+            }
+
+            return $result;
+        };
     }
 }

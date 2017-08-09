@@ -9,8 +9,6 @@ class Logger implements LoggerInterface
 {
     /** @var LoggerInterface */
     private $logger;
-    /** @var  bool */
-    private $debug;
     /** @var array */
     private $transitionEvents = [];
 
@@ -18,10 +16,9 @@ class Logger implements LoggerInterface
      * @param LoggerInterface $logger
      * @param bool            $debug
      */
-    public function __construct(LoggerInterface $logger, $debug)
+    public function __construct(LoggerInterface $logger)
     {
         $this->logger = $logger;
-        $this->debug = $debug;
         $this->transitionEvents['success'] = [];
         $this->transitionEvents['failed'] = [];
     }
@@ -32,7 +29,10 @@ class Logger implements LoggerInterface
     public function logTransitionSucceed(TransitionEvent $transition)
     {
         $this->transitionEvents['success'][] = $transition;
-        $this->debug(sprintf('Transition %s has been executed', $transition->getTransition()->getName()));
+        $this->info(
+            "Transition {$transition->getTransition()->getName()} has been executed",
+            $this->buildContext($transition)
+        );
     }
 
     /**
@@ -41,7 +41,18 @@ class Logger implements LoggerInterface
     public function logTransitionFailed(TransitionEvent $transition)
     {
         $this->transitionEvents['failed'][] = $transition;
-        $this->warning(sprintf('Transition %s filed', $transition->getTransition()->getName()));
+        $this->warning("Transition {$transition->getTransition()->getName()} failed", $this->buildContext($transition));
+    }
+
+    /**
+     * @param TransitionEvent $transition
+     * @param string          $event
+     * @param array           $callback
+     * @param mixed           $result
+     */
+    public function logCallbackCall(TransitionEvent $transition, $event, $callback, $result)
+    {
+        $this->debug("Callback method was called", $this->buildContext($transition, $event, $callback, $result));
     }
 
     /**
@@ -130,5 +141,36 @@ class Logger implements LoggerInterface
     public function log($level, $message, array $context = array())
     {
         return $this->logger->log($level, $message, $context);
+    }
+
+    /**
+     * @param TransitionEvent $transition
+     * @param string|null     $event
+     * @param array|null      $callback
+     * @param mixed           $result
+     *
+     * @return array
+     */
+    private function buildContext(TransitionEvent $transition, $event = null, array $callback = null, $result = null)
+    {
+        $context = [
+            'object_id' => $transition->getObject()->getId(),
+            'object_class' => get_class($transition->getObject()),
+            'messages' => $transition->getMessages(),
+        ];
+
+        if (null !== $event) {
+            $context['event'] = $event;
+        }
+
+        if (null !== $result) {
+            $context['result'] = $result;
+        }
+
+        if (null !== $callback) {
+            $context['callback'] = sprintf('%s::%s', $callback['callback'], $callback['method']);
+        }
+
+        return $context;
     }
 }
