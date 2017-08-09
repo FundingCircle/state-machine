@@ -2,6 +2,7 @@
 
 namespace StateMachineBundle\DependencyInjection;
 
+use StateMachine\StateMachine\VersionInterface;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -60,6 +61,7 @@ class Configuration implements ConfigurationInterface
                             ->end()
                             ->scalarNode('history_class')->cannotBeEmpty()->isRequired()->end()
                             ->scalarNode('description')->defaultValue('')->end()
+                            ->integerNode('version')->defaultValue(VersionInterface::DEFAULT_VERSION)->min(1)->end()
                             ->arrayNode('options')
                                 ->prototype('scalar')->end()
                                 ->defaultValue(self::$defaultOptions)

@@ -5,6 +5,7 @@ namespace StateMachineBundle\Command;
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use StateMachine\StateMachine\StatefulInterface;
 use StateMachine\StateMachine\StateMachineInterface;
+use StateMachine\StateMachine\VersionInterface;
 use StateMachine\Transition\TransitionInterface;
 use StateMachineBundle\StateMachine\StateMachineManager;
 use Symfony\Component\Console\Command\Command;
@@ -50,6 +51,7 @@ class StateMachineCommand extends Command
             ->addOption('id', null, InputOption::VALUE_REQUIRED, 'Object PK')
             ->addOption('class', null, InputOption::VALUE_REQUIRED, $this->getClassOptionDescription())
             ->addOption('trigger', null, InputOption::VALUE_REQUIRED, $this->getTriggerOptionDescription())
+            ->addOption('sm-version', null, InputOption::VALUE_REQUIRED)
             ->addOption('state', null, InputOption::VALUE_REQUIRED)
             ->addOption('event', null, InputOption::VALUE_REQUIRED)
             ->setDescription('Trigger state machine events/states interactively');
@@ -60,22 +62,28 @@ class StateMachineCommand extends Command
         $objectId = (int)$input->getOption('id');
         $classDefinition = $input->getOption('class');
         $triggerType = $input->getOption('trigger');
+        $version = $input->getOption('sm-version');
         $state = $input->getOption('state');
         $eventName = $input->getOption('event');
 
         /** @var QuestionHelper $helper */
         $helper = $this->getHelper('question');
-
         if (!$classDefinition) {
             $question = new ChoiceQuestion('Select State Machine', $this->getDefinitions());
             $choice = $helper->ask($input, $output, $question);
-            $definitionId = $this->idsMap[$choice];
         } else {
             $definitions = $this->getDefinitions();
-            $definitionId = $this->idsMap[$definitions[$classDefinition]];
+            $choice = $definitions[$classDefinition];
+        }
+        $definitionId = $this->idsMap[$choice];
+        if (!$version) {
+            $version = VersionInterface::DEFAULT_VERSION;
+            if(preg_match_all('/\d+/', $definitionId, $numbers)) {
+                $version = end($numbers[0]);
+            }
         }
 
-        $definition = $this->stateMachineManager->getDefinition($definitionId);
+        $definition = $this->stateMachineManager->getDefinition($definitionId, $version);
         $class = $definition['object']['class'];
 
         if ($objectId <= 0) {
@@ -194,9 +202,11 @@ class StateMachineCommand extends Command
         $definitions = $this->stateMachineManager->getDefinitions();
         $i = 1;
         foreach ($definitions as $definition) {
-            $choices[$i] = $definition['description'];
-            $this->idsMap[$definition['description']] = $definition['id'];
-            ++$i;
+            foreach ($definition as $version => $definitionDetails) {
+                $choices[$i] = $definitionDetails['description'];
+                $this->idsMap[$definitionDetails['description']] = $definitionDetails['id'];
+                ++$i;
+            }
         }
 
         return $choices;
