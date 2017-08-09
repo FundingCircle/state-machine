@@ -52,7 +52,11 @@ class Logger implements LoggerInterface
      */
     public function logCallbackCall(TransitionEvent $transition, $event, $callback, $result)
     {
-        $this->debug("Callback method was called", $this->buildContext($transition, $event, $callback, $result));
+        $message = "Callback method was called";
+        $context = $this->buildContext($transition, $event, $callback, $result);
+        $result === false
+            ? $this->warning($message, $context)
+            : $this->debug($message, $context);
     }
 
     /**
