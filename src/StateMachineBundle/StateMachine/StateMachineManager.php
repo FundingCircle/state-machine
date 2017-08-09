@@ -356,6 +356,15 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
         }
     }
 
+    /**
+     * That method returns function that does two things:
+     * - it calls the callback that was described in config
+     * - it logs the call of callback
+     *
+     * @param array $callbackConfig
+     *
+     * @return \Closure
+     */
     private function getCallbackWrapper(array $callbackConfig)
     {
         $logger = $this->logger;

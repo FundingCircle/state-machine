@@ -48,13 +48,13 @@ class Logger implements LoggerInterface
      * @param TransitionEvent $transition
      * @param string          $event
      * @param array           $callback
-     * @param mixed           $result
+     * @param mixed           $callbackResult
      */
-    public function logCallbackCall(TransitionEvent $transition, $event, $callback, $result)
+    public function logCallbackCall(TransitionEvent $transition, $event, $callback, $callbackResult)
     {
         $message = "Callback method was called";
-        $context = $this->buildContext($transition, $event, $callback, $result);
-        $result === false
+        $context = $this->buildContext($transition, $event, $callback, $callbackResult);
+        $callbackResult === false
             ? $this->warning($message, $context)
             : $this->debug($message, $context);
     }
@@ -168,7 +168,9 @@ class Logger implements LoggerInterface
         }
 
         if (null !== $result) {
-            $context['result'] = $result;
+            $context['result'] = is_object($result)
+                ? ['class' => get_class($object), 'id' => $object->getId()]
+                : $result;
         }
 
         if (null !== $callback) {
