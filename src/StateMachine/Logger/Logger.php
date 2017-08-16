@@ -169,7 +169,7 @@ class Logger implements LoggerInterface
 
         if (null !== $result) {
             $context['result'] = is_object($result)
-                ? ['class' => get_class($object), 'id' => $object->getId()]
+                ? ['class' => get_class($result), 'id' => $result->getId()]
                 : $result;
         }
 
