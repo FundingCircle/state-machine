@@ -387,6 +387,12 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
     }
 }
 
+/**
+ * Also should be called for console.terminate and kernel.terminate events
+ *
+ * Class PostCommitCallback
+ * @package StateMachineBundle\StateMachine
+ */
 class PostCommitCallback
 {
     /**
@@ -406,18 +412,21 @@ class PostCommitCallback
      */
     public function __construct(callable $callback)
     {
-        static::$bag[] = $callback;
         $this->callback = $callback;
     }
 
     public function __invoke(TransitionEvent $event, $eventName)
     {
+        static::$bag[] = function() use ($event, $eventName) {
+            return call_user_func($callback, $event, $eventName);
+        };
+
         if ($event->getObjectManager()->getConnection()->isTransactionActive()) {
             return;
         }
 
         while ($callback = array_shift(static::$bag)) {
-            call_user_func($callback, $event, $eventName);
+            call_user_func($callback);
         }
     }
 
