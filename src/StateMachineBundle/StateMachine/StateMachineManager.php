@@ -16,6 +16,7 @@ use StateMachine\StateMachine\PersistentManager;
 use StateMachine\StateMachine\StatefulInterface;
 use StateMachine\StateMachine\StateMachine;
 use StateMachine\StateMachine\VersionInterface;
+use StateMachineBundle\Event\LoggingCallbackWrapper;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Reference;
@@ -357,29 +358,16 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
     }
 
     /**
-     * That method returns function that does two things:
-     * - it calls the callback that was described in config
-     * - it logs the call of callback
-     *
      * @param array $callbackConfig
      *
-     * @return \Closure
+     * @return callable
      */
     private function getCallbackWrapper(array $callbackConfig)
     {
-        $logger = $this->logger;
-
-        return function (TransitionEvent $event, $eventName) use ($callbackConfig, $logger) {
-
-            $callback = [$this->resolveCallback($callbackConfig), $callbackConfig['method']];
-
-            $result = call_user_func($callback, $event, $eventName);
-
-            if ($logger instanceof Logger) {
-                $logger->logCallbackCall($event, $eventName, $callbackConfig, $result);
-            }
-
-            return $result;
-        };
+        return new LoggingCallbackWrapper(
+            $callbackConfig,
+            [$this->resolveCallback($callbackConfig), $callbackConfig['method']],
+            $this->logger
+        );
     }
 }

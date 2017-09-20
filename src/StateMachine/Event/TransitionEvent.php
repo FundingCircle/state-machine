@@ -6,6 +6,7 @@ namespace StateMachine\Event;
 
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ORM\EntityManager;
+use StateMachine\Helper\StringHelper;
 use StateMachine\StateMachine\ManagerInterface;
 use StateMachine\StateMachine\PersistentManager;
 use StateMachine\Transition\Transition;
@@ -135,7 +136,7 @@ class TransitionEvent extends Event
      */
     public function rejectTransition($callable)
     {
-        $this->failedCallback = Transition::callableToString($callable);
+        $this->failedCallback = StringHelper::callableToString($callable);
         $this->stopPropagation();
     }
 }

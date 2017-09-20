@@ -2,6 +2,7 @@
 
 namespace StateMachine\Transition;
 
+use StateMachine\Helper\StringHelper;
 use StateMachine\State\StateInterface;
 
 class Transition implements TransitionInterface
@@ -84,7 +85,7 @@ class Transition implements TransitionInterface
      */
     public function addPreTransition($preTransition)
     {
-        $this->preTransitions[] = self::callableToString($preTransition);
+        $this->preTransitions[] = StringHelper::callableToString($preTransition);
     }
 
     /**
@@ -100,7 +101,7 @@ class Transition implements TransitionInterface
      */
     public function addPostTransition($postTransition)
     {
-        $this->postTransitions[] = self::callableToString($postTransition);
+        $this->postTransitions[] = StringHelper::callableToString($postTransition);
     }
 
     /**
@@ -108,7 +109,7 @@ class Transition implements TransitionInterface
      */
     public function addPostCommit($postCommit)
     {
-        $this->postCommits[] = self::callableToString($postCommit);
+        $this->postCommits[] = StringHelper::callableToString($postCommit);
     }
 
     /**
@@ -132,33 +133,6 @@ class Transition implements TransitionInterface
      */
     public function addGuard($guard)
     {
-        $this->guards[] = self::callableToString($guard);
-    }
-
-    /**
-     * Resolve callable which can be one of
-     *  - closure
-     *  - class instance and method
-     *  - class path and static method.
-     *
-     * @TODO this method should move out of this class
-     *
-     * @param $callable
-     *
-     * @return string
-     */
-    public static function callableToString($callable)
-    {
-        if ($callable instanceof \Closure) {
-            $callableClass = 'closure';
-        } elseif (is_array($callable) && is_object($callable[0])) {
-            $callableClass = get_class($callable[0]).'::'.$callable[1];
-        } elseif (is_array($callable)) {
-            $callableClass = $callable[0].'::'.$callable[1];
-        } else {
-            $callableClass = get_class($callable);
-        }
-
-        return $callableClass;
+        $this->guards[] = StringHelper::callableToString($guard);
     }
 }
