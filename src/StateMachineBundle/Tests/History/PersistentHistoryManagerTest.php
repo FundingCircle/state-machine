@@ -4,9 +4,12 @@ namespace StateMachineBundle\Tests\History;
 
 use StateMachine\History\History;
 use StateMachine\History\HistoryCollection;
+use StateMachine\StateMachine\StatefulInterface;
 use StateMachine\Tests\Entity\Order;
 use StateMachineBundle\History\PersistentHistoryManager;
 use StateMachineBundle\Tests\Entity\BlameableHistory;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class PersistentHistoryManagerTest extends \PHPUnit_Framework_TestCase
 {
@@ -96,7 +99,7 @@ class PersistentHistoryManagerTest extends \PHPUnit_Framework_TestCase
         $blameableStateChange = new BlameableHistory();
         $blameableStateChange->setOptions(['transaction' => true]);
 
-        $userMock = $this->getMock('Symfony\Component\Security\Core\User\UserInterface');
+        $userMock = $this->createMock('Symfony\Component\Security\Core\User\UserInterface');
         $tokenStorageMock = $this->getTokenStorageMock($userMock);
 
         $historyManager = $this->getHistoryManager(
@@ -259,14 +262,9 @@ class PersistentHistoryManagerTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $statefulMock = $this->getMock(
-            'StateMachine\StateMachine\StatefulInterface',
-            [
-                'getStateMachine',
-                'setStateMachine',
-                'getId',
-            ]
-        );
+        $statefulMock = $this->getMockBuilder(StatefulInterface::class)
+            ->setMethods(['getStateMachine', 'setStateMachine', 'getId'])
+            ->getMock();
 
         $statefulMock->expects($this->any())
             ->method('getStateMachine')
@@ -286,13 +284,14 @@ class PersistentHistoryManagerTest extends \PHPUnit_Framework_TestCase
 
     private function getTokenStorageMock($user = null)
     {
-        $tokenStoragetMock = $this->getMockBuilder(
-            'Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface'
-        )->getMock();
+        $tokenStoragetMock = $this->getMockBuilder(TokenStorageInterface::class)
+            ->setMethods(['getToken'])
+            ->getMockForAbstractClass();
 
-        $tokenMock = $this->getMockBuilder(
-            'Symfony\Component\Security\Core\Authentication\Token\TokenInterface'
-        )->getMock();
+        $tokenMock = $this->getMockBuilder(TokenInterface::class)
+            ->setMethods(['getUser'])
+            ->getMockForAbstractClass();
+
         $tokenMock->expects($this->any())
             ->method('getUser')
             ->willReturn($user);

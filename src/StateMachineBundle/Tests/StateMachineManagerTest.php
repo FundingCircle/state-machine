@@ -3,17 +3,19 @@
 namespace StateMachineBundle\Tests;
 
 use ProxyManager\Factory\LazyLoadingValueHolderFactory;
+use StateMachine\Exception\StateMachineException;
 use StateMachine\History\HistoryCollection;
 use StateMachineBundle\StateMachine\StateMachineManager;
 use StateMachineBundle\Tests\Entity\ChildOrder;
 use StateMachineBundle\Tests\Entity\Order;
 use StateMachineBundle\Tests\Listeners\MockListener;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class StateMachineManagerTest extends \PHPUnit_Framework_TestCase
 {
     public function testGetUndefinedStateMachine()
     {
-        $this->setExpectedException("StateMachine\Exception\StateMachineException");
+        $this->expectException(StateMachineException::class);
         $factory = $this->getFactory();
         $factory->get(new Order(1));
     }
@@ -91,9 +93,9 @@ class StateMachineManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testRegisterDefinitionTwice()
     {
-        $this->setExpectedException(
-            "StateMachine\Exception\StateMachineException",
-            "Cannot register statemachine's same class, with same version for more than one time, class: StateMachineBundle\Tests\Entity\Order"
+        $this->expectException(StateMachineException::class);
+        $this->expectExceptionMessage(
+            'Cannot register statemachine\'s same class, with same version for more than one time, class: StateMachineBundle\Tests\Entity\Order'
         );
         $definition = $this->getDefinition();
         $factory = $this->getFactory();
@@ -113,7 +115,7 @@ class StateMachineManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testGetOneNotFoundDefinition()
     {
-        $this->setExpectedException("StateMachine\Exception\StateMachineException");
+        $this->expectException(StateMachineException::class);
         $definition = $this->getDefinition();
         $factory = $this->getFactory();
         $factory->register($definition);
@@ -135,7 +137,7 @@ class StateMachineManagerTest extends \PHPUnit_Framework_TestCase
         $entityManagerMock = $this->getMockBuilder('Doctrine\ORM\EntityManager')
             ->disableOriginalConstructor()
             ->getMock();
-        $containerMock = $this->getMock('\Symfony\Component\DependencyInjection\ContainerInterface');
+        $containerMock = $this->createMock(ContainerInterface::class);
         $containerMock->method('get')
             ->willReturn(new MockListener());
 
@@ -176,7 +178,7 @@ class StateMachineManagerTest extends \PHPUnit_Framework_TestCase
         $entityManagerMock = $this->getMockBuilder('Doctrine\ORM\EntityManager')
             ->disableOriginalConstructor()
             ->getMock();
-        $containerMock = $this->getMock('\Symfony\Component\DependencyInjection\ContainerInterface');
+        $containerMock = $this->createMock(ContainerInterface::class);
         $containerMock->method('get')
             ->willReturn(new MockListener());
 
@@ -215,7 +217,7 @@ class StateMachineManagerTest extends \PHPUnit_Framework_TestCase
         $entityManagerMock = $this->getMockBuilder('Doctrine\ORM\EntityManager')
             ->disableOriginalConstructor()
             ->getMock();
-        $containerMock = $this->getMock('\Symfony\Component\DependencyInjection\ContainerInterface');
+        $containerMock = $this->createMock(ContainerInterface::class);
         $containerMock->method('get')
             ->willReturn(new MockListener());
 

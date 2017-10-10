@@ -2,7 +2,9 @@
 
 namespace StateMachine\Tests;
 
+use Doctrine\Common\Persistence\ObjectManager;
 use StateMachine\StateMachine\PersistentManager;
+use StateMachine\StateMachine\StatefulInterface;
 
 class PersistentManagerTest extends \PHPUnit_Framework_TestCase
 {
@@ -22,9 +24,10 @@ class PersistentManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testPreTransitionWithoutORM()
     {
-        $objectManagerMock = $this->getMockBuilder('Doctrine\Common\Persistence\ObjectManager')
+        $objectManagerMock = $this->getMockBuilder(ObjectManager::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->setMethods(['beginTransaction'])
+            ->getMockForAbstractClass();
 
         $objectManagerMock->expects($this->never())
             ->method('beginTransaction');
@@ -36,9 +39,10 @@ class PersistentManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testFailTransitionWithoutORM()
     {
-        $objectManagerMock = $this->getMockBuilder('Doctrine\Common\Persistence\ObjectManager')
+        $objectManagerMock = $this->getMockBuilder(ObjectManager::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->setMethods(['rollBack'])
+            ->getMockForAbstractClass();
 
         $objectManagerMock->expects($this->never())
             ->method('rollBack');
@@ -111,14 +115,10 @@ class PersistentManagerTest extends \PHPUnit_Framework_TestCase
         $stateMachineMock = $this->getMockBuilder('StateMachine\StateMachine\StateMachineInterface')
             ->disableOriginalConstructor()->getMock();
 
-        $statefulMock = $this->getMock(
-            'StateMachine\StateMachine\StatefulInterface',
-            [
-                'getStateMachine',
-                'setStateMachine',
-                'getId',
-            ]
-        );
+        $statefulMock = $this->getMockBuilder(StatefulInterface::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getStateMachine', 'setStateMachine', 'getId'])
+            ->getMock();
 
         $statefulMock->expects($this->any())
             ->method('getStateMachine')

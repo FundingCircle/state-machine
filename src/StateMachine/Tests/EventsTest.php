@@ -2,13 +2,14 @@
 
 namespace StateMachine\Tests;
 
+use StateMachine\Exception\StateMachineException;
 use StateMachine\Tests\Fixtures\StateMachineFixtures;
 
 class EventsTest extends \PHPUnit_Framework_TestCase
 {
     public function testTriggersUndefinedEvent()
     {
-        $this->setExpectedException('StateMachine\Exception\StateMachineException');
+        $this->expectException(StateMachineException::class);
         $stateMachine = StateMachineFixtures::getOrderStateMachine();
         $stateMachine->boot();
 
