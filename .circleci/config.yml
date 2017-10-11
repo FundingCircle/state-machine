@@ -2,7 +2,7 @@ version: 2
 jobs:
    build:
      docker:
-       - image: circleci/php:5.6-fpm
+       - image: circleci/php:7.1-cli
      steps:
        - run: echo 'date.timezone = Europe/Berlin' | sudo tee --append /usr/local/etc/php/php.ini
        - run: echo 'memory_limit=1024M' | sudo tee --append /usr/local/etc/php/php.ini
