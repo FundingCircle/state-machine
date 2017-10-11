@@ -106,7 +106,7 @@ class PersistentManagerTest extends \PHPUnit_Framework_TestCase
 
     private function getTransitionEventMock($options, $transitionMock = null)
     {
-        if ($transitionMock == null) {
+        if (null == $transitionMock) {
             $transitionMock = $this->getMockBuilder('StateMachine\Transition\TransitionInterface')
                 ->disableOriginalConstructor()
                 ->getMock();

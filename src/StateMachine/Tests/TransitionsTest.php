@@ -14,7 +14,6 @@ class TransitionsTest extends \PHPUnit_Framework_TestCase
         $stateMachine = StateMachineFixtures::getBidStateMachine();
         $stateMachine->addPreTransition(
             function () {
-
             },
             'non_existing',
             'non_existing'
@@ -44,7 +43,6 @@ class TransitionsTest extends \PHPUnit_Framework_TestCase
         $stateMachine = StateMachineFixtures::getBidStateMachine();
         $stateMachine->addPostTransition(
             function () {
-
             },
             'non_existing',
             'non_existing'

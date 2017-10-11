@@ -135,7 +135,6 @@ class LifeCycleEventsSubscriberTest extends \PHPUnit_Framework_TestCase
         $smManagerMock->expects($this->once())
             ->method('clear');
 
-
         $subscriber = new LifeCycleEventsSubscriber($smManagerMock, $this->getTokenStorage());
         $subscriber->onClear();
     }
