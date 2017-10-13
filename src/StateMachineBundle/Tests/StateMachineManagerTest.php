@@ -2,6 +2,7 @@
 
 namespace StateMachineBundle\Tests;
 
+use PHPUnit\Framework\TestCase;
 use ProxyManager\Factory\LazyLoadingValueHolderFactory;
 use StateMachine\Exception\StateMachineException;
 use StateMachine\History\HistoryCollection;
@@ -11,7 +12,7 @@ use StateMachineBundle\Tests\Entity\Order;
 use StateMachineBundle\Tests\Listeners\MockListener;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class StateMachineManagerTest extends \PHPUnit_Framework_TestCase
+class StateMachineManagerTest extends TestCase
 {
     public function testGetUndefinedStateMachine()
     {
