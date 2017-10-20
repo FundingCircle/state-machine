@@ -5,6 +5,7 @@ namespace StateMachine\Tests;
 use StateMachine\Accessor\StateAccessor;
 use StateMachine\Event\PreTransitionEvent;
 use StateMachine\Event\TransitionEvent;
+use StateMachine\Exception\StateMachineException;
 use StateMachine\History\History;
 use StateMachine\State\StateInterface;
 use StateMachine\StateMachine\StateMachine;
@@ -21,10 +22,8 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
 
     public function testWithNoInitialState()
     {
-        $this->setExpectedException(
-            'StateMachine\Exception\StateMachineException',
-            'No initial state is found'
-        );
+        $this->expectException(StateMachineException::class);
+        $this->expectExceptionMessage('No initial state is found');
 
         $stateMachine = new StateMachine(new Order(1));
         $stateMachine->addState('pending');
@@ -41,9 +40,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
 
     public function testWithHistoryStateConflict()
     {
-        $this->setExpectedException(
-            'StateMachine\Exception\StateMachineException'
-        );
+        $this->expectException(StateMachineException::class);
         $object = new Order(2);
         $object->setState('new');
         $stateMachine = new StateMachine($object);
@@ -98,8 +95,8 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
 
     public function testTwoInitialStates()
     {
-        $this->setExpectedException(
-            'StateMachine\Exception\StateMachineException',
+        $this->expectException(StateMachineException::class);
+        $this->expectExceptionMessage(
             'Statemachine cannot have more than one initial state, current initial state is (pending)'
         );
 
@@ -221,8 +218,8 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
 
     public function testNotAllowedTransition()
     {
-        $this->setExpectedException(
-            'StateMachine\Exception\StateMachineException',
+        $this->expectException(StateMachineException::class);
+        $this->expectExceptionMessage(
             "There's no transition defined from (pending) to (shipped), allowed transitions to : [ checking_out,cancelled ]"
         );
 
@@ -241,7 +238,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
 
     public function testWithWrongProperty()
     {
-        $this->setExpectedException('StateMachine\Exception\StateMachineException');
+        $this->expectException(StateMachineException::class);
         $stateMachine = new StateMachine(new Order(1), null, null, new StateAccessor('wrong_state'));
 
         $stateMachine->addState('pending', StateInterface::TYPE_INITIAL);
@@ -270,7 +267,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
 
     public function testAddTransitionToBootedMachine()
     {
-        $this->setExpectedException('StateMachine\Exception\StateMachineException');
+        $this->expectException(StateMachineException::class);
         $stateMachine = StateMachineFixtures::getOrderStateMachine();
         $stateMachine->addTransition('new', 'cancelled');
         $stateMachine->boot();
@@ -278,7 +275,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
 
     public function testPreTransitionToBootedMachine()
     {
-        $this->setExpectedException('StateMachine\Exception\StateMachineException');
+        $this->expectException(StateMachineException::class);
         $stateMachine = StateMachineFixtures::getOrderStateMachine();
         $stateMachine->boot();
         $stateMachine->addPostTransition(
@@ -290,7 +287,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
 
     public function testPostTransitionToBootedMachine()
     {
-        $this->setExpectedException('StateMachine\Exception\StateMachineException');
+        $this->expectException(StateMachineException::class);
         $stateMachine = StateMachineFixtures::getOrderStateMachine();
         $stateMachine->boot();
         $stateMachine->addPreTransition(
@@ -302,7 +299,7 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
 
     public function testGuardToBootedMachine()
     {
-        $this->setExpectedException('StateMachine\Exception\StateMachineException');
+        $this->expectException(StateMachineException::class);
         $stateMachine = StateMachineFixtures::getOrderStateMachine();
         $stateMachine->boot();
         $stateMachine->addGuard(
@@ -314,10 +311,8 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
 
     public function testAddTransitionWithBootedMachine()
     {
-        $this->setExpectedException(
-            'StateMachine\Exception\StateMachineException',
-            'Cannot add more transitions to booted StateMachine'
-        );
+        $this->expectException(StateMachineException::class);
+        $this->expectExceptionMessage('Cannot add more transitions to booted StateMachine');
         $stateMachine = StateMachineFixtures::getOrderStateMachine();
         $stateMachine->boot();
         $stateMachine->addTransition('new->committed');
@@ -325,28 +320,29 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
 
     public function testGetAllowedTransitionsForNonBootedMachine()
     {
-        $this->setExpectedException('StateMachine\Exception\StateMachineException');
+        $this->expectException(StateMachineException::class);
         $stateMachine = StateMachineFixtures::getOrderStateMachine();
         $stateMachine->getAllowedTransitions();
     }
 
     public function testCanTransitToForNonBootedMachine()
     {
-        $this->setExpectedException('StateMachine\Exception\StateMachineException');
+        $this->expectException(StateMachineException::class);
         $stateMachine = StateMachineFixtures::getOrderStateMachine();
         $stateMachine->canTransitionTo('paid');
     }
 
     public function testTransitToForNonBootedMachine()
     {
-        $this->setExpectedException('StateMachine\Exception\StateMachineException');
+        $this->expectException(StateMachineException::class);
         $stateMachine = StateMachineFixtures::getOrderStateMachine();
         $stateMachine->transitionTo('paid');
     }
 
     public function testBootTwice()
     {
-        $this->setExpectedException('StateMachine\Exception\StateMachineException', 'Statemachine is already booted');
+        $this->expectException(StateMachineException::class);
+        $this->expectExceptionMessage('Statemachine is already booted');
         $stateMachine = StateMachineFixtures::getOrderStateMachine();
         $stateMachine->boot();
         $stateMachine->boot();
@@ -475,10 +471,8 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
 
     public function testNewObjectWithStateValueSetToNormal()
     {
-        $this->setExpectedException(
-            'StateMachine\Exception\StateMachineException',
-            'Object has state: B, which is not final or initial'
-        );
+        $this->expectException(StateMachineException::class);
+        $this->expectExceptionMessage('Object has state: B, which is not final or initial');
         //new object
         $object = new Order(null);
         $object->setState('B');
@@ -528,10 +522,8 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
 
     public function testNotAllowedEvent()
     {
-        $this->setExpectedException(
-            'StateMachine\Exception\StateMachineException',
-            'Event A_D didn\'t match any transition, allowed events for state A are [A_B,A_C]'
-        );
+        $this->expectException(StateMachineException::class);
+        $this->expectExceptionMessage('Event A_D didn\'t match any transition, allowed events for state A are [A_B,A_C]');
         //new object
         $object = new Order(1);
         $object->setState('A');

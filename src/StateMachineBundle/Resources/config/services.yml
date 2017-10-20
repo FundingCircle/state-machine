@@ -2,26 +2,26 @@ services:
     statemachine.manager:
         class: StateMachineBundle\StateMachine\StateMachineManager
         arguments:
-            - @statemachine.history_manager
-            - @doctrine
-            - @statemachine.proxy_factory
-            - @statemachine.logger
+            - '@statemachine.history_manager'
+            - '@doctrine'
+            - '@statemachine.proxy_factory'
+            - '@statemachine.logger'
         calls:
-            - [setContainer,[@service_container]]
+            - [setContainer,['@service_container']]
 
     statemachine.subscriber.doctrine_loader:
         class: StateMachineBundle\Subscriber\LifeCycleEventsSubscriber
         arguments:
-            - @statemachine.manager
-            - @security.token_storage
+            - '@statemachine.manager'
+            - '@security.token_storage'
         tags:
             - { name: doctrine.event_subscriber }
 
     statemachine.history_manager:
         class: StateMachineBundle\History\PersistentHistoryManager
         arguments:
-            - @doctrine
-            - @security.token_storage
+            - '@doctrine'
+            - '@security.token_storage'
 
     statemachine.twig.state_machine:
         class: StateMachineBundle\Twig\StateMachineExtension
@@ -31,21 +31,21 @@ services:
     statemachine.logger:
         class: StateMachine\Logger\Logger
         arguments:
-            - @logger
+            - '@logger'
         tags:
             - { name: monolog.logger, channel: state_machine }
 
     statemachine.data_collector:
         class: StateMachineBundle\DataCollector\StateMachineDataCollector
         arguments:
-            - @statemachine.logger
+            - '@statemachine.logger'
         tags:
             - { name: data_collector, id: state_machine, template: 'StateMachineBundle:Collector:state_machine' }
 
     statemachine.proxy_factory:
         class: ProxyManager\Factory\LazyLoadingValueHolderFactory
         arguments:
-            - @statemachine.proxy_configuration
+            - '@statemachine.proxy_configuration'
 
     statemachine.proxy_configuration:
         class: ProxyManager\Configuration
@@ -58,7 +58,7 @@ services:
     statemachine.commands.trigger:
         class: StateMachineBundle\Command\StateMachineCommand
         arguments:
-            - @statemachine.manager
-            - @doctrine
+            - '@statemachine.manager'
+            - '@doctrine'
         tags:
             - { name: console.command }

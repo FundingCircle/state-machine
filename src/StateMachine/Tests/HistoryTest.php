@@ -4,6 +4,7 @@ namespace StateMachine\Tests;
 
 use StateMachine\Event\PreTransitionEvent;
 use StateMachine\Event\TransitionEvent;
+use StateMachine\Exception\StateMachineException;
 use StateMachine\State\StateInterface;
 use StateMachine\StateMachine\StateMachine;
 use StateMachine\Tests\Fixtures\StateMachineFixtures;
@@ -57,7 +58,7 @@ class HistoryTest extends \PHPUnit_Framework_TestCase
 
     public function testHistoryWithTwoMovesWithFirstFailed()
     {
-        $this->setExpectedException('StateMachine\Exception\StateMachineException');
+        $this->expectException(StateMachineException::class);
         $stateMachine = StateMachineFixtures::getOrderStateMachine();
         $stateMachine->addGuard(
             function (TransitionEvent $transitionEvent) {

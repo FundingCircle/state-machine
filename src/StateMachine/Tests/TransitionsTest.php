@@ -3,17 +3,17 @@
 namespace StateMachine\Tests;
 
 use StateMachine\Event\TransitionEvent;
+use StateMachine\Exception\StateMachineException;
 use StateMachine\Tests\Fixtures\StateMachineFixtures;
 
 class TransitionsTest extends \PHPUnit_Framework_TestCase
 {
     public function testPreTransitionOnNonExistingTransition()
     {
-        $this->setExpectedException('StateMachine\Exception\StateMachineException');
+        $this->expectException(StateMachineException::class);
         $stateMachine = StateMachineFixtures::getBidStateMachine();
         $stateMachine->addPreTransition(
             function () {
-
             },
             'non_existing',
             'non_existing'
@@ -39,11 +39,10 @@ class TransitionsTest extends \PHPUnit_Framework_TestCase
 
     public function testPostTransitionOnNonExistingTransition()
     {
-        $this->setExpectedException('StateMachine\Exception\StateMachineException');
+        $this->expectException(StateMachineException::class);
         $stateMachine = StateMachineFixtures::getBidStateMachine();
         $stateMachine->addPostTransition(
             function () {
-
             },
             'non_existing',
             'non_existing'

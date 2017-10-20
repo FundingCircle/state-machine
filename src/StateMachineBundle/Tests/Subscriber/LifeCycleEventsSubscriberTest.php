@@ -2,9 +2,13 @@
 
 namespace StateMachineBundle\Tests\Subscriber;
 
+use Doctrine\Common\Persistence\ObjectManager;
+use StateMachine\EventDispatcher\EventDispatcher;
+use StateMachine\StateMachine\StateMachineInterface;
 use StateMachineBundle\Subscriber\LifeCycleEventsSubscriber;
 use StateMachineBundle\Tests\Entity\NonStatefulOrder;
 use StateMachineBundle\Tests\Entity\Order;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class LifeCycleEventsSubscriberTest extends \PHPUnit_Framework_TestCase
 {
@@ -25,12 +29,15 @@ class LifeCycleEventsSubscriberTest extends \PHPUnit_Framework_TestCase
         $subscriber->postLoad($eventArgsMock);
     }
 
-    public function testPostLoadWithStateFulEntity()
+    public function testPostLoadWithStatefulEntity()
     {
-        $stateMachineMock = $this->getMock('StateMachine\StateMachine\StateMachineInterface');
+        $stateMachineMock = $this->getMockBuilder(StateMachineInterface::class)
+            ->setMethods(['getEventDispatcher'])
+            ->getMockForAbstractClass();
+
         $stateMachineMock->expects($this->any())
             ->method('getEventDispatcher')
-            ->willReturn($this->getMock("StateMachine\EventDispatcher\EventDispatcher"));
+            ->willReturn($this->createMock(EventDispatcher::class));
 
         $smManagerMock = $this->getMockBuilder('\StateMachineBundle\StateMachine\StateMachineManager')
             ->disableOriginalConstructor()->getMock();
@@ -49,7 +56,7 @@ class LifeCycleEventsSubscriberTest extends \PHPUnit_Framework_TestCase
 
         $eventArgsMock->expects($this->any())
             ->method('getEntityManager')
-            ->willReturn($this->getMock('Doctrine\Common\Persistence\ObjectManager'));
+            ->willReturn($this->createMock(ObjectManager::class));
 
         $subscriber = new LifeCycleEventsSubscriber($smManagerMock, $this->getTokenStorage());
 
@@ -57,7 +64,7 @@ class LifeCycleEventsSubscriberTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('StateMachine\StateMachine\StateMachineInterface', $stateFulObject->getStateMachine());
     }
 
-    public function testPrePersistWithNonStateFulEntity()
+    public function testPrePersistWithNonStatefulEntity()
     {
         $smManagerMock = $this->getMockBuilder('\StateMachineBundle\StateMachine\StateMachineManager')
             ->disableOriginalConstructor()->getMock();
@@ -71,19 +78,22 @@ class LifeCycleEventsSubscriberTest extends \PHPUnit_Framework_TestCase
 
         $eventArgsMock->expects($this->any())
             ->method('getEntityManager')
-            ->willReturn($this->getMock('Doctrine\Common\Persistence\ObjectManager'));
+            ->willReturn($this->createMock(ObjectManager::class));
 
         $subscriber = new LifeCycleEventsSubscriber($smManagerMock, $this->getTokenStorage());
 
         $subscriber->prePersist($eventArgsMock);
     }
 
-    public function testPrePersistWithStateFulEntity()
+    public function testPrePersistWithStatefulEntity()
     {
-        $stateMachineMock = $this->getMock('StateMachine\StateMachine\StateMachineInterface');
+        $stateMachineMock = $this->getMockBuilder(StateMachineInterface::class)
+            ->setMethods(['getEventDispatcher'])
+            ->getMockForAbstractClass();
+
         $stateMachineMock->expects($this->any())
             ->method('getEventDispatcher')
-            ->willReturn($this->getMock("StateMachine\EventDispatcher\EventDispatcher"));
+            ->willReturn($this->createMock(EventDispatcher::class));
 
         $smManagerMock = $this->getMockBuilder('\StateMachineBundle\StateMachine\StateMachineManager')
             ->disableOriginalConstructor()->getMock();
@@ -102,7 +112,7 @@ class LifeCycleEventsSubscriberTest extends \PHPUnit_Framework_TestCase
 
         $eventArgsMock->expects($this->any())
             ->method('getEntityManager')
-            ->willReturn($this->getMock('Doctrine\Common\Persistence\ObjectManager'));
+            ->willReturn($this->createMock(ObjectManager::class));
 
         $subscriber = new LifeCycleEventsSubscriber($smManagerMock, $this->getTokenStorage());
 
@@ -125,17 +135,12 @@ class LifeCycleEventsSubscriberTest extends \PHPUnit_Framework_TestCase
         $smManagerMock->expects($this->once())
             ->method('clear');
 
-
         $subscriber = new LifeCycleEventsSubscriber($smManagerMock, $this->getTokenStorage());
         $subscriber->onClear();
     }
 
     private function getTokenStorage()
     {
-        $tokenStorageMock = $this->getMock(
-            'Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface'
-        );
-
-        return $tokenStorageMock;
+        return $this->createMock(TokenStorageInterface::class);
     }
 }
