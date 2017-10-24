@@ -2,6 +2,7 @@
 
 namespace StateMachine\Tests;
 
+use PHPUnit\Framework\TestCase;
 use StateMachine\Event\PreTransitionEvent;
 use StateMachine\Event\TransitionEvent;
 use StateMachine\Exception\StateMachineException;
@@ -10,7 +11,7 @@ use StateMachine\StateMachine\StateMachine;
 use StateMachine\Tests\Fixtures\StateMachineFixtures;
 use StateMachineBundle\Tests\Entity\Order;
 
-class HistoryTest extends \PHPUnit_Framework_TestCase
+class HistoryTest extends TestCase
 {
     public function testHistoryAfterThreeTransitions()
     {

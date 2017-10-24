@@ -2,10 +2,11 @@
 
 namespace StateMachine\Tests;
 
+use PHPUnit\Framework\TestCase;
 use StateMachine\Exception\StateMachineException;
 use StateMachine\Tests\Fixtures\StateMachineFixtures;
 
-class EventsTest extends \PHPUnit_Framework_TestCase
+class EventsTest extends TestCase
 {
     public function testTriggersUndefinedEvent()
     {

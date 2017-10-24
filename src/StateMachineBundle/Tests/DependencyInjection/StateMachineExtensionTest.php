@@ -2,20 +2,22 @@
 
 namespace StateMachineBundle\Tests\DependencyInjection;
 
-class StateMachineExtensionTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class StateMachineExtensionTest extends TestCase
 {
     public function testEmptyConfig()
     {
-        //@TODO
+        $this->markTestIncomplete();
     }
 
     public function testInvalidConfig()
     {
-        //@TODO
+        $this->markTestIncomplete();
     }
 
     public function testOnlyRequiredConfig()
     {
-        //@TODO
+        $this->markTestIncomplete();
     }
 }
