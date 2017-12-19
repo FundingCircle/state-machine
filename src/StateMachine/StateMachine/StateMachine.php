@@ -32,13 +32,13 @@ class StateMachine implements StateMachineInterface
     /** @var StateAccessorInterface */
     private $stateAccessor;
 
-    /** @var  PersistentManager */
+    /** @var PersistentManager */
     private $persistentManager;
 
-    /** @var  HistoryManagerInterface */
+    /** @var HistoryManagerInterface */
     private $historyManager;
 
-    /** @var  HistoryCollection */
+    /** @var HistoryCollection */
     private $historyCollection;
 
     /** @var StateInterface */
@@ -59,22 +59,22 @@ class StateMachine implements StateMachineInterface
     /** @var EventDispatcher */
     private $eventDispatcher;
 
-    /** @var  string */
+    /** @var string */
     private $name;
 
     /** @var array */
     private $messages = [];
 
-    /** @var  array */
+    /** @var array */
     private $transitionOptions = [];
 
     /** @var string */
     private $historyClass;
 
-    /** @var  StateMachineManager */
+    /** @var StateMachineManager */
     private $manager;
 
-    /** @var  Logger */
+    /** @var Logger */
     private $logger;
 
     /**
@@ -623,12 +623,12 @@ class StateMachine implements StateMachineInterface
                 $eventName,
                 $this->currentState,
                 implode(',', $this->getAllowedEvents())
-
             )
         );
     }
 
     //History implementation
+
     /**
      * {@inheritdoc}
      */
@@ -698,7 +698,7 @@ class StateMachine implements StateMachineInterface
             foreach ($this->transitions as $transition) {
                 if ($transition->getFromState()->getName() == $state->getName()) {
                     $allowedTransitionsObjects[] = $transition;
-                    $allowedTransitions [] = $transition->getToState()->getName();
+                    $allowedTransitions[] = $transition->getToState()->getName();
                     if (null != $transition->getEventName()) {
                         $allowedEvents[$transition->getName()] = $transition->getEventName();
                     }
