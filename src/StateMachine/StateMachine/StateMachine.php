@@ -78,6 +78,11 @@ class StateMachine implements StateMachineInterface
     private $logger;
 
     /**
+     * @var bool
+     */
+    private $isInTransition;
+
+    /**
      * @param StatefulInterface       $object
      * @param PersistentManager       $persistentManager
      * @param HistoryManagerInterface $historyManager
@@ -109,6 +114,7 @@ class StateMachine implements StateMachineInterface
         $this->eventDispatcher = new EventDispatcher();
         $this->name = $name ?: get_class($object);
         $this->messages = [];
+        $this->isInTransition = false;
     }
 
     /**
@@ -428,6 +434,10 @@ class StateMachine implements StateMachineInterface
             throw new StateMachineException('Statemachine is not booted');
         }
 
+        if ($this->isInTransition) {
+            return false;
+        }
+
         $allowedTransition = in_array($state, $this->currentState->getTransitions());
         //check guards if enabled
         if ($withGuards && $allowedTransition) {
@@ -459,6 +469,10 @@ class StateMachine implements StateMachineInterface
      */
     public function transitionTo($state, $options = [])
     {
+        if ($this->isInTransition) {
+            throw new StateMachineException('Current Object is in the unfinished transition');
+        }
+
         $options = array_merge($this->transitionOptions, $options);
         if (!$this->booted) {
             throw new StateMachineException('Statemachine is not booted');
@@ -475,6 +489,8 @@ class StateMachine implements StateMachineInterface
 
             throw new StateMachineException($exception);
         }
+
+        $this->isInTransition = true;
 
         $transitionName = $this->currentState->getName().TransitionInterface::EDGE_SYMBOL.$state;
         $transition = $this->transitions[$transitionName];
@@ -505,6 +521,7 @@ class StateMachine implements StateMachineInterface
                 if (null !== $this->persistentManager) {
                     $this->persistentManager->commitTransaction($transitionEvent);
                 }
+                $this->isInTransition = false;
 
                 return false;
             }
@@ -529,6 +546,7 @@ class StateMachine implements StateMachineInterface
                 if (null !== $this->persistentManager) {
                     $this->persistentManager->commitTransaction($preTransitionEvent);
                 }
+                $this->isInTransition = false;
 
                 return $this->transitionTo($preTransitionEvent->getTargetState(), $options);
             }
@@ -564,6 +582,8 @@ class StateMachine implements StateMachineInterface
             }
 
             throw $e;
+        } finally {
+            $this->isInTransition = false;
         }
 
         $this->saveHistory($transitionEvent);
