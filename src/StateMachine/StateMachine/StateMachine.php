@@ -32,13 +32,13 @@ class StateMachine implements StateMachineInterface
     /** @var StateAccessorInterface */
     private $stateAccessor;
 
-    /** @var  PersistentManager */
+    /** @var PersistentManager */
     private $persistentManager;
 
-    /** @var  HistoryManagerInterface */
+    /** @var HistoryManagerInterface */
     private $historyManager;
 
-    /** @var  HistoryCollection */
+    /** @var HistoryCollection */
     private $historyCollection;
 
     /** @var StateInterface */
@@ -59,23 +59,28 @@ class StateMachine implements StateMachineInterface
     /** @var EventDispatcher */
     private $eventDispatcher;
 
-    /** @var  string */
+    /** @var string */
     private $name;
 
     /** @var array */
     private $messages = [];
 
-    /** @var  array */
+    /** @var array */
     private $transitionOptions = [];
 
     /** @var string */
     private $historyClass;
 
-    /** @var  StateMachineManager */
+    /** @var StateMachineManager */
     private $manager;
 
-    /** @var  Logger */
+    /** @var Logger */
     private $logger;
+
+    /**
+     * @var bool
+     */
+    private $isInTransition;
 
     /**
      * @param StatefulInterface       $object
@@ -109,6 +114,7 @@ class StateMachine implements StateMachineInterface
         $this->eventDispatcher = new EventDispatcher();
         $this->name = $name ?: get_class($object);
         $this->messages = [];
+        $this->isInTransition = false;
     }
 
     /**
@@ -428,6 +434,10 @@ class StateMachine implements StateMachineInterface
             throw new StateMachineException('Statemachine is not booted');
         }
 
+        if ($this->isInTransition) {
+            return false;
+        }
+
         $allowedTransition = in_array($state, $this->currentState->getTransitions());
         //check guards if enabled
         if ($withGuards && $allowedTransition) {
@@ -459,6 +469,10 @@ class StateMachine implements StateMachineInterface
      */
     public function transitionTo($state, $options = [])
     {
+        if ($this->isInTransition) {
+            throw new StateMachineException('Current Object is in the unfinished transition');
+        }
+
         $options = array_merge($this->transitionOptions, $options);
         if (!$this->booted) {
             throw new StateMachineException('Statemachine is not booted');
@@ -475,6 +489,8 @@ class StateMachine implements StateMachineInterface
 
             throw new StateMachineException($exception);
         }
+
+        $this->isInTransition = true;
 
         $transitionName = $this->currentState->getName().TransitionInterface::EDGE_SYMBOL.$state;
         $transition = $this->transitions[$transitionName];
@@ -505,6 +521,7 @@ class StateMachine implements StateMachineInterface
                 if (null !== $this->persistentManager) {
                     $this->persistentManager->commitTransaction($transitionEvent);
                 }
+                $this->isInTransition = false;
 
                 return false;
             }
@@ -529,6 +546,7 @@ class StateMachine implements StateMachineInterface
                 if (null !== $this->persistentManager) {
                     $this->persistentManager->commitTransaction($preTransitionEvent);
                 }
+                $this->isInTransition = false;
 
                 return $this->transitionTo($preTransitionEvent->getTargetState(), $options);
             }
@@ -564,6 +582,8 @@ class StateMachine implements StateMachineInterface
             }
 
             throw $e;
+        } finally {
+            $this->isInTransition = false;
         }
 
         $this->saveHistory($transitionEvent);
@@ -603,12 +623,12 @@ class StateMachine implements StateMachineInterface
                 $eventName,
                 $this->currentState,
                 implode(',', $this->getAllowedEvents())
-
             )
         );
     }
 
     //History implementation
+
     /**
      * {@inheritdoc}
      */
@@ -678,7 +698,7 @@ class StateMachine implements StateMachineInterface
             foreach ($this->transitions as $transition) {
                 if ($transition->getFromState()->getName() == $state->getName()) {
                     $allowedTransitionsObjects[] = $transition;
-                    $allowedTransitions [] = $transition->getToState()->getName();
+                    $allowedTransitions[] = $transition->getToState()->getName();
                     if (null != $transition->getEventName()) {
                         $allowedEvents[$transition->getName()] = $transition->getEventName();
                     }

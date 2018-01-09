@@ -12,6 +12,9 @@ use StateMachine\StateMachine\StateMachine;
 use StateMachine\Tests\Entity\Order;
 use StateMachine\Tests\Fixtures\StateMachineFixtures;
 
+/**
+ * @covers \StateMachine\StateMachine\StateMachine
+ */
 class StateMachineTest extends \PHPUnit_Framework_TestCase
 {
     public function testCorrectObject()
@@ -541,5 +544,77 @@ class StateMachineTest extends \PHPUnit_Framework_TestCase
         $stateMachine->boot();
 
         $stateMachine->triggers('A_D');
+    }
+
+    public function testTransitionToWithPostTransitionWhichCallsAnotherTransition()
+    {
+        $this->expectException(StateMachineException::class);
+        $this->expectExceptionMessage('Current Object is in the unfinished transition');
+
+        $object = new Order(1);
+        $object->setState('A');
+
+        $stateMachine = new StateMachine($object);
+
+        $stateMachine->addState('A', StateInterface::TYPE_INITIAL);
+        $stateMachine->addState('B');
+        $stateMachine->addState('C', StateInterface::TYPE_FINAL);
+
+        $stateMachine->addTransition('A', 'B', 'A_B');
+        $stateMachine->addTransition('A', 'C', 'A_C');
+        $stateMachine->addTransition('B', 'C', 'B_C');
+
+        $stateMachine->addPostTransition(
+            function () use ($stateMachine) {
+                $stateMachine->triggers('B_C');
+            },
+            'A',
+            'B'
+        );
+
+        $stateMachine->boot();
+
+        $stateMachine->triggers('A_B');
+    }
+
+    public function testCanTransitionAfterAnotherGuardedTransition()
+    {
+        $blockValue = 'block';
+        $initialState = 'A';
+        $object = new Order(1);
+        $object->setState($initialState);
+        $object->setSomeValue($blockValue);
+
+        $stateMachine = new StateMachine($object);
+
+        $stateMachine->addState('A', StateInterface::TYPE_INITIAL);
+        $stateMachine->addState('B');
+        $stateMachine->addState('C', StateInterface::TYPE_FINAL);
+
+        $stateMachine->addTransition('A', 'B', 'A_B');
+        $stateMachine->addTransition('A', 'C', 'A_C');
+        $stateMachine->addTransition('B', 'C', 'B_C');
+
+        $stateMachine->addGuard(
+            function (TransitionEvent $event) use ($blockValue) {
+                if ($event->getObject()->getSomeValue() === $blockValue) {
+                    return false;
+                }
+            },
+            'A',
+            'B'
+        );
+
+        $stateMachine->boot();
+
+        $stateMachine->triggers('A_B');
+
+        $this->assertSame($initialState, $object->getState());
+
+        $object->setSomeValue('');
+
+        $stateMachine->triggers('A_B');
+
+        $this->assertSame('B', $object->getState());
     }
 }
