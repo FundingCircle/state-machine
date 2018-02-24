@@ -2,13 +2,14 @@
 
 namespace StateMachine\Tests;
 
+use PHPUnit\Framework\TestCase;
 use StateMachine\Event\TransitionEvent;
 use StateMachine\State\StateInterface;
 use StateMachine\StateMachine\StateMachine;
 use StateMachine\Tests\Fixtures\StateMachineFixtures;
 use StateMachineBundle\Tests\Entity\Order;
 
-class GuardsTest extends \PHPUnit_Framework_TestCase
+class GuardsTest extends TestCase
 {
     public function testGuardExistingTransitionWithTrueReturn()
     {
@@ -94,7 +95,6 @@ class GuardsTest extends \PHPUnit_Framework_TestCase
         $stateMachine = new StateMachine(
             new Order(1),
             $persistentManagerMock
-
         );
 
         $stateMachine->addState('A', StateInterface::TYPE_INITIAL);
@@ -139,7 +139,6 @@ class GuardsTest extends \PHPUnit_Framework_TestCase
         $stateMachine = new StateMachine(
             new Order(1),
             $persistentManagerMock
-
         );
 
         $stateMachine->addState('A', StateInterface::TYPE_INITIAL);

@@ -2,11 +2,12 @@
 
 namespace StateMachine\Tests;
 
+use PHPUnit\Framework\TestCase;
 use StateMachine\Event\TransitionEvent;
 use StateMachine\Exception\StateMachineException;
 use StateMachine\Tests\Fixtures\StateMachineFixtures;
 
-class TransitionsTest extends \PHPUnit_Framework_TestCase
+class TransitionsTest extends TestCase
 {
     public function testPreTransitionOnNonExistingTransition()
     {

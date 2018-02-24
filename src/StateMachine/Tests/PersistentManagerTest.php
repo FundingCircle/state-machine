@@ -3,10 +3,11 @@
 namespace StateMachine\Tests;
 
 use Doctrine\Common\Persistence\ObjectManager;
+use PHPUnit\Framework\TestCase;
 use StateMachine\StateMachine\PersistentManager;
 use StateMachine\StateMachine\StatefulInterface;
 
-class PersistentManagerTest extends \PHPUnit_Framework_TestCase
+class PersistentManagerTest extends TestCase
 {
     public function testPreTransitionWithORM()
     {

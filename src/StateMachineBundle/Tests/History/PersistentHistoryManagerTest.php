@@ -2,6 +2,7 @@
 
 namespace StateMachineBundle\Tests\History;
 
+use PHPUnit\Framework\TestCase;
 use StateMachine\History\History;
 use StateMachine\History\HistoryCollection;
 use StateMachine\StateMachine\StatefulInterface;
@@ -11,7 +12,7 @@ use StateMachineBundle\Tests\Entity\BlameableHistory;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
-class PersistentHistoryManagerTest extends \PHPUnit_Framework_TestCase
+class PersistentHistoryManagerTest extends TestCase
 {
     public function testHistoryAddWithFlushTest()
     {
@@ -243,6 +244,7 @@ class PersistentHistoryManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testLoadCreatedAtSortingOrder()
     {
+        $this->markTestIncomplete();
     }
 
     private function getRegistryMock($objectManagerMock)

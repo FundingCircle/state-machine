@@ -2,11 +2,12 @@
 
 namespace StateMachineBundle\Tests\Event;
 
+use PHPUnit\Framework\TestCase;
 use StateMachine\Event\TransitionEvent;
 use StateMachine\Logger\Logger;
 use StateMachineBundle\Event\LoggingCallbackWrapper;
 
-class LoggingCallbackWrapperTest extends \PHPUnit_Framework_TestCase
+class LoggingCallbackWrapperTest extends TestCase
 {
     private $callbackConfig = [
         'callback' => 'callback',

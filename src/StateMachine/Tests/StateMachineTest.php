@@ -2,6 +2,7 @@
 
 namespace StateMachine\Tests;
 
+use PHPUnit\Framework\TestCase;
 use StateMachine\Accessor\StateAccessor;
 use StateMachine\Event\PreTransitionEvent;
 use StateMachine\Event\TransitionEvent;
@@ -12,10 +13,7 @@ use StateMachine\StateMachine\StateMachine;
 use StateMachine\Tests\Entity\Order;
 use StateMachine\Tests\Fixtures\StateMachineFixtures;
 
-/**
- * @covers \StateMachine\StateMachine\StateMachine
- */
-class StateMachineTest extends \PHPUnit_Framework_TestCase
+class StateMachineTest extends TestCase
 {
     public function testCorrectObject()
     {
