@@ -31,8 +31,6 @@ class StateMachineDataCollector extends DataCollector
     {
         $this->data['succeed_transitions_count'] = count($this->logger->getSucceedTransitions());
         $this->data['failed_transitions_count'] = count($this->logger->getFailedTransitions());
-        $this->data['failed_transitions'] = [];
-        $this->data['succeed_transitions'] = [];
 
         /** @var TransitionEvent $transitionEvent */
         foreach ($this->logger->getFailedTransitions() as $transitionEvent) {
@@ -75,5 +73,11 @@ class StateMachineDataCollector extends DataCollector
     public function getName()
     {
         return 'state_machine';
+    }
+    
+    public function reset()
+    {
+        $this->data['failed_transitions'] = [];
+        $this->data['succeed_transitions'] = [];
     }
 }
