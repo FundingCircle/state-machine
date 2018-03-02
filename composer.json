@@ -4,7 +4,7 @@
   "keywords": ["state machine", "doctrine", "doctrine behavior", "symfony", "workflow"],
   "homepage": "https://github.com/zencap/state-machine",
   "type": "library",
-  "license": "MIT",
+  "license": "BSD-3-Clause",
   "authors": [
     {
       "name": "Ahmed Samy",
