@@ -1,8 +1,8 @@
 {
-  "name": "zencap/state-machine",
+  "name": "fundingcircle/state-machine",
   "description": "State machine",
   "keywords": ["state machine", "doctrine", "doctrine behavior", "symfony", "workflow"],
-  "homepage": "https://github.com/zencap/state-machine",
+  "homepage": "https://github.com/fundingcircle/state-machine",
   "type": "library",
   "license": "BSD-3-Clause",
   "authors": [
