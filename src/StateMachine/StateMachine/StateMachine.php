@@ -717,7 +717,7 @@ class StateMachine implements StateMachineInterface
      */
     private function validateState($state)
     {
-        if (isset($state) && !in_array($state, $this->states)) {
+        if (isset($state) && !isset($this->states[$state])) {
             throw new StateMachineException(
                 sprintf(
                     'State with name: %s is not found, states available are: %s',
