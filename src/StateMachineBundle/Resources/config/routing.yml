@@ -1,5 +1,4 @@
 _state_machine_render_all:
-    pattern: /
+    path: /
     defaults: { _controller: StateMachineBundle:Renderer:renderAll }
-    requirements:
-        _method: GET
+    methods: [GET]
