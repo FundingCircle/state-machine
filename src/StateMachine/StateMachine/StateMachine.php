@@ -17,6 +17,7 @@ use StateMachine\State\StateInterface;
 use StateMachine\Transition\Transition;
 use StateMachine\Transition\TransitionInterface;
 use StateMachine\EventDispatcher\EventDispatcher;
+use StateMachineBundle\StateMachine\PostCommitCallback;
 use StateMachineBundle\StateMachine\StateMachineManager;
 
 /**
@@ -349,14 +350,14 @@ class StateMachine implements StateMachineInterface
     /**
      * {@inheritdoc}
      */
-    public function addPostCommit($callable, $from = null, $to = null, $priority = 0)
+    public function addPostCommit(PostCommitCallback $callable, $from = null, $to = null, $priority = 0)
     {
         if ($this->booted) {
             throw new StateMachineException('Cannot add post-commit to booted StateMachine');
         }
 
         foreach ($this->getTransitionsByStates($from, $to) as $transition) {
-            $transition->addPostCommit($callable);
+            $transition->addPostCommit($callable->getCallback());
             $this->eventDispatcher->addListener(
                 $transition->getName().'_'.Events::EVENT_POST_COMMIT,
                 $callable,

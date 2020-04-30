@@ -267,8 +267,11 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
                     if (!isset($postCommit['callback'])) {
                         $postCommit['callback'] = $class;
                     }
+
+                    $callback = $this->getCallbackWrapper($postCommit);
+                    $callback = new PostCommitCallback($callback);
                     $stateMachine->addPostCommit(
-                        $this->getCallbackWrapper($postCommit),
+                        $callback,
                         $postCommit['from'],
                         $postCommit['to']
                     );
@@ -369,5 +372,57 @@ class StateMachineManager implements ContainerAwareInterface, ManagerInterface
             [$this->resolveCallback($callbackConfig), $callbackConfig['method']],
             $this->logger
         );
+    }
+}
+
+/**
+ * Also should be called for console.terminate and kernel.terminate events
+ *
+ * Class PostCommitCallback
+ * @package StateMachineBundle\StateMachine
+ */
+class PostCommitCallback
+{
+    /**
+     * @var array|callable[]
+     */
+    private static $bag = [];
+
+    /**
+     * @var callable
+     */
+    private $callback;
+
+    /**
+     * PostCommitCallback constructor.
+     *
+     * @param callable $callback
+     */
+    public function __construct(callable $callback)
+    {
+        $this->callback = $callback;
+    }
+
+    public function __invoke(TransitionEvent $event, $eventName)
+    {
+        static::$bag[] = function() use ($event, $eventName) {
+            return call_user_func($callback, $event, $eventName);
+        };
+
+        if ($event->getObjectManager()->getConnection()->isTransactionActive()) {
+            return;
+        }
+
+        while ($callback = array_shift(static::$bag)) {
+            call_user_func($callback);
+        }
+    }
+
+    /**
+     * @return callable
+     */
+    public function getCallback()
+    {
+        return $this->callback;
     }
 }
